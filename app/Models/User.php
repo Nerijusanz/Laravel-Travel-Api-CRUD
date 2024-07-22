@@ -7,6 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+use App\Models\Role;
+use App\Models\Travel;
+use App\Models\Tour;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -43,5 +49,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class)->as('role_user');
+    }
+
+    public function travels(): HasMany
+    {
+        return $this->hasMany(Travel::class);
+    }
+
+    public function tours(): HasMany
+    {
+        return $this->hasMany(Tour::class);
     }
 }
