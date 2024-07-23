@@ -46,4 +46,10 @@ class Travel extends Model
         ];
     }
 
+    public function scopePublic($query)
+    {
+        return $query->where('is_public',true);
+    }
+
+
 }
