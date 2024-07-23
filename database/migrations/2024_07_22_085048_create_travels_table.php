@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug')->unique();
             $table->unsignedTinyInteger('number_of_days');
-            $table->unsignedTinyInteger('number_of_nights')->virtualAs('greatest(0, number_of_days - 1)');
+            $table->unsignedTinyInteger('number_of_nights');
             $table->text('description');
             $table->timestamps();
         });
