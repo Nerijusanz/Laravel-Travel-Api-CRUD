@@ -6,7 +6,6 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 use App\Models\Travel;
-use App\Models\User;
 
 class TravelsTableSeeder extends Seeder
 {
