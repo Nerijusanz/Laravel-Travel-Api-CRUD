@@ -21,6 +21,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('number_of_nights');
             $table->text('description');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
