@@ -1,14 +1,15 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Api\V1;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
+use App\Models\User;
 use App\Models\Travel;
 
-class TravelsTest extends TestCase
+class TravelApiTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -28,12 +29,16 @@ class TravelsTest extends TestCase
 
     public function test_travels_list_returns_correct_pagination(): void
     {
-        Travel::factory(16)->create(['is_public' => true]);
+        $itemsPagination=15;
+
+        $user = User::factory()->create();
+        $travel = Travel::factory($itemsPagination + 1)->create(['user_id' => $user->id,'is_public' => true]);
 
         $response = $this->get('/api/v1/travels');
 
         $response->assertStatus(200);
-        $response->assertJsonCount(15, 'data');
+        $response->assertJsonCount($itemsPagination, 'data');
+        $response->assertJsonPath('meta.current_page', 1);
         $response->assertJsonPath('meta.last_page', 2);
     }
 
