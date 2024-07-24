@@ -32,16 +32,16 @@ class TourApiTest extends TestCase
 
     public function test_tours_by_travel_id_returns_correct_pagination(): void
     {
-        $toursPagination = 15;
+        $itemsPagination = 15;
 
         $user = User::factory()->create();
         $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
-        $tour = Tour::factory( $toursPagination + 1 )->create(['user_id' => $user->id,'travel_id' => $travel->id]);
+        $tour = Tour::factory( $itemsPagination + 1 )->create(['user_id' => $user->id,'travel_id' => $travel->id]);
 
         $response = $this->get('/api/v1/travels/'. $travel->id .'/tours');
 
         $response->assertStatus(200);
-        $response->assertJsonCount($toursPagination, 'data');
+        $response->assertJsonCount($itemsPagination, 'data');
         $response->assertJsonPath('meta.current_page', 1);
         $response->assertJsonPath('meta.last_page', 2);
 
