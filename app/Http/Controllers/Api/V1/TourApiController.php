@@ -3,18 +3,25 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Request;
 
 use App\Models\Tour;
 use App\Models\Travel;
+use App\Services\Api\V1\TourApiService;
+use App\Http\Requests\Api\V1\TourFilterApiRequest;
 use App\Http\Resources\Api\V1\TourApiResource;
 
 class TourApiController extends Controller
 {
 
-    public function index(Travel $travel)
+    public function index(Travel $travel, TourFilterApiRequest $request, TourApiService $tourApiService)
     {
-        $tours = $travel->tours()->orderBy('start_date')->paginate();
+        if(!$travel->is_public) return response()->json(['errors' => 'Travel tours are not public'], Response::HTTP_FORBIDDEN);
+
+        $travel->load(['tours']);
+
+        $tours = $tourApiService->getTravelToursFilterByRequest($travel,$request);
 
         return TourApiResource::collection($tours);
     }
