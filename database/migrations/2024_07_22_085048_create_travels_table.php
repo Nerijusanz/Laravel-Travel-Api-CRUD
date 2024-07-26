@@ -6,14 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+
     public function up(): void
     {
         Schema::create('travels', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->boolean('is_public')->default(false);
             $table->string('name');
             $table->string('slug')->unique();
@@ -22,12 +20,13 @@ return new class extends Migration
             $table->text('description');
             $table->timestamps();
             $table->softDeletes();
+
+
+            $table->index('user_id','travels_user_id_idx');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+
     public function down(): void
     {
         $table->dropForeign(['user_id']);
