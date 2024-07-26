@@ -25,7 +25,7 @@ class TravelApiController extends Controller
 
         $travel = Travel::create($request->validated());
 
-        return new TravelApiResource($travel);
+        return (new TravelApiResource($travel))->response()->setStatusCode(Response::HTTP_CREATED);
 
     }
 
