@@ -12,7 +12,7 @@ use App\Models\User;
 use App\Models\Travel;
 use Illuminate\Validation\Rule;
 
-class TravelApiRequest extends FormRequest
+class TravelStoreApiRequest extends FormRequest
 {
 
     public function authorize(): bool
