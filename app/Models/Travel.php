@@ -21,8 +21,9 @@ class Travel extends Model
         'is_public',
         'name',
         'slug',
-        'description',
         'number_of_days',
+        'number_of_nights',
+        'description',
     ];
 
     public function tours(): HasMany
