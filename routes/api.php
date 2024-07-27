@@ -13,6 +13,7 @@ Route::apiResource('travels/{travel}/tours', \App\Http\Controllers\Api\V1\TourAp
 Route::prefix('admin')->middleware(['auth:sanctum','isRole:admin'])->group(function () {
 
     Route::apiResource('travels', \App\Http\Controllers\Api\V1\Admin\TravelApiController::class);
+    Route::apiResource('travels/{travel}/tours', \App\Http\Controllers\Api\V1\Admin\TourApiController::class);
 
 });
 
