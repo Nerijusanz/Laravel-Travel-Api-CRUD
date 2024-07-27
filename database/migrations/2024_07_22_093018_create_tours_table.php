@@ -19,10 +19,12 @@ return new class extends Migration
             $table->datetime('end_date');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('user_id','tours_user_id_idx');
+            $table->index('travel_id','tours_travel_id_idx');
         });
 
-        $table->index('user_id','tours_user_id_idx');
-        $table->index('travel_id','tours_travel_id_idx');
+
     }
 
 
