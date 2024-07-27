@@ -10,12 +10,11 @@ Route::apiResource('travels', \App\Http\Controllers\Api\V1\TravelApiController::
 Route::apiResource('travels/{travel}/tours', \App\Http\Controllers\Api\V1\TourApiController::class);
 
 
-Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
+Route::prefix('admin')->middleware(['auth:sanctum','isRole:admin'])->group(function () {
 
     Route::apiResource('travels', \App\Http\Controllers\Api\V1\Admin\TravelApiController::class);
 
 });
-
 
 
 Route::prefix('auth')->middleware([])->group(function () {
