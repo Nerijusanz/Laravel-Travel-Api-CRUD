@@ -16,7 +16,9 @@ class TravelApiController extends Controller
 
     public function index()
     {
+        $travels = Travel::query()->with(['tours'])->paginate();
 
+        return TravelApiResource::collection($travels);
     }
 
 
@@ -32,7 +34,9 @@ class TravelApiController extends Controller
 
     public function show(Travel $travel)
     {
+        $travel->load(['tours']);
 
+        return new TravelApiResource($travel);
     }
 
 
@@ -47,6 +51,12 @@ class TravelApiController extends Controller
 
     public function destroy(Travel $travel)
     {
+        $travel->load(['tours']);
 
+        $travel->tours()->delete();
+
+        $travel->delete();
+
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }
