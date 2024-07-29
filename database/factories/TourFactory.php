@@ -18,8 +18,8 @@ class TourFactory extends Factory
         $current = Carbon::now();
 
         return [
-            'user_id' => User::factory()->count(1)->create(),
-            'travel_id' => Travel::factory()->count(1)->create(),
+            'user_id' => 1,
+            'travel_id' => 1,
             'name' => fake()->sentence(),
             'price' => rand(100,1000),
             'start_date' => $start_date = $current->copy()->addDays(rand(0,3))->startOfDay(),

@@ -15,8 +15,9 @@ class TravelApiTest extends TestCase
 
     public function test_travels_list_shows_only_public_records()
     {
-        $publicTravel = Travel::factory()->create(['is_public' => true]);
-        $notPublicTravel = Travel::factory()->create(['is_public' => false]);
+        $user = User::factory()->create();
+        $publicTravel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
+        $notPublicTravel = Travel::factory()->create(['user_id' => $user->id,'is_public' => false]);
 
         $response = $this->get('/api/v1/travels');
 

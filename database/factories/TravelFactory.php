@@ -20,7 +20,7 @@ class TravelFactory extends Factory
         $numbers_of_days=rand(1,10);
 
         return [
-            'user_id' => User::factory()->count(1)->create(),
+            'user_id' => 1,
             'is_public' => fake()->boolean(),
             'name' => $title,
             'slug' => $slug,
