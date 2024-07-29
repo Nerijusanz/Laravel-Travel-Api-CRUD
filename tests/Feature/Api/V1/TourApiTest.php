@@ -19,22 +19,27 @@ class TourApiTest extends TestCase
 
     public function test_tours_by_travel_id_returns_correct_tour(): void
     {
-        $travel = Travel::factory()->create(['is_public' => true]);
-        $tour = Tour::factory()->create(['travel_id' => $travel->id]);
+        $user = User::factory()->create();
+
+        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
+
+        $tour = Tour::factory()->create(['user_id' => $user->id,'travel_id' => $travel->id]);
 
         $response = $this->get('/api/v1/travels/'. $travel->id .'/tours');
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['id' => $tour->id]);
+
     }
 
     public function test_tours_by_travel_id_returns_correct_pagination(): void
     {
         $itemsPagination = 15;
 
-        $travel = Travel::factory()->create(['is_public' => true]);
-        $tour = Tour::factory( $itemsPagination + 1 )->create(['travel_id' => $travel->id]);
+        $user = User::factory()->create();
+        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
+        $tour = Tour::factory( $itemsPagination + 1 )->create(['user_id' => $user->id,'travel_id' => $travel->id]);
 
         $response = $this->get('/api/v1/travels/'. $travel->id .'/tours');
 
@@ -46,8 +51,10 @@ class TourApiTest extends TestCase
 
     public function test_tour_price_is_correctly_formatted(): void
     {
-        $travel = Travel::factory()->create(['is_public' => true]);
+        $user = User::factory()->create();
+        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
         $tour = Tour::factory()->create([
+                    'user_id' => $user->id,
                     'travel_id' => $travel->id,
                     'price'=>99.99]);
 
@@ -60,17 +67,21 @@ class TourApiTest extends TestCase
 
     public function test_tours_by_travel_id_sorts_by_starting_date_correctly(): void
     {
-        $travel = Travel::factory()->create(['is_public' => true]);
+
+        $user = User::factory()->create();
+        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
 
         $current = Carbon::now();
 
         $laterTour = Tour::factory()->create([
+            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'start_date' =>  $startDate = $current->copy()->addDays(1)->startOfDay(),
             'end_date' => $endDate = $startDate->copy()->addDays(0)->endOfDay(),
         ]);
 
         $earlierTour = Tour::factory()->create([
+            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'start_date' =>  $startDate = $current->copy()->addDays(0)->startOfDay(),
             'end_date' => $endDate = $startDate->copy()->addDays(0)->endOfDay(),
@@ -85,11 +96,13 @@ class TourApiTest extends TestCase
 
     public function test_tours_by_travel_id_sorts_by_price_and_order_asc_and_sort_by_start_date_correctly(): void
     {
-        $travel = Travel::factory()->create(['is_public' => true]);
+        $user = User::factory()->create();
+        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
 
         $current = Carbon::now();
 
         $cheapLaterTour = Tour::factory()->create([
+            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'price' => 100,
             'start_date' => $startDate = $current->copy()->addDays(1)->startOfDay(),
@@ -97,6 +110,7 @@ class TourApiTest extends TestCase
         ]);
 
         $cheapEarlierTour = Tour::factory()->create([
+            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'price' => 100,
             'start_date' => $startDate = $current->copy()->addDays(0)->startOfDay(),
@@ -104,6 +118,7 @@ class TourApiTest extends TestCase
         ]);
 
         $expensiveTour = Tour::factory()->create([
+            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'price' => 500,
         ]);
@@ -119,11 +134,14 @@ class TourApiTest extends TestCase
 
     public function test_tours_by_travel_id_sorts_by_price_and_order_desc_and_sort_by_start_date_correctly(): void
     {
-        $travel = Travel::factory()->create(['is_public' => true]);
+
+        $user = User::factory()->create();
+        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
 
         $current = Carbon::now();
 
         $expensiveLaterTour = Tour::factory()->create([
+            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'price' => 500,
             'start_date' => $startDate = $current->copy()->addDays(1)->startOfDay(),
@@ -131,6 +149,7 @@ class TourApiTest extends TestCase
         ]);
 
         $expensiveEarlierTour = Tour::factory()->create([
+            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'price' => 500,
             'start_date' => $startDate = $current->copy()->addDays(0)->startOfDay(),
@@ -138,6 +157,7 @@ class TourApiTest extends TestCase
         ]);
 
         $cheapTour = Tour::factory()->create([
+            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'price' => 200,
         ]);
@@ -152,14 +172,17 @@ class TourApiTest extends TestCase
 
     public function test_tours_by_travel_id_sort_by_price_ranges_correctly(): void
     {
-        $travel = Travel::factory()->create(['is_public' => true]);
+        $user = User::factory()->create();
+        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
 
         $expensiveTour = Tour::factory()->create([
+            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'price' => 200,
         ]);
 
         $cheapTour = Tour::factory()->create([
+            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'price' => 100,
         ]);
@@ -200,17 +223,20 @@ class TourApiTest extends TestCase
 
     public function test_tours_by_travel_id_and_sort_by_starting_date_correctly(): void
     {
-        $travel = Travel::factory()->create(['is_public' => true]);
+        $user = User::factory()->create();
+        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
 
         $current = Carbon::now();
 
         $laterTour = Tour::factory()->create([
+            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'start_date' =>  $startDate = $current->copy()->addDays(2)->startOfDay(),
             'end_date' => $endDate = $startDate->copy()->addDays(1)->endOfDay(),
         ]);
 
         $earlierTour = Tour::factory()->create([
+            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'start_date' =>  $startDate = $current->copy()->addDays(0)->startOfDay(),
             'end_date' => $endDate = $startDate->copy()->addDays(1)->endOfDay(),
@@ -268,7 +294,9 @@ class TourApiTest extends TestCase
 
     public function test_tour_by_travel_id_returns_validation_error_status_code_422(): void
     {
-        $travel = Travel::factory()->create(['is_public' => true]);
+
+        $user = User::factory()->create();
+        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
 
         $response = $this->getJson('/api/v1/travels/' . $travel->id . '/tours?date_from=abcde');
         $response->assertStatus(422);
