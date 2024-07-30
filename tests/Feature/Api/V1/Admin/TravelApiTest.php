@@ -124,4 +124,41 @@ class TravelApiTest extends TestCase
 
     }
 
+    public function test_admin_travel_api_authenticated_logged_in_admin_delete_travel_successfully_response_status_204(): void
+    {
+        //php artisan test --filter=test_admin_travel_api_authenticated_logged_in_admin_delete_travel_successfully_response_status_204
+
+        $this->seed(RolesTableSeeder::class);
+        $user = User::factory()->create();
+        $role = Role::where('name', 'admin')->pluck('id');
+        $user->roles()->attach($role);
+
+        $travel = Travel::factory()->create([
+            'user_id' => $user->id,
+            'is_public' => 1,
+            'name' => 'Travel 1',
+            'number_of_days' => 1,
+            'number_of_nights' => 0,
+            'description' => 'Travel 1 description',
+        ]);
+
+
+        $response = $this->actingAs($user)->get('/api/v1/admin/travels');
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['name' => $travel->name]);
+        $response->assertJsonFragment(['slug' => $travel->slug]);
+
+
+        $response = $this->actingAs($user)->deleteJson('/api/v1/admin/travels/' . $travel->id);
+        $response->assertStatus(204);
+
+
+        $response = $this->actingAs($user)->get('/api/v1/admin/travels');
+
+        $response->assertStatus(200);
+        $response->assertJsonMissing(['name' => $travel->name, 'slug' => $travel->slug ]);
+
+    }
+
 }
