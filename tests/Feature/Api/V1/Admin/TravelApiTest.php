@@ -62,7 +62,7 @@ class TravelApiTest extends TestCase
         $response = $this->actingAs($user)->postJson('/api/v1/admin/travels', [
             'user_id' => $user->id,
             'is_public' => 1,
-            'name' => 'Travel 1',
+            'name' => $name='Travel 1',
             'number_of_days' => 1,
             'number_of_nights' => 0,
             'description' => 'Travel 1 description',
@@ -71,8 +71,15 @@ class TravelApiTest extends TestCase
         $response->assertStatus(201);
 
         $response = $this->get('/api/v1/travels');
-        $response->assertJsonFragment(['name' => 'Travel 1']);
-        $response->assertJsonFragment(['slug' => 'travel-1']);
+        $response->assertJsonFragment(['name' => $name]);
+        $response->assertJsonFragment(['slug' => $slug='travel-1']);
+
+        $travel = Travel::query()
+                            ->where('name',$name)
+                            ->where('slug',$slug)
+                            ->get();
+
+        $this->assertCount(1, $travel);
 
     }
 
@@ -118,7 +125,9 @@ class TravelApiTest extends TestCase
 
         $response->assertStatus(202);
 
+
         $response = $this->get('/api/v1/admin/travels/' . $travel->id);
+
         $response->assertJsonFragment(['name' => $name]);
         $response->assertJsonFragment(['description' => $description]);
 
@@ -157,7 +166,8 @@ class TravelApiTest extends TestCase
         $response = $this->actingAs($user)->get('/api/v1/admin/travels');
 
         $response->assertStatus(200);
-        $response->assertJsonMissing(['name' => $travel->name, 'slug' => $travel->slug ]);
+        $response->assertJsonMissing(['name' => $travel->name]);
+        $response->assertJsonMissing(['slug' => $travel->slug ]);
 
     }
 
