@@ -7,6 +7,8 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 use App\Models\User;
+use App\Models\Role;
+use Database\Seeders\RolesTableSeeder;
 
 class AuthenticateApiTest extends TestCase
 {
@@ -37,6 +39,41 @@ class AuthenticateApiTest extends TestCase
         ]);
 
         $response->assertStatus(422);
+    }
+
+    public function test_authenticate_logout_not_logged_in_user_cannot_logout_return_errors_unauthenticate_response_401(): void
+    {
+        /*
+        php artisan test --filter=test_authenticate_logout_not_logged_in_user_cannot_logout_return_errors_unauthenticate_response_401
+        */
+
+        $response = $this->postJson('/api/v1/auth/logout');
+
+        $response->assertStatus(401);
+
+    }
+
+    public function test_authenticate_logout_logged_in_user_can_logout_successfully_return_response_204(): void
+    {
+        /*
+        php artisan test --filter=test_authenticate_logout_logged_in_user_can_logout_successfully_return_response_204
+        */
+
+        $user = User::factory()->create();
+
+
+        $response = $this->postJson('/api/v1/auth/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['access_token']);
+
+
+        $response = $this->actingAs($user)->postJson('/api/v1/auth/logout');
+        $response->assertStatus(204);
+
     }
 
 }
