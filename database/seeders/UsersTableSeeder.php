@@ -5,13 +5,13 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+
 
 class UsersTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
+
     public function run(): void
     {
         $users = [
@@ -19,7 +19,7 @@ class UsersTableSeeder extends Seeder
                 'id'             => 1,
                 'name'           => 'Admin',
                 'email'          => 'admin@admin.com',
-                'password'       => bcrypt('password'),
+                'password'       => Hash::make('password'),
                 'remember_token' => null,
                 'created_at'     => now(),
                 'updated_at'     => now()
@@ -28,7 +28,7 @@ class UsersTableSeeder extends Seeder
                 'id'             => 2,
                 'name'           => 'User',
                 'email'          => 'user@user.com',
-                'password'       => bcrypt('password'),
+                'password'       => Hash::make('password'),
                 'remember_token' => null,
                 'created_at'     => now(),
                 'updated_at'     => now()
