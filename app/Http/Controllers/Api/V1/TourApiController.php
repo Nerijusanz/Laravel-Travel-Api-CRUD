@@ -17,7 +17,7 @@ class TourApiController extends Controller
 
     public function index(Travel $travel, TourFilterApiRequest $request, TourApiService $tourApiService)
     {
-        if(!$travel->is_public) return response()->json(['errors' => 'Travel tours are not public'], Response::HTTP_FORBIDDEN);
+        if($travel->isNotPublic()) return response()->json(['errors' => 'Travel tours are not public'], Response::HTTP_FORBIDDEN);
 
         $travel->load(['tours']);
 
