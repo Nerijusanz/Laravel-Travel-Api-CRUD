@@ -31,9 +31,15 @@ class TourApiController extends Controller
 
     }
 
-    public function show(Tour $tour)
+    public function show(Travel $travel, Tour $tour)
     {
+        if($travel->isNotPublic()) return response()->json(['errors' => 'Travel tours are not public'], Response::HTTP_FORBIDDEN);
 
+        $travel->load(['tours']);
+
+        $tour = $travel->tours()->findOrFail($tour->id);
+
+        return new TourApiResource($tour);
     }
 
     public function update(Request $request, Tour $tour)
