@@ -10,9 +10,7 @@ use App\Http\Resources\Api\V1\TravelApiResource;
 
 class TravelApiController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index()
     {
         $travels = Travel::query()->public()->paginate();
@@ -20,35 +18,27 @@ class TravelApiController extends Controller
         return TravelApiResource::collection($travels);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Travel $travel)
     {
-        //
+        if($travel->isNotPublic()) return response()->json(['errors' => 'Travel are not public'], Response::HTTP_FORBIDDEN);
+
+        $travel->load(['tours']);
+
+        return new TravelApiResource($travel);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Travel $travel)
     {
-        //
+
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Travel $travel)
     {
-        //
+
     }
 }
