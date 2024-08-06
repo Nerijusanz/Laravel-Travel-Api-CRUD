@@ -15,9 +15,16 @@ class TravelApiTest extends TestCase
 
     public function test_travels_list_shows_only_public_records()
     {
+        /*
+        php artisan test --filter=test_travels_list_shows_only_public_records
+        */
+
         $user = User::factory()->create();
-        $publicTravel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
-        $notPublicTravel = Travel::factory()->create(['user_id' => $user->id,'is_public' => false]);
+
+        $this->actingAs($user);
+
+        $publicTravel = Travel::factory()->create(['is_public' => true]);
+        $notPublicTravel = Travel::factory()->create(['is_public' => false]);
 
         $response = $this->get('/api/v1/travels');
 
@@ -30,10 +37,17 @@ class TravelApiTest extends TestCase
 
     public function test_travels_list_returns_correct_pagination(): void
     {
+        /*
+        php artisan test --filter=test_travels_list_returns_correct_pagination
+        */
+
         $itemsPagination=15;
 
         $user = User::factory()->create();
-        $travel = Travel::factory($itemsPagination + 1)->create(['user_id' => $user->id,'is_public' => true]);
+
+        $this->actingAs($user);
+
+        $travel = Travel::factory($itemsPagination + 1)->create(['is_public' => true]);
 
         $response = $this->get('/api/v1/travels');
 

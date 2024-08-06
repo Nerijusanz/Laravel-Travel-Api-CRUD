@@ -43,7 +43,9 @@ class TravelApiTest extends TestCase
 
     public function test_admin_travel_api_authenticated_logged_in_admin_add_travel_successfully_with_valid_data(): void
     {
-        //php artisan test --filter=test_admin_travel_api_authenticated_logged_in_admin_add_travel_successfully_with_valid_data
+        /*
+        php artisan test --filter=test_admin_travel_api_authenticated_logged_in_admin_add_travel_successfully_with_valid_data
+        */
 
         $this->seed(RolesTableSeeder::class);
         $user = User::factory()->create();
@@ -51,7 +53,6 @@ class TravelApiTest extends TestCase
         $user->roles()->attach($role);
 
         $response = $this->actingAs($user)->postJson('/api/v1/admin/travels', [
-            'user_id' => $user->id,
             'is_public' => 1,
             'name' => '',
         ]);
@@ -59,10 +60,12 @@ class TravelApiTest extends TestCase
         $response->assertStatus(422);
 
 
+        $name = 'Travel 1';
+        $slug = "travel-1";
+
         $response = $this->actingAs($user)->postJson('/api/v1/admin/travels', [
-            'user_id' => $user->id,
             'is_public' => 1,
-            'name' => $name='Travel 1',
+            'name' => $name,
             'number_of_days' => 1,
             'number_of_nights' => 0,
             'description' => 'Travel 1 description',
@@ -70,9 +73,10 @@ class TravelApiTest extends TestCase
 
         $response->assertStatus(201);
 
-        $response = $this->get('/api/v1/travels');
+
+        $response = $this->actingAs($user)->getJson('/api/v1/admin/travels');
         $response->assertJsonFragment(['name' => $name]);
-        $response->assertJsonFragment(['slug' => $slug='travel-1']);
+        $response->assertJsonFragment(['slug' => $slug]);
 
         $travel = Travel::query()
                             ->where('name',$name)
@@ -85,25 +89,56 @@ class TravelApiTest extends TestCase
 
     public function test_admin_travel_api_authenticated_logged_in_admin_update_travel_successfully_with_valid_data(): void
     {
-        //php artisan test --filter=test_admin_travel_api_authenticated_logged_in_admin_update_travel_successfully_with_valid_data
+        /*
+        php artisan test --filter=test_admin_travel_api_authenticated_logged_in_admin_update_travel_successfully_with_valid_data
+        */
 
         $this->seed(RolesTableSeeder::class);
         $user = User::factory()->create();
         $role = Role::where('name', 'admin')->pluck('id');
         $user->roles()->attach($role);
 
-        $travel = Travel::factory()->create([
-            'user_id' => $user->id,
+
+        /****************ADD TRAVEL ***************/
+
+        $name = 'Travel 1';
+        $slug = "travel-1";
+
+        $response = $this->actingAs($user)->postJson('/api/v1/admin/travels', [
             'is_public' => 1,
-            'name' => 'Travel 1',
+            'name' => $name,
             'number_of_days' => 1,
             'number_of_nights' => 0,
             'description' => 'Travel 1 description',
         ]);
 
+        $response->assertStatus(201);
+
+
+        $response = $this->actingAs($user)->getJson('/api/v1/admin/travels');
+        $response->assertJsonFragment(['name' => $name]);
+        $response->assertJsonFragment(['slug' => $slug]);
+
+
+        $travel = Travel::query()
+                    ->where('name',$name)
+                    ->where('slug',$slug)
+                    ->get();
+
+        $this->assertCount(1, $travel);
+        $this->assertDatabaseHas('travels', [
+            'name' => $name,
+            'slug' => $slug
+        ]);
+
+
+        /*****************UPDATE TRAVEL ***************/
+
+        $travel = $travel->first();
+
 
         $response = $this->actingAs($user)->putJson('/api/v1/admin/travels/' . $travel->id, [
-            'user_id' => $user->id,
+            'user_id' => $travel->user_id,
             'is_public' => 1,
             'name' => $nameEmpty='',
             'number_of_days' => 1,
@@ -115,7 +150,7 @@ class TravelApiTest extends TestCase
 
 
         $response = $this->actingAs($user)->putJson('/api/v1/admin/travels/' . $travel->id, [
-            'user_id' => $user->id,
+            'user_id' => $travel->user_id,
             'is_public' => 1,
             'name' => $name='Travel 1 updated',
             'number_of_days' => 1,
@@ -126,37 +161,62 @@ class TravelApiTest extends TestCase
         $response->assertStatus(202);
 
 
-        $response = $this->get('/api/v1/admin/travels/' . $travel->id);
+        $response = $this->actingAs($user)->getJson('/api/v1/admin/travels/' . $travel->id);
 
         $response->assertJsonFragment(['name' => $name]);
+        $response->assertJsonFragment(['slug' => $slug]);
         $response->assertJsonFragment(['description' => $description]);
 
     }
 
     public function test_admin_travel_api_authenticated_logged_in_admin_delete_travel_successfully_response_status_204(): void
     {
-        //php artisan test --filter=test_admin_travel_api_authenticated_logged_in_admin_delete_travel_successfully_response_status_204
+        /*
+        php artisan test --filter=test_admin_travel_api_authenticated_logged_in_admin_delete_travel_successfully_response_status_204
+        */
 
         $this->seed(RolesTableSeeder::class);
         $user = User::factory()->create();
         $role = Role::where('name', 'admin')->pluck('id');
         $user->roles()->attach($role);
 
-        $travel = Travel::factory()->create([
-            'user_id' => $user->id,
+
+        /****************ADD TRAVEL ***************/
+
+        $name = 'Travel 1';
+        $slug = "travel-1";
+
+        $response = $this->actingAs($user)->postJson('/api/v1/admin/travels', [
             'is_public' => 1,
-            'name' => 'Travel 1',
+            'name' => $name,
             'number_of_days' => 1,
             'number_of_nights' => 0,
             'description' => 'Travel 1 description',
         ]);
 
+        $response->assertStatus(201);
 
-        $response = $this->actingAs($user)->get('/api/v1/admin/travels');
 
-        $response->assertStatus(200);
-        $response->assertJsonFragment(['name' => $travel->name]);
-        $response->assertJsonFragment(['slug' => $travel->slug]);
+        $response = $this->actingAs($user)->getJson('/api/v1/admin/travels');
+        $response->assertJsonFragment(['name' => $name]);
+        $response->assertJsonFragment(['slug' => $slug]);
+
+
+        $travel = Travel::query()
+                    ->where('name',$name)
+                    ->where('slug',$slug)
+                    ->get();
+
+        $this->assertCount(1, $travel);
+        $this->assertDatabaseHas('travels', [
+            'name' => $name,
+            'slug' => $slug
+        ]);
+
+
+        /***************** DELETE TRAVEL ***************/
+
+        $travel = $travel->first();
 
 
         $response = $this->actingAs($user)->deleteJson('/api/v1/admin/travels/' . $travel->id);
