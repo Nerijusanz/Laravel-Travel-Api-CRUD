@@ -28,14 +28,14 @@ class Tour extends Model
     {
         return $this->belongsTo(Travel::class);
     }
-/*
+
     protected static function booted()
     {
         static::creating(function ($model) {
             $model->user_id = Auth::id();
         });
     }
-*/
+
     public function price(): Attribute
     {
         return Attribute::make(

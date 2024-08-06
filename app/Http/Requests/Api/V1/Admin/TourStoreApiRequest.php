@@ -24,7 +24,6 @@ class TourStoreApiRequest extends FormRequest
     {
 
         return [
-            'user_id' => ['required','integer', Rule::exists(User::class,'id')],
             'travel_id' => ['required','integer', Rule::exists(Travel::class,'id')],
             'name' => ['required','string','min:2','max:255'],
             'price' => ['required', 'numeric'],

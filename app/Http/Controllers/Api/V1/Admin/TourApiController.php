@@ -52,7 +52,7 @@ class TourApiController extends Controller
 
         $tour = $travel->tours()->findOrFail($tour->id);
 
-        $tour->update($request->validated());
+        $tour->update($request->safe()->except(['user_id','travel_id']));
 
         return (new TourApiResource($tour))->response()->setStatusCode(Response::HTTP_ACCEPTED);
     }
