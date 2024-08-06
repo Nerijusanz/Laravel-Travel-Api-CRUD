@@ -42,8 +42,7 @@ class TravelApiController extends Controller
 
     public function update(Travel $travel, TravelUpdateApiRequest $request)
     {
-
-        $travel->update($request->validated());
+        $travel->update($request->safe()->except(['user_id']));
 
         return (new TravelApiResource($travel))->response()->setStatusCode(Response::HTTP_ACCEPTED);
     }

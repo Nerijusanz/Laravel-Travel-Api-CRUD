@@ -30,14 +30,14 @@ class Travel extends Model
     {
         return $this->hasMany(Tour::class);
     }
-/*
+
     protected static function booted()
     {
         static::creating(function ($model) {
             $model->user_id = Auth::id();
         });
     }
-*/
+
     public function sluggable(): array
     {
         return [

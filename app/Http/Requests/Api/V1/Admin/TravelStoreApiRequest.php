@@ -24,7 +24,6 @@ class TravelStoreApiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['required','integer', Rule::exists(User::class,'id')],
             'is_public' => ['required','boolean'],
             'name' => ['required','string','min:2','max:255', Rule::unique(Travel::class)->whereNull('deleted_at')],
             'number_of_days' => ['required', 'integer'],
