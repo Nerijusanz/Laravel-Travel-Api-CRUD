@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Role;
@@ -21,21 +22,26 @@ class TourApiTest extends TestCase
 
     public function test_admin_tour_api_unauthenticated_not_logged_in_public_user_cannot_access_admin_tours_return_unauthenticate_error_status_401(): void
     {
-        //php artisan test --filter=test_admin_tour_api_unauthenticated_not_logged_in_public_user_cannot_access_admin_tours_return_unauthenticate_error_status_401
+        /*
+        php artisan test --filter=test_admin_tour_api_unauthenticated_not_logged_in_public_user_cannot_access_admin_tours_return_unauthenticate_error_status_401
+        */
 
         $this->seed(RolesTableSeeder::class);
         $user = User::factory()->create();
         $role = Role::where('name', 'user')->pluck('id');
         $user->roles()->attach($role);
 
+        $this->actingAs($user);
+
         $travel = Travel::factory()->create([
-            'user_id' => $user->id,
             'is_public' => 1,
             'name' => 'Travel 1',
             'number_of_days' => 1,
             'number_of_nights' => 0,
             'description' => 'Travel 1 description',
         ]);
+
+        Auth::logout();
 
         $response = $this->postJson('/api/v1/admin/travels/' . $travel->id . '/tours');
 
@@ -44,15 +50,18 @@ class TourApiTest extends TestCase
 
     public function test_admin_tour_api_authenticated_logged_in_user_cannot_add_admin_tour_return_unauthorize_error_403(): void
     {
-        //php artisan test --filter=test_admin_tour_api_authenticated_logged_in_user_cannot_add_admin_tour_return_unauthorize_error_403
+        /*
+        php artisan test --filter=test_admin_tour_api_authenticated_logged_in_user_cannot_add_admin_tour_return_unauthorize_error_403
+        */
 
         $this->seed(RolesTableSeeder::class);
         $user = User::factory()->create();
         $role = Role::where('name', 'user')->pluck('id');
         $user->roles()->attach($role);
 
+        $this->actingAs($user);
+
         $travel = Travel::factory()->create([
-            'user_id' => $user->id,
             'is_public' => 1,
             'name' => 'Travel 1',
             'number_of_days' => 1,
@@ -67,15 +76,18 @@ class TourApiTest extends TestCase
 
     public function test_admin_tour_api_authenticated_logged_in_admin_add_tour_successfully_with_valid_data_return_response_status_201(): void
     {
-        //php artisan test --filter=test_admin_tour_api_authenticated_logged_in_admin_add_tour_successfully_with_valid_data_return_response_status_201
+        /*
+        php artisan test --filter=test_admin_tour_api_authenticated_logged_in_admin_add_tour_successfully_with_valid_data_return_response_status_201
+        */
 
         $this->seed(RolesTableSeeder::class);
         $user = User::factory()->create();
         $role = Role::where('name', 'admin')->pluck('id');
         $user->roles()->attach($role);
 
+        $this->actingAs($user);
+
         $travel = Travel::factory()->create([
-            'user_id' => $user->id,
             'is_public' => 1,
             'name' => 'Travel 1',
             'number_of_days' => 1,
@@ -85,7 +97,6 @@ class TourApiTest extends TestCase
 
 
         $response = $this->actingAs($user)->postJson('/api/v1/admin/travels/' . $travel->id . '/tours', [
-            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'name' => '',
             'price' => '',
@@ -99,7 +110,6 @@ class TourApiTest extends TestCase
         $current = Carbon::now();
 
         $response = $this->actingAs($user)->postJson('/api/v1/admin/travels/' . $travel->id . '/tours', [
-            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'name' => $name='Tour 1',
             'price' => $price=100,
@@ -118,15 +128,18 @@ class TourApiTest extends TestCase
 
     public function test_admin_tour_api_authenticated_logged_in_admin_update_tour_successfully_with_valid_data_response_status_202(): void
     {
-        //php artisan test --filter=test_admin_tour_api_authenticated_logged_in_admin_update_tour_successfully_with_valid_data_response_status_202
+        /*
+        php artisan test --filter=test_admin_tour_api_authenticated_logged_in_admin_update_tour_successfully_with_valid_data_response_status_202
+        */
 
         $this->seed(RolesTableSeeder::class);
         $user = User::factory()->create();
         $role = Role::where('name', 'admin')->pluck('id');
         $user->roles()->attach($role);
 
+        $this->actingAs($user);
+
         $travel = Travel::factory()->create([
-            'user_id' => $user->id,
             'is_public' => 1,
             'name' => 'Travel 1',
             'number_of_days' => 1,
@@ -137,7 +150,6 @@ class TourApiTest extends TestCase
         $current = Carbon::now();
 
         $tour = Tour::factory()->create([
-            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'name' => 'Tour 1',
             'price' => 100,
@@ -148,9 +160,9 @@ class TourApiTest extends TestCase
 
         $current = Carbon::now();
 
-        $response = $this->actingAs($user)->putJson('/api/v1/admin/travels/' . $travel->id . '/tours/' . $tour->id, [
-            'user_id' => $user->id,
-            'travel_id' => $travel->id,
+        $response = $this->actingAs($user)->putJson('/api/v1/admin/travels/' . $tour->travel_id . '/tours/' . $tour->id, [
+            'user_id' => $tour->user_id,
+            'travel_id' => $tour->travel_id,
             'name' => $nameEmpty='',
             'price' => 150,
             'start_date' =>  $startDate = $current->addDays(0)->startOfDay()->toDateTimeString(),
@@ -161,9 +173,9 @@ class TourApiTest extends TestCase
         $response->assertStatus(422);
 
 
-        $response = $this->actingAs($user)->putJson('/api/v1/admin/travels/' . $travel->id . '/tours/' . $tour->id, [
-            'user_id' => $user->id,
-            'travel_id' => $travel->id,
+        $response = $this->actingAs($user)->putJson('/api/v1/admin/travels/' . $tour->travel_id . '/tours/' . $tour->id, [
+            'user_id' => $tour->user_id,
+            'travel_id' => $tour->travel_id,
             'name' => $name='Tour 1 updated',
             'price' => $price=150,
             'start_date' =>  $startDate = $current->addDays(0)->startOfDay()->toDateTimeString(),
@@ -173,7 +185,7 @@ class TourApiTest extends TestCase
 
         $response->assertStatus(202);
 
-        $response = $this->actingAs($user)->get('/api/v1/admin/travels/' . $travel->id . '/tours/' . $tour->id);
+        $response = $this->actingAs($user)->get('/api/v1/admin/travels/' . $tour->travel_id . '/tours/' . $tour->id);
         $response->assertJsonFragment(['name' => $name]);
         $response->assertJsonFragment(['price' => number_format($price,2)]);
 
@@ -181,15 +193,18 @@ class TourApiTest extends TestCase
 
     public function test_admin_tour_api_authenticated_logged_in_admin_delete_tour_successfully_response_status_204(): void
     {
-        //php artisan test --filter=test_admin_tour_api_authenticated_logged_in_admin_delete_tour_successfully_response_status_204
+        /*
+        php artisan test --filter=test_admin_tour_api_authenticated_logged_in_admin_delete_tour_successfully_response_status_204
+        */
 
         $this->seed(RolesTableSeeder::class);
         $user = User::factory()->create();
         $role = Role::where('name', 'admin')->pluck('id');
         $user->roles()->attach($role);
 
+        $this->actingAs($user);
+
         $travel = Travel::factory()->create([
-            'user_id' => $user->id,
             'is_public' => 1,
             'name' => 'Travel 1',
             'number_of_days' => 1,
@@ -200,7 +215,6 @@ class TourApiTest extends TestCase
         $current = Carbon::now();
 
         $tour = Tour::factory()->create([
-            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'name' => $name='Tour 1',
             'price' => 100,
