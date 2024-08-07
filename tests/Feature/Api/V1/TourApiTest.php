@@ -25,9 +25,11 @@ class TourApiTest extends TestCase
 
         $user = User::factory()->create();
 
-        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
+        $this->actingAs($user);
 
-        $tour = Tour::factory()->create(['user_id' => $user->id,'travel_id' => $travel->id]);
+        $travel = Travel::factory()->create(['is_public' => true]);
+
+        $tour = Tour::factory()->create(['travel_id' => $travel->id]);
 
 
         $response = $this->get('/api/v1/travels/'. $travel->id .'/tours');
@@ -48,8 +50,11 @@ class TourApiTest extends TestCase
         $itemsPagination = 15;
 
         $user = User::factory()->create();
-        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
-        $tour = Tour::factory( $itemsPagination + 1 )->create(['user_id' => $user->id,'travel_id' => $travel->id]);
+
+        $this->actingAs($user);
+
+        $travel = Travel::factory()->create(['is_public' => true]);
+        $tour = Tour::factory( $itemsPagination + 1 )->create(['travel_id' => $travel->id]);
 
 
         $response = $this->get('/api/v1/travels/'. $travel->id .'/tours');
@@ -68,9 +73,11 @@ class TourApiTest extends TestCase
         */
 
         $user = User::factory()->create();
-        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
+
+        $this->actingAs($user);
+
+        $travel = Travel::factory()->create(['is_public' => true]);
         $tour = Tour::factory()->create([
-                    'user_id' => $user->id,
                     'travel_id' => $travel->id,
                     'price'=> $price='99.99',
                 ]);
@@ -89,19 +96,20 @@ class TourApiTest extends TestCase
         */
 
         $user = User::factory()->create();
-        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
+
+        $this->actingAs($user);
+
+        $travel = Travel::factory()->create(['is_public' => true]);
 
         $current = Carbon::now();
 
         $laterTour = Tour::factory()->create([
-            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(1)->startOfDay()->toDateTimeString(),
             'end_date' => $endDate = Carbon::parse($current->copy())->addDays(1)->endOfDay()->toDateTimeString(),
         ]);
 
         $earlierTour = Tour::factory()->create([
-            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(0)->startOfDay()->toDateTimeString(),
             'end_date' => $endDate = Carbon::parse($current->copy())->addDays(0)->endOfDay()->toDateTimeString(),
@@ -110,7 +118,6 @@ class TourApiTest extends TestCase
         $response = $this->get('/api/v1/travels/'. $travel->id .'/tours');
 
         $response->assertStatus(200);
-
         $response->assertJsonPath('data.0.id', $earlierTour->id);
         $response->assertJsonPath('data.1.id', $laterTour->id);
     }
@@ -123,12 +130,14 @@ class TourApiTest extends TestCase
         */
 
         $user = User::factory()->create();
-        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
+
+        $this->actingAs($user);
+
+        $travel = Travel::factory()->create(['is_public' => true]);
 
         $current = Carbon::now();
 
         $cheapLaterTour = Tour::factory()->create([
-            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'price' => 100,
             'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(1)->startOfDay()->toDateTimeString(),
@@ -136,7 +145,6 @@ class TourApiTest extends TestCase
         ]);
 
         $cheapEarlierTour = Tour::factory()->create([
-            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'price' => 100,
             'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(0)->startOfDay()->toDateTimeString(),
@@ -144,7 +152,6 @@ class TourApiTest extends TestCase
         ]);
 
         $expensiveTour = Tour::factory()->create([
-            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'price' => 500,
         ]);
@@ -166,12 +173,14 @@ class TourApiTest extends TestCase
         */
 
         $user = User::factory()->create();
-        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
+
+        $this->actingAs($user);
+
+        $travel = Travel::factory()->create(['is_public' => true]);
 
         $current = Carbon::now();
 
         $expensiveLaterTour = Tour::factory()->create([
-            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'price' => 500,
             'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(1)->startOfDay()->toDateTimeString(),
@@ -179,7 +188,6 @@ class TourApiTest extends TestCase
         ]);
 
         $expensiveEarlierTour = Tour::factory()->create([
-            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'price' => 500,
             'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(0)->startOfDay()->toDateTimeString(),
@@ -187,7 +195,6 @@ class TourApiTest extends TestCase
         ]);
 
         $cheapTour = Tour::factory()->create([
-            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'price' => 200,
         ]);
@@ -207,16 +214,17 @@ class TourApiTest extends TestCase
         */
 
         $user = User::factory()->create();
-        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
+
+        $this->actingAs($user);
+
+        $travel = Travel::factory()->create(['is_public' => true]);
 
         $expensiveTour = Tour::factory()->create([
-            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'price' => 200,
         ]);
 
         $cheapTour = Tour::factory()->create([
-            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'price' => 100,
         ]);
@@ -263,19 +271,20 @@ class TourApiTest extends TestCase
         */
 
         $user = User::factory()->create();
-        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
+
+        $this->actingAs($user);
+
+        $travel = Travel::factory()->create(['is_public' => true]);
 
         $current = Carbon::now();
 
         $laterTour = Tour::factory()->create([
-            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(2)->startOfDay()->toDateTimeString(),
             'end_date' => $endDate = Carbon::parse($current->copy())->addDays(1)->endOfDay()->toDateTimeString(),
         ]);
 
         $earlierTour = Tour::factory()->create([
-            'user_id' => $user->id,
             'travel_id' => $travel->id,
             'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(0)->startOfDay()->toDateTimeString(),
             'end_date' => $endDate = Carbon::parse($current->copy())->addDays(1)->endOfDay()->toDateTimeString(),
@@ -339,7 +348,10 @@ class TourApiTest extends TestCase
         */
 
         $user = User::factory()->create();
-        $travel = Travel::factory()->create(['user_id' => $user->id,'is_public' => true]);
+
+        $this->actingAs($user);
+
+        $travel = Travel::factory()->create(['is_public' => true]);
 
         $response = $this->getJson('/api/v1/travels/' . $travel->id . '/tours?date_from=abcde');
         $response->assertStatus(422);
