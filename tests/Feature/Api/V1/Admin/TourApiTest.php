@@ -20,6 +20,18 @@ class TourApiTest extends TestCase
 
     use RefreshDatabase;
 
+    private $user;
+
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->user = User::factory()->create();
+
+    }
+
+
     public function test_admin_tour_api_unauthenticated_not_logged_in_public_user_cannot_access_admin_tours_return_unauthenticate_error_status_401(): void
     {
         /*
@@ -27,11 +39,11 @@ class TourApiTest extends TestCase
         */
 
         $this->seed(RolesTableSeeder::class);
-        $user = User::factory()->create();
-        $role = Role::where('name', 'user')->pluck('id');
-        $user->roles()->attach($role);
 
-        $this->actingAs($user);
+        $role = Role::where('name', 'user')->pluck('id');
+        $this->user->roles()->attach($role);
+
+        $this->actingAs($this->user);
 
         $travel = Travel::factory()->create([
             'is_public' => 1,
@@ -55,11 +67,11 @@ class TourApiTest extends TestCase
         */
 
         $this->seed(RolesTableSeeder::class);
-        $user = User::factory()->create();
-        $role = Role::where('name', 'user')->pluck('id');
-        $user->roles()->attach($role);
 
-        $this->actingAs($user);
+        $role = Role::where('name', 'user')->pluck('id');
+        $this->user->roles()->attach($role);
+
+        $this->actingAs($this->user);
 
         $travel = Travel::factory()->create([
             'is_public' => 1,
@@ -69,7 +81,7 @@ class TourApiTest extends TestCase
             'description' => 'Travel 1 description',
         ]);
 
-        $response = $this->actingAs($user)->postJson('/api/v1/admin/travels/' . $travel->id . '/tours');
+        $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels/' . $travel->id . '/tours');
 
         $response->assertStatus(403);
     }
@@ -81,11 +93,11 @@ class TourApiTest extends TestCase
         */
 
         $this->seed(RolesTableSeeder::class);
-        $user = User::factory()->create();
-        $role = Role::where('name', 'admin')->pluck('id');
-        $user->roles()->attach($role);
 
-        $this->actingAs($user);
+        $role = Role::where('name', 'admin')->pluck('id');
+        $this->user->roles()->attach($role);
+
+        $this->actingAs($this->user);
 
         $travel = Travel::factory()->create([
             'is_public' => 1,
@@ -96,7 +108,7 @@ class TourApiTest extends TestCase
         ]);
 
 
-        $response = $this->actingAs($user)->postJson('/api/v1/admin/travels/' . $travel->id . '/tours', [
+        $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels/' . $travel->id . '/tours', [
             'travel_id' => $travel->id,
             'name' => '',
             'price' => '',
@@ -109,7 +121,7 @@ class TourApiTest extends TestCase
 
         $current = Carbon::now();
 
-        $response = $this->actingAs($user)->postJson('/api/v1/admin/travels/' . $travel->id . '/tours', [
+        $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels/' . $travel->id . '/tours', [
             'travel_id' => $travel->id,
             'name' => $name='Tour 1',
             'price' => $price=100,
@@ -120,7 +132,7 @@ class TourApiTest extends TestCase
 
         $response->assertStatus(201);
 
-        $response = $this->actingAs($user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
+        $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
         $response->assertJsonFragment(['name' => $name]);
         $response->assertJsonFragment(['price' => number_format($price,2)]);
 
@@ -133,11 +145,11 @@ class TourApiTest extends TestCase
         */
 
         $this->seed(RolesTableSeeder::class);
-        $user = User::factory()->create();
-        $role = Role::where('name', 'admin')->pluck('id');
-        $user->roles()->attach($role);
 
-        $this->actingAs($user);
+        $role = Role::where('name', 'admin')->pluck('id');
+        $this->user->roles()->attach($role);
+
+        $this->actingAs($this->user);
 
         $travel = Travel::factory()->create([
             'is_public' => 1,
@@ -160,7 +172,7 @@ class TourApiTest extends TestCase
 
         $current = Carbon::now();
 
-        $response = $this->actingAs($user)->putJson('/api/v1/admin/travels/' . $tour->travel_id . '/tours/' . $tour->id, [
+        $response = $this->actingAs($this->user)->putJson('/api/v1/admin/travels/' . $tour->travel_id . '/tours/' . $tour->id, [
             'user_id' => $tour->user_id,
             'travel_id' => $tour->travel_id,
             'name' => $nameEmpty='',
@@ -173,7 +185,7 @@ class TourApiTest extends TestCase
         $response->assertStatus(422);
 
 
-        $response = $this->actingAs($user)->putJson('/api/v1/admin/travels/' . $tour->travel_id . '/tours/' . $tour->id, [
+        $response = $this->actingAs($this->user)->putJson('/api/v1/admin/travels/' . $tour->travel_id . '/tours/' . $tour->id, [
             'user_id' => $tour->user_id,
             'travel_id' => $tour->travel_id,
             'name' => $name='Tour 1 updated',
@@ -185,7 +197,7 @@ class TourApiTest extends TestCase
 
         $response->assertStatus(202);
 
-        $response = $this->actingAs($user)->get('/api/v1/admin/travels/' . $tour->travel_id . '/tours/' . $tour->id);
+        $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $tour->travel_id . '/tours/' . $tour->id);
         $response->assertJsonFragment(['name' => $name]);
         $response->assertJsonFragment(['price' => number_format($price,2)]);
 
@@ -198,11 +210,11 @@ class TourApiTest extends TestCase
         */
 
         $this->seed(RolesTableSeeder::class);
-        $user = User::factory()->create();
-        $role = Role::where('name', 'admin')->pluck('id');
-        $user->roles()->attach($role);
 
-        $this->actingAs($user);
+        $role = Role::where('name', 'admin')->pluck('id');
+        $this->user->roles()->attach($role);
+
+        $this->actingAs($this->user);
 
         $travel = Travel::factory()->create([
             'is_public' => 1,
@@ -223,17 +235,17 @@ class TourApiTest extends TestCase
         ]);
 
 
-        $response = $this->actingAs($user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
+        $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
 
         $response->assertStatus(200);
         $response->assertJsonFragment(['name' => $name]);
 
 
-        $response = $this->actingAs($user)->deleteJson('/api/v1/admin/travels/' . $travel->id . '/tours/' . $tour->id);
+        $response = $this->actingAs($this->user)->deleteJson('/api/v1/admin/travels/' . $travel->id . '/tours/' . $tour->id);
         $response->assertStatus(204);
 
 
-        $response = $this->actingAs($user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
+        $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
 
         $response->assertStatus(200);
         $response->assertJsonMissing(['name' => $name]);

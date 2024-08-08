@@ -16,6 +16,17 @@ class TourApiTest extends TestCase
 
     use RefreshDatabase;
 
+    private $user;
+
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->user = User::factory()->create();
+
+    }
+
 
     public function test_tours_by_travel_id_returns_correct_tour(): void
     {
@@ -23,9 +34,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_returns_correct_tour
         */
 
-        $user = User::factory()->create();
-
-        $this->actingAs($user);
+        $this->actingAs($this->user);
 
         $travel = Travel::factory()->create(['is_public' => true]);
 
@@ -49,9 +58,7 @@ class TourApiTest extends TestCase
 
         $itemsPagination = 15;
 
-        $user = User::factory()->create();
-
-        $this->actingAs($user);
+        $this->actingAs($this->user);
 
         $travel = Travel::factory()->create(['is_public' => true]);
         $tour = Tour::factory( $itemsPagination + 1 )->create(['travel_id' => $travel->id]);
@@ -72,9 +79,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tour_price_is_correctly_formatted
         */
 
-        $user = User::factory()->create();
-
-        $this->actingAs($user);
+        $this->actingAs($this->user);
 
         $travel = Travel::factory()->create(['is_public' => true]);
         $tour = Tour::factory()->create([
@@ -95,9 +100,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_sorts_by_starting_date_correctly
         */
 
-        $user = User::factory()->create();
-
-        $this->actingAs($user);
+        $this->actingAs($this->user);
 
         $travel = Travel::factory()->create(['is_public' => true]);
 
@@ -129,9 +132,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_sorts_by_price_and_order_asc_and_sort_by_start_date_correctly
         */
 
-        $user = User::factory()->create();
-
-        $this->actingAs($user);
+        $this->actingAs($this->user);
 
         $travel = Travel::factory()->create(['is_public' => true]);
 
@@ -172,9 +173,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_sorts_by_price_and_order_desc_and_sort_by_start_date_correctly
         */
 
-        $user = User::factory()->create();
-
-        $this->actingAs($user);
+        $this->actingAs($this->user);
 
         $travel = Travel::factory()->create(['is_public' => true]);
 
@@ -213,9 +212,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_sort_by_price_ranges_correctly
         */
 
-        $user = User::factory()->create();
-
-        $this->actingAs($user);
+        $this->actingAs($this->user);
 
         $travel = Travel::factory()->create(['is_public' => true]);
 
@@ -270,9 +267,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_and_sort_by_starting_date_correctly
         */
 
-        $user = User::factory()->create();
-
-        $this->actingAs($user);
+        $this->actingAs($this->user);
 
         $travel = Travel::factory()->create(['is_public' => true]);
 
@@ -347,9 +342,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tour_by_travel_id_returns_validation_error_status_code_422
         */
 
-        $user = User::factory()->create();
-
-        $this->actingAs($user);
+        $this->actingAs($this->user);
 
         $travel = Travel::factory()->create(['is_public' => true]);
 
