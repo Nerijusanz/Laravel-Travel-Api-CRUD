@@ -106,13 +106,13 @@ class TourApiTest extends TestCase
         $laterTour = Tour::factory()->create([
             'travel_id' => $travel->id,
             'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(1)->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($current->copy())->addDays(1)->endOfDay()->toDateTimeString(),
+            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
         ]);
 
         $earlierTour = Tour::factory()->create([
             'travel_id' => $travel->id,
             'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(0)->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($current->copy())->addDays(0)->endOfDay()->toDateTimeString(),
+            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
         ]);
 
         $response = $this->get('/api/v1/travels/'. $travel->id .'/tours');
@@ -141,14 +141,14 @@ class TourApiTest extends TestCase
             'travel_id' => $travel->id,
             'price' => 100,
             'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(1)->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($current->copy())->addDays(1)->endOfDay()->toDateTimeString(),
+            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
         ]);
 
         $cheapEarlierTour = Tour::factory()->create([
             'travel_id' => $travel->id,
             'price' => 100,
             'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(0)->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($current->copy())->addDays(0)->endOfDay()->toDateTimeString(),
+            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
         ]);
 
         $expensiveTour = Tour::factory()->create([
@@ -184,14 +184,14 @@ class TourApiTest extends TestCase
             'travel_id' => $travel->id,
             'price' => 500,
             'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(1)->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($current->copy())->addDays(1)->endOfDay()->toDateTimeString(),
+            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
         ]);
 
         $expensiveEarlierTour = Tour::factory()->create([
             'travel_id' => $travel->id,
             'price' => 500,
             'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(0)->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($current->copy())->addDays(0)->endOfDay()->toDateTimeString(),
+            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
         ]);
 
         $cheapTour = Tour::factory()->create([
@@ -281,13 +281,13 @@ class TourApiTest extends TestCase
         $laterTour = Tour::factory()->create([
             'travel_id' => $travel->id,
             'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(2)->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($current->copy())->addDays(1)->endOfDay()->toDateTimeString(),
+            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
         ]);
 
         $earlierTour = Tour::factory()->create([
             'travel_id' => $travel->id,
             'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(0)->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($current->copy())->addDays(1)->endOfDay()->toDateTimeString(),
+            'end_date' => $endDate = Carbon::parse($startDate)->addDays(1)->endOfDay()->toDateTimeString(),
         ]);
 
         $endpoint = '/api/v1/travels/' . $travel->id . '/tours';
@@ -332,7 +332,7 @@ class TourApiTest extends TestCase
 
 
         $startDate = Carbon::parse($current->copy())->addDays(1)->startOfDay()->toDateTimeString();
-        $endDate = Carbon::parse($current->copy())->addDays(5)->endOfDay()->toDateTimeString();
+        $endDate = Carbon::parse($startDate)->addDays(5)->endOfDay()->toDateTimeString();
         $response = $this->get($endpoint . '?date_from=' . $startDate .'&date_to=' . $endDate);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['id' => $laterTour->id]);
