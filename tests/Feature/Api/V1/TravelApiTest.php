@@ -13,15 +13,23 @@ class TravelApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    private $user;
+
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->user = User::factory()->create();
+    }
+
     public function test_travels_list_shows_only_public_records()
     {
         /*
         php artisan test --filter=test_travels_list_shows_only_public_records
         */
 
-        $user = User::factory()->create();
-
-        $this->actingAs($user);
+        $this->actingAs($this->user);
 
         $publicTravel = Travel::factory()->create(['is_public' => true]);
         $notPublicTravel = Travel::factory()->create(['is_public' => false]);
@@ -43,9 +51,7 @@ class TravelApiTest extends TestCase
 
         $itemsPagination=15;
 
-        $user = User::factory()->create();
-
-        $this->actingAs($user);
+        $this->actingAs($this->user);
 
         $travel = Travel::factory($itemsPagination + 1)->create(['is_public' => true]);
 
