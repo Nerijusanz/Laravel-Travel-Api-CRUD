@@ -34,6 +34,16 @@ class TravelApiTest extends TestCase
         $publicTravel = Travel::factory()->create(['is_public' => true]);
         $notPublicTravel = Travel::factory()->create(['is_public' => false]);
 
+        $this->assertCount(2,Travel::all());
+
+        $this->assertDatabaseHas('travels',[
+            'name' => $publicTravel->name
+        ]);
+
+        $this->assertDatabaseHas('travels',[
+            'name' => $notPublicTravel->name
+        ]);
+
         $response = $this->get('/api/v1/travels');
 
         $response->assertStatus(200);
@@ -50,10 +60,13 @@ class TravelApiTest extends TestCase
         */
 
         $itemsPagination=15;
+        $itemsRecords=$itemsPagination + 1;
 
         $this->actingAs($this->user);
 
-        $travel = Travel::factory($itemsPagination + 1)->create(['is_public' => true]);
+        $travel = Travel::factory($itemsRecords)->create(['is_public' => true]);
+
+        $this->assertCount($itemsRecords,Travel::all());
 
         $response = $this->get('/api/v1/travels');
 
