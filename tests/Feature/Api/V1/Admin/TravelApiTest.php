@@ -46,8 +46,7 @@ class TravelApiTest extends TestCase
 
         $this->seed(RolesTableSeeder::class);
 
-        $role = Role::where('name', 'user')->pluck('id');
-        $this->user->roles()->attach($role);
+        $this->user->roles()->attach(Role::User());
 
         $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels');
 
@@ -65,8 +64,7 @@ class TravelApiTest extends TestCase
 
         $this->seed(RolesTableSeeder::class);
 
-        $role = Role::where('name', 'admin')->pluck('id');
-        $this->user->roles()->attach($role);
+        $this->user->roles()->attach(Role::Admin());
 
         $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels', [
             'is_public' => 1,
@@ -112,8 +110,7 @@ class TravelApiTest extends TestCase
 
         $this->seed(RolesTableSeeder::class);
 
-        $role = Role::where('name', 'admin')->pluck('id');
-        $this->user->roles()->attach($role);
+        $this->user->roles()->attach(Role::Admin());
 
         /****************ADD TRAVEL ***************/
 
@@ -209,8 +206,7 @@ class TravelApiTest extends TestCase
 
         $this->seed(RolesTableSeeder::class);
 
-        $role = Role::where('name', 'admin')->pluck('id');
-        $this->user->roles()->attach($role);
+        $this->user->roles()->attach(Role::Admin());
 
 
         /****************ADD TRAVEL ***************/
