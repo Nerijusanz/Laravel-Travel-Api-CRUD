@@ -40,8 +40,7 @@ class TourApiTest extends TestCase
 
         $this->seed(RolesTableSeeder::class);
 
-        $role = Role::where('name', 'user')->pluck('id');
-        $this->user->roles()->attach($role);
+        $this->user->roles()->attach(Role::User());
 
         $this->actingAs($this->user);
 
@@ -51,6 +50,12 @@ class TourApiTest extends TestCase
             'number_of_days' => 1,
             'number_of_nights' => 0,
             'description' => 'Travel 1 description',
+        ]);
+
+        $this->assertCount(1, Travel::all());
+
+        $this->assertDatabaseHas(Travel::class, [
+            'name' => $travel->name
         ]);
 
         Auth::logout();
@@ -68,8 +73,8 @@ class TourApiTest extends TestCase
 
         $this->seed(RolesTableSeeder::class);
 
-        $role = Role::where('name', 'user')->pluck('id');
-        $this->user->roles()->attach($role);
+        $this->user->roles()->attach(Role::User());
+
 
         $this->actingAs($this->user);
 
@@ -79,6 +84,12 @@ class TourApiTest extends TestCase
             'number_of_days' => 1,
             'number_of_nights' => 0,
             'description' => 'Travel 1 description',
+        ]);
+
+        $this->assertCount(1, Travel::all());
+
+        $this->assertDatabaseHas(Travel::class, [
+            'name' => $travel->name
         ]);
 
         $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels/' . $travel->id . '/tours');
@@ -94,8 +105,7 @@ class TourApiTest extends TestCase
 
         $this->seed(RolesTableSeeder::class);
 
-        $role = Role::where('name', 'admin')->pluck('id');
-        $this->user->roles()->attach($role);
+        $this->user->roles()->attach(Role::Admin());
 
         $this->actingAs($this->user);
 
@@ -106,6 +116,17 @@ class TourApiTest extends TestCase
             'number_of_nights' => 0,
             'description' => 'Travel 1 description',
         ]);
+
+        $this->assertCount(1, Travel::all());
+
+        $this->assertDatabaseHas(Travel::class, [
+            'name' => $travel->name
+        ]);
+
+
+        $travel = Travel::query()
+                    ->where('name',$travel->name)
+                    ->first();
 
 
         $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels/' . $travel->id . '/tours', [
@@ -118,13 +139,15 @@ class TourApiTest extends TestCase
 
         $response->assertStatus(422);
 
+        $this->assertCount(0, $travel->tours()->get());
+
 
         $current = Carbon::now();
 
         $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels/' . $travel->id . '/tours', [
             'travel_id' => $travel->id,
             'name' => $name='Tour 1',
-            'price' => $price=100,
+            'price' => 100,
             'start_date' =>  $startDate = $current->addDays(0)->startOfDay()->toDateTimeString(),
             'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
         ]);
@@ -132,9 +155,19 @@ class TourApiTest extends TestCase
 
         $response->assertStatus(201);
 
+        $this->assertCount(1, $travel->tours()->get());
+
+        $this->assertDatabaseHas(Tour::class, [
+            'name' => $name
+        ]);
+
+        $tour = $travel->tours()
+                    ->where('name',$name)
+                    ->first();
+
         $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
-        $response->assertJsonFragment(['name' => $name]);
-        $response->assertJsonFragment(['price' => number_format($price,2)]);
+        $response->assertJsonFragment(['name' => $tour->name]);
+        $response->assertJsonFragment(['price' => number_format($tour->price,2)]);
 
     }
 
@@ -146,8 +179,7 @@ class TourApiTest extends TestCase
 
         $this->seed(RolesTableSeeder::class);
 
-        $role = Role::where('name', 'admin')->pluck('id');
-        $this->user->roles()->attach($role);
+        $this->user->roles()->attach(Role::Admin());
 
         $this->actingAs($this->user);
 
@@ -158,6 +190,18 @@ class TourApiTest extends TestCase
             'number_of_nights' => 0,
             'description' => 'Travel 1 description',
         ]);
+
+        $this->assertCount(1, Travel::all());
+
+        $this->assertDatabaseHas(Travel::class, [
+            'name' => $travel->name
+        ]);
+
+
+        $travel = Travel::query()
+                    ->where('name',$travel->name)
+                    ->first();
+
 
         $current = Carbon::now();
 
@@ -169,10 +213,20 @@ class TourApiTest extends TestCase
             'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
         ]);
 
+        $this->assertCount(1, $travel->tours()->get());
+
+        $this->assertDatabaseHas(Tour::class, [
+            'name' => $tour->name
+        ]);
+
+        $tour = $travel->tours()
+                ->where('name',$tour->name)
+                ->first();
+
 
         $current = Carbon::now();
 
-        $response = $this->actingAs($this->user)->putJson('/api/v1/admin/travels/' . $tour->travel_id . '/tours/' . $tour->id, [
+        $response = $this->actingAs($this->user)->putJson('/api/v1/admin/travels/' . $travel->id . '/tours/' . $tour->id, [
             'user_id' => $tour->user_id,
             'travel_id' => $tour->travel_id,
             'name' => $nameEmpty='',
@@ -184,12 +238,16 @@ class TourApiTest extends TestCase
 
         $response->assertStatus(422);
 
+        $this->assertDatabaseHas(Tour::class, [
+            'name' => $tour->name
+        ]);
+
 
         $response = $this->actingAs($this->user)->putJson('/api/v1/admin/travels/' . $tour->travel_id . '/tours/' . $tour->id, [
             'user_id' => $tour->user_id,
             'travel_id' => $tour->travel_id,
-            'name' => $name='Tour 1 updated',
-            'price' => $price=150,
+            'name' => $nameUpdated= $tour->name . ' Updated',
+            'price' => 150,
             'start_date' =>  $startDate = $current->addDays(0)->startOfDay()->toDateTimeString(),
             'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
         ]);
@@ -197,9 +255,21 @@ class TourApiTest extends TestCase
 
         $response->assertStatus(202);
 
-        $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $tour->travel_id . '/tours/' . $tour->id);
-        $response->assertJsonFragment(['name' => $name]);
-        $response->assertJsonFragment(['price' => number_format($price,2)]);
+        $this->assertDatabaseMissing(Tour::class, [
+            'name' => $tour->name
+        ]);
+
+        $this->assertDatabaseHas(Tour::class, [
+            'name' => $nameUpdated
+        ]);
+
+        $tour = $travel->tours()
+                    ->where('name',$nameUpdated)
+                    ->first();
+
+        $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $travel->id . '/tours/' . $tour->id);
+        $response->assertJsonFragment(['name' => $tour->name]);
+        $response->assertJsonFragment(['price' => number_format($tour->price,2)]);
 
     }
 
@@ -211,8 +281,7 @@ class TourApiTest extends TestCase
 
         $this->seed(RolesTableSeeder::class);
 
-        $role = Role::where('name', 'admin')->pluck('id');
-        $this->user->roles()->attach($role);
+        $this->user->roles()->attach(Role::Admin());
 
         $this->actingAs($this->user);
 
@@ -224,31 +293,56 @@ class TourApiTest extends TestCase
             'description' => 'Travel 1 description',
         ]);
 
+        $this->assertCount(1, Travel::all());
+
+        $this->assertDatabaseHas(Travel::class, [
+            'name' => $travel->name
+        ]);
+
+        $travel = Travel::query()
+                    ->where('name',$travel->name)
+                    ->first();
+
+
         $current = Carbon::now();
 
         $tour = Tour::factory()->create([
             'travel_id' => $travel->id,
-            'name' => $name='Tour 1',
+            'name' => 'Tour 1',
             'price' => 100,
             'start_date' =>  $startDate = $current->addDays(0)->startOfDay()->toDateTimeString(),
             'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
         ]);
 
+        $this->assertCount(1, $travel->tours()->get());
+
+        $this->assertDatabaseHas(Tour::class, [
+            'name' => $tour->name
+        ]);
+
+        $tour = $travel->tours()
+                ->where('name',$tour->name)
+                ->first();
+
 
         $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
 
         $response->assertStatus(200);
-        $response->assertJsonFragment(['name' => $name]);
+        $response->assertJsonFragment(['name' => $tour->name]);
 
 
         $response = $this->actingAs($this->user)->deleteJson('/api/v1/admin/travels/' . $travel->id . '/tours/' . $tour->id);
         $response->assertStatus(204);
 
+        $this->assertCount(0, $travel->tours()->get());
+        $this->assertDatabaseMissing(Tour::class, [
+            'name' => $tour->name
+        ]);
 
         $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
 
         $response->assertStatus(200);
-        $response->assertJsonMissing(['name' => $name]);
+        $response->assertJsonMissing(['name' => $tour->name]);
 
     }
 
