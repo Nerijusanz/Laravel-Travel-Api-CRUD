@@ -76,7 +76,6 @@ class TravelApiTest extends TestCase
 
 
         $name = 'Travel 1';
-        $slug = "travel-1";
 
         $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels', [
             'is_public' => 1,
@@ -88,17 +87,19 @@ class TravelApiTest extends TestCase
 
         $response->assertStatus(201);
 
+        $this->assertCount(1, Travel::all());
+
+        $this->assertDatabaseHas(Travel::class, [
+            'name' => $name
+        ]);
+
         $travel = Travel::query()
                     ->where('name',$name)
-                    ->where('slug',$slug)
-                    ->get();
-
-        $this->assertCount(1, $travel);
-
+                    ->first();
 
         $response = $this->actingAs($this->user)->getJson('/api/v1/admin/travels');
-        $response->assertJsonFragment(['name' => $name]);
-        $response->assertJsonFragment(['slug' => $slug]);
+        $response->assertJsonFragment(['name' => $travel->name]);
+        $response->assertJsonFragment(['slug' => $travel->slug]);
 
     }
 
@@ -115,7 +116,6 @@ class TravelApiTest extends TestCase
         /****************ADD TRAVEL ***************/
 
         $name = 'Travel 1';
-        $slug = "travel-1";
 
         $this->assertCount(0, Travel::all());
 
@@ -128,29 +128,24 @@ class TravelApiTest extends TestCase
         ]);
 
         $response->assertStatus(201);
+
         $this->assertCount(1, Travel::all());
 
-
-        $response = $this->actingAs($this->user)->getJson('/api/v1/admin/travels');
-        $response->assertJsonFragment(['name' => $name]);
-        $response->assertJsonFragment(['slug' => $slug]);
-
+        $this->assertDatabaseHas(Travel::class, [
+            'name' => $name
+        ]);
 
         $travel = Travel::query()
                     ->where('name',$name)
-                    ->where('slug',$slug)
-                    ->get();
+                    ->first();
 
-        $this->assertCount(1, $travel);
-        $this->assertDatabaseHas('travels', [
-            'name' => $name,
-            'slug' => $slug
-        ]);
+
+        $response = $this->actingAs($this->user)->getJson('/api/v1/admin/travels');
+        $response->assertJsonFragment(['name' => $travel->name]);
+        $response->assertJsonFragment(['slug' => $travel->slug]);
 
 
         /*****************UPDATE TRAVEL ***************/
-
-        $travel = $travel->first();
 
 
         $response = $this->actingAs($this->user)->putJson('/api/v1/admin/travels/' . $travel->id, [
@@ -163,12 +158,11 @@ class TravelApiTest extends TestCase
 
         $response->assertStatus(422);
 
-        $this->assertDatabaseHas('travels', [
-            'name' => $name
+        $this->assertDatabaseHas(Travel::class, [
+            'name' => $travel->name
         ]);
 
-
-        $nameUpdated = $name . ' Updated';
+        $nameUpdated = $travel->name . ' Updated';
 
         $response = $this->actingAs($this->user)->putJson('/api/v1/admin/travels/' . $travel->id, [
             'user_id' => $travel->user_id,
@@ -180,20 +174,23 @@ class TravelApiTest extends TestCase
 
         $response->assertStatus(202);
 
-        $this->assertDatabaseMissing('travels', [
-            'name' => $name
+        $this->assertDatabaseMissing(Travel::class, [
+            'name' => $travel->name
         ]);
 
-        $this->assertDatabaseHas('travels', [
+        $this->assertDatabaseHas(Travel::class, [
             'name' => $nameUpdated
         ]);
+
+        $travel = Travel::query()
+                    ->where('name',$nameUpdated)
+                    ->first();
 
 
         $response = $this->actingAs($this->user)->getJson('/api/v1/admin/travels/' . $travel->id);
 
-        $response->assertJsonMissing(['name' => $name]);
-        $response->assertJsonFragment(['name' => $nameUpdated]);
-        $response->assertJsonFragment(['slug' => $slug]);
+        $response->assertJsonFragment(['name' => $travel->name]);
+        $response->assertJsonFragment(['slug' => $travel->slug]);
 
 
     }
@@ -212,7 +209,6 @@ class TravelApiTest extends TestCase
         /****************ADD TRAVEL ***************/
 
         $name = 'Travel 1';
-        $slug = "travel-1";
 
         $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels', [
             'is_public' => 1,
@@ -224,24 +220,26 @@ class TravelApiTest extends TestCase
 
         $response->assertStatus(201);
 
-        $travel = Travel::query()
-            ->where('name',$name)
-            ->where('slug',$slug)
-            ->get();
+        $this->assertCount(1, Travel::all());
 
-        $this->assertCount(1, $travel);
+        $this->assertDatabaseHas(Travel::class, [
+            'name' => $name
+        ]);
+
+        $travel = Travel::query()
+                    ->where('name',$name)
+                    ->first();
 
 
         $response = $this->actingAs($this->user)->getJson('/api/v1/admin/travels');
-        $response->assertJsonFragment(['name' => $name]);
-        $response->assertJsonFragment(['slug' => $slug]);
+        $response->assertJsonFragment(['name' => $travel->name]);
+        $response->assertJsonFragment(['slug' => $travel->slug]);
 
 
         /***************** DELETE TRAVEL ***************/
 
-        $travel = $travel->first();
-
-        $this->assertDatabaseHas('travels', [
+        $this->assertCount(1, Travel::all());
+        $this->assertDatabaseHas(Travel::class, [
             'name' => $travel->name
         ]);
 
@@ -249,7 +247,7 @@ class TravelApiTest extends TestCase
         $response->assertStatus(204);
 
         $this->assertCount(0, Travel::all());
-        $this->assertDatabaseMissing('travels', [
+        $this->assertDatabaseMissing(Travel::class, [
             'name' => $travel->name
         ]);
 
