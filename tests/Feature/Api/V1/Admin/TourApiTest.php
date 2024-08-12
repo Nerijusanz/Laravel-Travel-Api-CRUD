@@ -166,6 +166,7 @@ class TourApiTest extends TestCase
                     ->first();
 
         $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
+        $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['name' => $tour->name]);
         $response->assertJsonFragment(['price' => number_format($tour->price,2)]);
 
@@ -238,6 +239,8 @@ class TourApiTest extends TestCase
 
         $response->assertStatus(422);
 
+        $this->assertCount(1, $travel->tours()->get());
+
         $this->assertDatabaseHas(Tour::class, [
             'name' => $tour->name
         ]);
@@ -255,6 +258,8 @@ class TourApiTest extends TestCase
 
         $response->assertStatus(202);
 
+        $this->assertCount(1, $travel->tours()->get());
+
         $this->assertDatabaseMissing(Tour::class, [
             'name' => $tour->name
         ]);
@@ -267,7 +272,8 @@ class TourApiTest extends TestCase
                     ->where('name',$nameUpdated)
                     ->first();
 
-        $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $travel->id . '/tours/' . $tour->id);
+        $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
+        $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['name' => $tour->name]);
         $response->assertJsonFragment(['price' => number_format($tour->price,2)]);
 
@@ -328,6 +334,7 @@ class TourApiTest extends TestCase
         $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
 
         $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['name' => $tour->name]);
 
 
@@ -342,6 +349,7 @@ class TourApiTest extends TestCase
         $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
 
         $response->assertStatus(200);
+        $response->assertJsonCount(0, 'data');
         $response->assertJsonMissing(['name' => $tour->name]);
 
     }

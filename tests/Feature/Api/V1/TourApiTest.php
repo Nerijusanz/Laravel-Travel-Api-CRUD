@@ -52,7 +52,7 @@ class TourApiTest extends TestCase
 
         $tour = Tour::factory()->create(['travel_id' => $travel->id]);
 
-        $this->assertCount($travel->tours()->count(), $travel->tours()->get());
+        $this->assertCount(1, $travel->tours()->get());
 
         $this->assertDatabaseHas(Tour::class, [
             'name' => $tour->name
@@ -66,7 +66,7 @@ class TourApiTest extends TestCase
         $response = $this->get('/api/v1/travels/'. $travel->id .'/tours');
 
         $response->assertStatus(200);
-        $response->assertJsonCount($travel->tours()->count(), 'data');
+        $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['name' => $tour->name]);
 
     }
@@ -137,7 +137,7 @@ class TourApiTest extends TestCase
                 ]);
 
 
-        $this->assertCount($travel->tours()->count(), $travel->tours()->get());
+        $this->assertCount(1, $travel->tours()->get());
 
         $this->assertDatabaseHas(Tour::class, [
             'name' => $tour->name
@@ -150,7 +150,7 @@ class TourApiTest extends TestCase
         $response = $this->get('/api/v1/travels/'. $travel->id .'/tours');
 
         $response->assertStatus(200);
-        $response->assertJsonCount($travel->tours()->count(), 'data');
+        $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['price' => number_format($tour->price,2)]);
     }
 
@@ -190,7 +190,7 @@ class TourApiTest extends TestCase
             'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
         ]);
 
-        $this->assertCount($travel->tours()->count(), $travel->tours()->get());
+        $this->assertCount(2, $travel->tours()->get());
 
         $this->assertDatabaseHas(Tour::class, [
             'name' => $laterTour->name
@@ -203,7 +203,7 @@ class TourApiTest extends TestCase
         $response = $this->get('/api/v1/travels/'. $travel->id .'/tours');
 
         $response->assertStatus(200);
-        $response->assertJsonCount($travel->tours()->count(), 'data');
+        $response->assertJsonCount(2, 'data');
         $response->assertJsonPath('data.0.id', $earlierTour->id);
         $response->assertJsonPath('data.1.id', $laterTour->id);
     }
@@ -251,7 +251,7 @@ class TourApiTest extends TestCase
             'price' => 500,
         ]);
 
-        $this->assertCount($travel->tours()->count(), $travel->tours()->get());
+        $this->assertCount(3, $travel->tours()->get());
 
         $this->assertDatabaseHas(Tour::class, [
             'name' => $cheapLaterTour->name
@@ -269,7 +269,7 @@ class TourApiTest extends TestCase
         $response = $this->get('/api/v1/travels/'. $travel->id .'/tours?sort_by=price&order=asc');
 
         $response->assertStatus(200);
-        $response->assertJsonCount($travel->tours()->count(), 'data');
+        $response->assertJsonCount(3, 'data');
         $response->assertJsonPath('data.0.id', $cheapEarlierTour->id);
         $response->assertJsonPath('data.1.id', $cheapLaterTour->id);
         $response->assertJsonPath('data.2.id', $expensiveTour->id);
@@ -319,7 +319,7 @@ class TourApiTest extends TestCase
         ]);
 
 
-        $this->assertCount($travel->tours()->count(), $travel->tours()->get());
+        $this->assertCount(3, $travel->tours()->get());
 
         $this->assertDatabaseHas(Tour::class, [
             'name' => $expensiveLaterTour->name
@@ -336,7 +336,7 @@ class TourApiTest extends TestCase
         $response = $this->get('/api/v1/travels/'. $travel->id .'/tours?sort_by=price&order=desc');
 
         $response->assertStatus(200);
-        $response->assertJsonCount($travel->tours()->count(), 'data');
+        $response->assertJsonCount(3, 'data');
         $response->assertJsonPath('data.0.id', $expensiveEarlierTour->id);
         $response->assertJsonPath('data.1.id', $expensiveLaterTour->id);
         $response->assertJsonPath('data.2.id', $cheapTour->id);
@@ -373,7 +373,7 @@ class TourApiTest extends TestCase
             'price' => 100,
         ]);
 
-        $this->assertCount($travel->tours()->count(), $travel->tours()->get());
+        $this->assertCount(2, $travel->tours()->get());
 
         $this->assertDatabaseHas(Tour::class, [
             'name' => $expensiveTour->name
@@ -455,7 +455,7 @@ class TourApiTest extends TestCase
             'end_date' => $endDate = Carbon::parse($startDate)->addDays(1)->endOfDay()->toDateTimeString(),
         ]);
 
-        $this->assertCount($travel->tours()->count(), $travel->tours()->get());
+        $this->assertCount(2, $travel->tours()->get());
 
         $this->assertDatabaseHas(Tour::class, [
             'name' => $laterTour->name
