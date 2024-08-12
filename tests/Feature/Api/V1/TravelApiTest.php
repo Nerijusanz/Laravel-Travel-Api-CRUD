@@ -36,11 +36,11 @@ class TravelApiTest extends TestCase
 
         $this->assertCount(2,Travel::all());
 
-        $this->assertDatabaseHas('travels',[
+        $this->assertDatabaseHas(Travel::class,[
             'name' => $publicTravel->name
         ]);
 
-        $this->assertDatabaseHas('travels',[
+        $this->assertDatabaseHas(Travel::class,[
             'name' => $notPublicTravel->name
         ]);
 
