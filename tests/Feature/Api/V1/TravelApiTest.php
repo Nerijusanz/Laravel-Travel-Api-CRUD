@@ -14,7 +14,7 @@ class TravelApiTest extends TestCase
     use RefreshDatabase;
 
     private $user;
-
+    public const BASE_URL = '/api';
 
     public function setUp(): void
     {
@@ -28,6 +28,8 @@ class TravelApiTest extends TestCase
         /*
         php artisan test --filter=test_travels_list_shows_only_public_records
         */
+
+        //dd(self::BASE_URL);
 
         $this->actingAs($this->user);
 
@@ -44,7 +46,7 @@ class TravelApiTest extends TestCase
             'name' => $notPublicTravel->name
         ]);
 
-        $response = $this->get('/api/v1/travels');
+        $response = $this->get(self::BASE_URL . '/travels');
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
@@ -68,7 +70,7 @@ class TravelApiTest extends TestCase
 
         $this->assertCount($itemsRecords,Travel::all());
 
-        $response = $this->get('/api/v1/travels');
+        $response = $this->get(self::BASE_URL . '/travels');
 
         $response->assertStatus(200);
         $response->assertJsonCount($itemsPagination, 'data');

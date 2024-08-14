@@ -17,6 +17,7 @@ class TourApiTest extends TestCase
     use RefreshDatabase;
 
     private $user;
+    public const BASE_URL = '/api';
 
 
     public function setUp(): void
@@ -63,7 +64,7 @@ class TourApiTest extends TestCase
                 ->first();
 
 
-        $response = $this->get('/api/v1/travels/'. $travel->id .'/tours');
+        $response = $this->get(self::BASE_URL . '/travels/'. $travel->id .'/tours');
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
@@ -101,7 +102,7 @@ class TourApiTest extends TestCase
         $this->assertCount($itemsRecord, $travel->tours()->get());
 
 
-        $response = $this->get('/api/v1/travels/'. $travel->id .'/tours');
+        $response = $this->get(self::BASE_URL . '/travels/'. $travel->id .'/tours');
 
         $response->assertStatus(200);
         $response->assertJsonCount($itemsPagination, 'data');
@@ -147,7 +148,7 @@ class TourApiTest extends TestCase
                 ->where('name',$tour->name)
                 ->first();
 
-        $response = $this->get('/api/v1/travels/'. $travel->id .'/tours');
+        $response = $this->get(self::BASE_URL . '/travels/'. $travel->id .'/tours');
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
@@ -200,7 +201,7 @@ class TourApiTest extends TestCase
             'name' => $earlierTour->name
         ]);
 
-        $response = $this->get('/api/v1/travels/'. $travel->id .'/tours');
+        $response = $this->get(self::BASE_URL . '/travels/'. $travel->id .'/tours');
 
         $response->assertStatus(200);
         $response->assertJsonCount(2, 'data');
@@ -266,7 +267,7 @@ class TourApiTest extends TestCase
         ]);
 
 
-        $response = $this->get('/api/v1/travels/'. $travel->id .'/tours?sort_by=price&order=asc');
+        $response = $this->get(self::BASE_URL . '/travels/'. $travel->id .'/tours?sort_by=price&order=asc');
 
         $response->assertStatus(200);
         $response->assertJsonCount(3, 'data');
@@ -333,7 +334,7 @@ class TourApiTest extends TestCase
             'name' => $cheapTour->name
         ]);
 
-        $response = $this->get('/api/v1/travels/'. $travel->id .'/tours?sort_by=price&order=desc');
+        $response = $this->get(self::BASE_URL . '/travels/'. $travel->id .'/tours?sort_by=price&order=desc');
 
         $response->assertStatus(200);
         $response->assertJsonCount(3, 'data');
@@ -384,7 +385,7 @@ class TourApiTest extends TestCase
         ]);
 
 
-        $endpoint = '/api/v1/travels/'. $travel->id .'/tours';
+        $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
 
         $response = $this->get($endpoint . '?price_from=100');
         $response->assertJsonCount(2, 'data');
@@ -465,7 +466,7 @@ class TourApiTest extends TestCase
             'name' => $earlierTour->name
         ]);
 
-        $endpoint = '/api/v1/travels/' . $travel->id . '/tours';
+        $endpoint = self::BASE_URL . '/travels/' . $travel->id . '/tours';
 
 
         $startDate = Carbon::parse($current->copy())->addDays(0)->startOfDay()->toDateTimeString();
@@ -536,10 +537,13 @@ class TourApiTest extends TestCase
                     ->where('name',$travel->name)
                     ->first();
 
-        $response = $this->getJson('/api/v1/travels/' . $travel->id . '/tours?date_from=abcde');
+
+        $endpoint = self::BASE_URL . '/travels/' . $travel->id . '/tours';
+
+        $response = $this->getJson($endpoint . '?date_from=abcde');
         $response->assertStatus(422);
 
-        $response = $this->getJson('/api/v1/travels/' . $travel->id . '/tours?price_from=abcde');
+        $response = $this->getJson($endpoint . '?price_from=abcde');
         $response->assertStatus(422);
     }
 

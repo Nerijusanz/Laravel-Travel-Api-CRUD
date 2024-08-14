@@ -14,13 +14,18 @@ class AuthenticateApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    public const BASE_URL = '/api';
+
+
     public function test_authenticate_login_returns_token_with_valid_credentials(): void
     {
-        //php artisan test --filter=test_authenticate_login_returns_token_with_valid_credentials
+        /*
+        php artisan test --filter=test_authenticate_login_returns_token_with_valid_credentials
+        */
 
         $user = User::factory()->create();
 
-        $response = $this->postJson('/api/v1/auth/login', [
+        $response = $this->postJson(self::BASE_URL . '/auth/login', [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -31,9 +36,11 @@ class AuthenticateApiTest extends TestCase
 
     public function test_authenticate_login_returns_validation_error_422_with_invalid_credentials(): void
     {
-        //php artisan test --filter=test_authenticate_login_returns_validation_error_422_with_invalid_credentials
+        /*
+        php artisan test --filter=test_authenticate_login_returns_validation_error_422_with_invalid_credentials
+        */
 
-        $response = $this->postJson('/api/v1/auth/login', [
+        $response = $this->postJson(self::BASE_URL . '/auth/login', [
             'email' => 'nonexisting@user.com',
             'password' => 'password',
         ]);
@@ -47,7 +54,7 @@ class AuthenticateApiTest extends TestCase
         php artisan test --filter=test_authenticate_logout_not_logged_in_user_cannot_logout_return_errors_unauthenticate_response_401
         */
 
-        $response = $this->postJson('/api/v1/auth/logout');
+        $response = $this->postJson(self::BASE_URL . '/auth/logout');
 
         $response->assertStatus(401);
 
@@ -62,7 +69,7 @@ class AuthenticateApiTest extends TestCase
         $user = User::factory()->create();
 
 
-        $response = $this->postJson('/api/v1/auth/login', [
+        $response = $this->postJson(self::BASE_URL . '/auth/login', [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -71,7 +78,7 @@ class AuthenticateApiTest extends TestCase
         $response->assertJsonStructure(['access_token']);
 
 
-        $response = $this->actingAs($user)->postJson('/api/v1/auth/logout');
+        $response = $this->actingAs($user)->postJson(self::BASE_URL . '/auth/logout');
         $response->assertStatus(204);
 
     }

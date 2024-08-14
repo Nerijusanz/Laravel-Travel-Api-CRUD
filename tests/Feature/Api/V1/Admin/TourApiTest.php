@@ -21,6 +21,7 @@ class TourApiTest extends TestCase
     use RefreshDatabase;
 
     private $user;
+    public const BASE_URL = '/api';
 
 
     public function setUp(): void
@@ -60,7 +61,7 @@ class TourApiTest extends TestCase
 
         Auth::logout();
 
-        $response = $this->postJson('/api/v1/admin/travels/' . $travel->id . '/tours');
+        $response = $this->postJson(self::BASE_URL . '/admin/travels/' . $travel->id . '/tours');
 
         $response->assertStatus(401);
     }
@@ -92,7 +93,7 @@ class TourApiTest extends TestCase
             'name' => $travel->name
         ]);
 
-        $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels/' . $travel->id . '/tours');
+        $response = $this->actingAs($this->user)->postJson(self::BASE_URL . '/admin/travels/' . $travel->id . '/tours');
 
         $response->assertStatus(403);
     }
@@ -128,8 +129,9 @@ class TourApiTest extends TestCase
                     ->where('name',$travel->name)
                     ->first();
 
+        $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id . '/tours';
 
-        $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels/' . $travel->id . '/tours', [
+        $response = $this->actingAs($this->user)->postJson($endpoint, [
             'travel_id' => $travel->id,
             'name' => '',
             'price' => '',
@@ -144,7 +146,7 @@ class TourApiTest extends TestCase
 
         $current = Carbon::now();
 
-        $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels/' . $travel->id . '/tours', [
+        $response = $this->actingAs($this->user)->postJson($endpoint, [
             'travel_id' => $travel->id,
             'name' => $name='Tour 1',
             'price' => 100,
@@ -165,7 +167,7 @@ class TourApiTest extends TestCase
                     ->where('name',$name)
                     ->first();
 
-        $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
+        $response = $this->actingAs($this->user)->get($endpoint);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['name' => $tour->name]);
         $response->assertJsonFragment(['price' => number_format($tour->price,2)]);
@@ -227,7 +229,9 @@ class TourApiTest extends TestCase
 
         $current = Carbon::now();
 
-        $response = $this->actingAs($this->user)->putJson('/api/v1/admin/travels/' . $travel->id . '/tours/' . $tour->id, [
+        $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id . '/tours/' . $tour->id;
+
+        $response = $this->actingAs($this->user)->putJson($endpoint, [
             'user_id' => $tour->user_id,
             'travel_id' => $tour->travel_id,
             'name' => $nameEmpty='',
@@ -246,7 +250,7 @@ class TourApiTest extends TestCase
         ]);
 
 
-        $response = $this->actingAs($this->user)->putJson('/api/v1/admin/travels/' . $tour->travel_id . '/tours/' . $tour->id, [
+        $response = $this->actingAs($this->user)->putJson($endpoint, [
             'user_id' => $tour->user_id,
             'travel_id' => $tour->travel_id,
             'name' => $nameUpdated= $tour->name . ' Updated',
@@ -272,7 +276,7 @@ class TourApiTest extends TestCase
                     ->where('name',$nameUpdated)
                     ->first();
 
-        $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
+        $response = $this->actingAs($this->user)->get(self::BASE_URL . '/admin/travels/' . $travel->id . '/tours');
         $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['name' => $tour->name]);
         $response->assertJsonFragment(['price' => number_format($tour->price,2)]);
@@ -331,14 +335,14 @@ class TourApiTest extends TestCase
                 ->first();
 
 
-        $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
+        $response = $this->actingAs($this->user)->get(self::BASE_URL . '/admin/travels/' . $travel->id . '/tours');
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['name' => $tour->name]);
 
 
-        $response = $this->actingAs($this->user)->deleteJson('/api/v1/admin/travels/' . $travel->id . '/tours/' . $tour->id);
+        $response = $this->actingAs($this->user)->deleteJson(self::BASE_URL . '/admin/travels/' . $travel->id . '/tours/' . $tour->id);
         $response->assertStatus(204);
 
         $this->assertCount(0, $travel->tours()->get());
@@ -346,7 +350,7 @@ class TourApiTest extends TestCase
             'name' => $tour->name
         ]);
 
-        $response = $this->actingAs($this->user)->get('/api/v1/admin/travels/' . $travel->id . '/tours');
+        $response = $this->actingAs($this->user)->get(self::BASE_URL . '/admin/travels/' . $travel->id . '/tours');
 
         $response->assertStatus(200);
         $response->assertJsonCount(0, 'data');
