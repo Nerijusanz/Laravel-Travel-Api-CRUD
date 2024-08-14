@@ -16,7 +16,7 @@ class TravelApiTest extends TestCase
     use RefreshDatabase;
 
     private $user;
-
+    public const BASE_URL = '/api';
 
     public function setUp(): void
     {
@@ -32,7 +32,7 @@ class TravelApiTest extends TestCase
         php artisan test --filter=test_admin_travel_api_unauthenticated_not_logged_in_public_user_cannot_access_admin_travels_return_unauthenticate_error_status_401
         */
 
-        $response = $this->postJson('/api/v1/admin/travels');
+        $response = $this->postJson(self::BASE_URL . '/admin/travels');
 
         $response->assertStatus(401);
     }
@@ -48,7 +48,7 @@ class TravelApiTest extends TestCase
 
         $this->user->roles()->attach(Role::User());
 
-        $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels');
+        $response = $this->actingAs($this->user)->postJson(self::BASE_URL . '/admin/travels');
 
         $response->assertStatus(403);
         $this->assertCount(0, Travel::all());
@@ -66,7 +66,7 @@ class TravelApiTest extends TestCase
 
         $this->user->roles()->attach(Role::Admin());
 
-        $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels', [
+        $response = $this->actingAs($this->user)->postJson(self::BASE_URL . '/admin/travels', [
             'is_public' => 1,
             'name' => '',
         ]);
@@ -77,7 +77,7 @@ class TravelApiTest extends TestCase
 
         $name = 'Travel 1';
 
-        $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels', [
+        $response = $this->actingAs($this->user)->postJson(self::BASE_URL . '/admin/travels', [
             'is_public' => 1,
             'name' => $name,
             'number_of_days' => 1,
@@ -97,7 +97,7 @@ class TravelApiTest extends TestCase
                     ->where('name',$name)
                     ->first();
 
-        $response = $this->actingAs($this->user)->getJson('/api/v1/admin/travels');
+        $response = $this->actingAs($this->user)->getJson(self::BASE_URL . '/admin/travels');
         $response->assertJsonFragment(['name' => $travel->name]);
         $response->assertJsonFragment(['slug' => $travel->slug]);
 
@@ -119,7 +119,10 @@ class TravelApiTest extends TestCase
 
         $this->assertCount(0, Travel::all());
 
-        $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels', [
+
+        $endpoint = self::BASE_URL . '/admin/travels';
+
+        $response = $this->actingAs($this->user)->postJson($endpoint, [
             'is_public' => 1,
             'name' => $name,
             'number_of_days' => 1,
@@ -140,7 +143,7 @@ class TravelApiTest extends TestCase
                     ->first();
 
 
-        $response = $this->actingAs($this->user)->getJson('/api/v1/admin/travels');
+        $response = $this->actingAs($this->user)->getJson($endpoint);
         $response->assertJsonFragment(['name' => $travel->name]);
         $response->assertJsonFragment(['slug' => $travel->slug]);
 
@@ -148,7 +151,9 @@ class TravelApiTest extends TestCase
         /*****************UPDATE TRAVEL ***************/
 
 
-        $response = $this->actingAs($this->user)->putJson('/api/v1/admin/travels/' . $travel->id, [
+        $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id;
+
+        $response = $this->actingAs($this->user)->putJson($endpoint, [
             'user_id' => $travel->user_id,
             'is_public' => 1,
             'name' => $nameEmpty='',
@@ -164,7 +169,7 @@ class TravelApiTest extends TestCase
 
         $nameUpdated = $travel->name . ' Updated';
 
-        $response = $this->actingAs($this->user)->putJson('/api/v1/admin/travels/' . $travel->id, [
+        $response = $this->actingAs($this->user)->putJson($endpoint, [
             'user_id' => $travel->user_id,
             'is_public' => 1,
             'name' => $nameUpdated,
@@ -187,7 +192,7 @@ class TravelApiTest extends TestCase
                     ->first();
 
 
-        $response = $this->actingAs($this->user)->getJson('/api/v1/admin/travels/' . $travel->id);
+        $response = $this->actingAs($this->user)->getJson($endpoint);
 
         $response->assertJsonFragment(['name' => $travel->name]);
         $response->assertJsonFragment(['slug' => $travel->slug]);
@@ -208,9 +213,11 @@ class TravelApiTest extends TestCase
 
         /****************ADD TRAVEL ***************/
 
+        $endpoint = self::BASE_URL . '/admin/travels';
+
         $name = 'Travel 1';
 
-        $response = $this->actingAs($this->user)->postJson('/api/v1/admin/travels', [
+        $response = $this->actingAs($this->user)->postJson($endpoint, [
             'is_public' => 1,
             'name' => $name,
             'number_of_days' => 1,
@@ -231,19 +238,20 @@ class TravelApiTest extends TestCase
                     ->first();
 
 
-        $response = $this->actingAs($this->user)->getJson('/api/v1/admin/travels');
+        $response = $this->actingAs($this->user)->getJson($endpoint);
         $response->assertJsonFragment(['name' => $travel->name]);
         $response->assertJsonFragment(['slug' => $travel->slug]);
 
 
         /***************** DELETE TRAVEL ***************/
 
+
         $this->assertCount(1, Travel::all());
         $this->assertDatabaseHas(Travel::class, [
             'name' => $travel->name
         ]);
 
-        $response = $this->actingAs($this->user)->deleteJson('/api/v1/admin/travels/' . $travel->id);
+        $response = $this->actingAs($this->user)->deleteJson(self::BASE_URL . '/admin/travels/' . $travel->id);
         $response->assertStatus(204);
 
         $this->assertCount(0, Travel::all());
@@ -251,7 +259,7 @@ class TravelApiTest extends TestCase
             'name' => $travel->name
         ]);
 
-        $response = $this->actingAs($this->user)->get('/api/v1/admin/travels');
+        $response = $this->actingAs($this->user)->get(self::BASE_URL . '/admin/travels');
 
         $response->assertStatus(200);
         $response->assertJsonMissing(['name' => $travel->name]);
