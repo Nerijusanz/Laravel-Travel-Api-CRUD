@@ -4,25 +4,25 @@ namespace App\Services\Api\V1;
 
 class TourApiService{
 
-    public function getTravelToursFilterByRequest($travel,$request){
+    public function getTravelToursFilterByRequest($travel,$attribute){
 
         $tours = $travel->tours()
-            ->when($request->price_from, function ($query) use ($request) {
-                $query->where('price', '>=', $request->price_from * 100);
+            ->when($attribute->price_from, function ($query) use ($attribute) {
+                $query->where('price', '>=', $attribute->price_from * 100);
             })
-            ->when($request->price_to, function ($query) use ($request) {
-                $query->where('price', '<=', $request->price_to * 100);
+            ->when($attribute->price_to, function ($query) use ($attribute) {
+                $query->where('price', '<=', $attribute->price_to * 100);
             })
-            ->when($request->date_from, function ($query) use ($request) {
-                $query->where('start_date', '>=', $request->date_from);
+            ->when($attribute->date_from, function ($query) use ($attribute) {
+                $query->where('start_date', '>=', $attribute->date_from);
             })
-            ->when($request->date_to, function ($query) use ($request) {
-                $query->where('start_date', '<=', $request->date_to);
+            ->when($attribute->date_to, function ($query) use ($attribute) {
+                $query->where('start_date', '<=', $attribute->date_to);
             })
-            ->when($request->sort_by, function ($query) use ($request) {
-                if (! in_array($request->sort_by, ['price']) || (! in_array($request->order, ['asc', 'desc']))) return;
+            ->when($attribute->sort_by, function ($query) use ($attribute) {
+                if (! in_array($attribute->sort_by, ['price']) || (! in_array($attribute->order, ['asc', 'desc']))) return;
 
-                $query->orderBy($request->sort_by, $request->order);
+                $query->orderBy($attribute->sort_by, $attribute->order);
             })
             ->orderBy('start_date')
             ->paginate();
