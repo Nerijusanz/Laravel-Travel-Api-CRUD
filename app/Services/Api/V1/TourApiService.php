@@ -30,6 +30,11 @@ class TourApiService{
         return $tours;
     }
 
+    public static function formattedPrice(int|float $data)
+    {
+        return number_format($data, 2);
+    }
+
 }
 
 ?>
