@@ -22,7 +22,7 @@ class TourApiController extends Controller
 
         $travel->load(['tours']);
 
-        $tours = $tourApiService->getTravelToursFilterByRequest($travel,$request);
+        $tours = $tourApiService->getTravelToursFilterByRequest($travel,$request->validated());
 
         return TourApiResourceCollection::collection($tours);
     }

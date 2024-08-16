@@ -20,12 +20,12 @@ class TourFilterApiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'price_from' => ['numeric'],
-            'price_to' => ['numeric'],
-            'date_from' => ['date'],
-            'date_to' => ['date'],
-            'sort_by' => [Rule::in(['price'])],
-            'order' => [Rule::in(['asc', 'desc'])],
+            'price_from' => ['nullable','numeric'],
+            'price_to' => ['nullable','numeric'],
+            'date_from' => ['nullable','date'],
+            'date_to' => ['nullable','date'],
+            'sort_by' => ['nullable',Rule::in(['price'])],
+            'order' => ['nullable',Rule::in(['asc', 'desc'])],
         ];
     }
 
