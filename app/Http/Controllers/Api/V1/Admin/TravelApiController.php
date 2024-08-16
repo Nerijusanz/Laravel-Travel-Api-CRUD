@@ -10,6 +10,8 @@ use App\Models\Travel;
 use App\Http\Requests\Api\V1\Admin\TravelStoreApiRequest;
 use App\Http\Requests\Api\V1\Admin\TravelUpdateApiRequest;
 use App\Http\Resources\Api\V1\Admin\TravelApiResource;
+use App\Http\Resources\Api\V1\Admin\TravelApiResourceCollection;
+
 
 class TravelApiController extends Controller
 {
@@ -18,7 +20,7 @@ class TravelApiController extends Controller
     {
         $travels = Travel::query()->with(['tours'])->paginate();
 
-        return TravelApiResource::collection($travels);
+        return TravelApiResourceCollection::collection($travels);
     }
 
 
