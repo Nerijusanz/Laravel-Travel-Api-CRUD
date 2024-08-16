@@ -43,4 +43,5 @@ class Tour extends Model
             set: fn ($value) => $value * 100
         );
     }
+
 }
