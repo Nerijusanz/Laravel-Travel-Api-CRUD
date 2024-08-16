@@ -11,6 +11,7 @@ use App\Models\Travel;
 use App\Http\Requests\Api\V1\Admin\TourStoreApiRequest;
 use App\Http\Requests\Api\V1\Admin\TourUpdateApiRequest;
 use App\Http\Resources\Api\V1\Admin\TourApiResource;
+use App\Http\Resources\Api\V1\Admin\TourApiResourceCollection;
 
 class TourApiController extends Controller
 {
@@ -22,7 +23,7 @@ class TourApiController extends Controller
 
         $tours = $travel->tours()->paginate();
 
-        return TourApiResource::collection($tours);
+        return TourApiResourceCollection::collection($tours);
     }
 
     public function store(Travel $travel, TourStoreApiRequest $request)
