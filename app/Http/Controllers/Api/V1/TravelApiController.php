@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 
 use App\Models\Travel;
 use App\Http\Resources\Api\V1\TravelApiResource;
+use App\Http\Resources\Api\V1\TravelApiResourceCollection;
+
 
 class TravelApiController extends Controller
 {
@@ -15,7 +17,7 @@ class TravelApiController extends Controller
     {
         $travels = Travel::query()->public()->paginate();
 
-        return TravelApiResource::collection($travels);
+        return TravelApiResourceCollection::collection($travels);
     }
 
     public function store(Request $request)
