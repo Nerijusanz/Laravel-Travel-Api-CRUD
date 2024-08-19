@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\JsonResponse;
 
 use App\Models\Travel;
 use App\Http\Resources\Api\V1\TravelApiResource;
@@ -13,34 +15,20 @@ use App\Http\Resources\Api\V1\TravelApiResourceCollection;
 class TravelApiController extends Controller
 {
 
-    public function index()
+    public function index(): JsonResponse
     {
         $travels = Travel::query()->with(['tours'])->public()->paginate();
 
-        return TravelApiResourceCollection::collection($travels);
+        return (TravelApiResourceCollection::collection($travels))->response()->setStatusCode(Response::HTTP_OK);
     }
 
-    public function store(Request $request)
+    public function show(Travel $travel): JsonResponse
     {
-
-    }
-
-    public function show(Travel $travel)
-    {
-        if($travel->isNotPublic()) return response()->json(['errors' => 'Travel are not public'], Response::HTTP_FORBIDDEN);
+        if($travel->isNotPublic()) return response()->json(['errors' => 'Travel forbidden'])->setStatusCode(Response::HTTP_FORBIDDEN);
 
         $travel->load(['tours']);
 
-        return new TravelApiResource($travel);
+        return (new TravelApiResource($travel))->response()->setStatusCode(Response::HTTP_OK);
     }
 
-    public function update(Request $request, Travel $travel)
-    {
-
-    }
-
-    public function destroy(Travel $travel)
-    {
-
-    }
 }
