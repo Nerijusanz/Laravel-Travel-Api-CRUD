@@ -2,11 +2,32 @@
 
 namespace App\Services\Api\V1;
 
+use App\Models\Tour;
+use App\Models\Travel;
+
 class TourApiService{
 
-    public function getTravelToursFilterByRequest($travel,$attribute)
+    public function indexTour(Travel $travel, array $attributes)
     {
+        $travel->load(['tours']);
 
+        $tours = $this->getTravelToursFilterByRequest($travel,$attributes);
+
+        return $tours;
+    }
+
+    public function showTour(Travel $travel, Tour $tour): Tour
+    {
+        $travel->load(['tours']);
+
+        $tour = $travel->tours()->findOrFail($tour->id);
+
+        return $tour;
+    }
+
+
+    public function getTravelToursFilterByRequest(Travel $travel, array $attribute)
+    {
         $tours = $travel->tours()
             ->when(isset($attribute['price_from']), function ($query) use ($attribute) {
                 $query->where('price', '>=', $attribute['price_from'] * 100);
