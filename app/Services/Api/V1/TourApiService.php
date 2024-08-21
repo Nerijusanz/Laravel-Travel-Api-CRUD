@@ -26,25 +26,25 @@ class TourApiService{
     }
 
 
-    public function getTravelToursFilterByRequest(Travel $travel, array $attribute)
+    public function getTravelToursFilterByRequest(Travel $travel, array $attributes)
     {
         $tours = $travel->tours()
-            ->when(isset($attribute['price_from']), function ($query) use ($attribute) {
-                $query->where('price', '>=', $attribute['price_from'] * 100);
+            ->when(isset($attributes['price_from']), function ($query) use ($attributes) {
+                $query->where('price', '>=', $attributes['price_from'] * 100);
             })
-            ->when(isset($attribute['price_to']), function ($query) use ($attribute) {
-                $query->where('price', '<=', $attribute['price_to'] * 100);
+            ->when(isset($attributes['price_to']), function ($query) use ($attributes) {
+                $query->where('price', '<=', $attributes['price_to'] * 100);
             })
-            ->when(isset($attribute['date_from']), function ($query) use ($attribute) {
-                $query->where('start_date', '>=', $attribute['date_from']);
+            ->when(isset($attributes['date_from']), function ($query) use ($attributes) {
+                $query->where('start_date', '>=', $attributes['date_from']);
             })
-            ->when(isset($attribute['date_to']), function ($query) use ($attribute) {
-                $query->where('start_date', '<=', $attribute['date_to']);
+            ->when(isset($attributes['date_to']), function ($query) use ($attributes) {
+                $query->where('start_date', '<=', $attributes['date_to']);
             })
-            ->when( (isset($attribute['sort_by']) && isset($attribute['order']) ), function ($query) use ($attribute) {
-                if (! in_array($attribute['sort_by'], ['price']) || (! in_array($attribute['order'], ['asc', 'desc']))) return;
+            ->when( (isset($attributes['sort_by']) && isset($attributes['order']) ), function ($query) use ($attributes) {
+                if (! in_array($attributes['sort_by'], ['price']) || (! in_array($attributes['order'], ['asc', 'desc']))) return;
 
-                $query->orderBy($attribute['sort_by'], $attribute['order']);
+                $query->orderBy($attributes['sort_by'], $attributes['order']);
             })
             ->orderBy('start_date')
             ->paginate();
