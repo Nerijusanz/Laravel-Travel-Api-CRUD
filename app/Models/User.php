@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Builder;
 
 use App\Models\Role;
 use App\Models\Travel;
@@ -66,4 +67,21 @@ class User extends Authenticatable
     {
         return $this->hasMany(Tour::class);
     }
+
+    public function scopeAdminRole(Builder $query)
+    {
+        return $query->whereHas('roles',function($query) {
+            $query->where('id',1);
+
+        })->get()->first();
+    }
+
+    public function scopeUserRole(Builder $query)
+    {
+        return $query->whereHas('roles',function($query) {
+            $query->where('id',2);
+
+        })->get()->first();
+    }
+
 }
