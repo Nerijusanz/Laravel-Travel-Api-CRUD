@@ -8,10 +8,12 @@ use Tests\TestCase;
 
 use App\Models\User;
 use App\Models\Travel;
+use Database\Seeders\tests\traits\DatabaseSeederTraitTest;
 
 class TravelApiTest extends TestCase
 {
     use RefreshDatabase;
+    use DatabaseSeederTraitTest;
 
     private $user;
     public const BASE_URL = '/api';
