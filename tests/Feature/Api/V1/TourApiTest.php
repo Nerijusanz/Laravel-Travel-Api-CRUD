@@ -10,11 +10,13 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Travel;
 use App\Models\Tour;
+use Database\Seeders\tests\traits\DatabaseSeederTraitTest;
 
 class TourApiTest extends TestCase
 {
 
     use RefreshDatabase;
+    use DatabaseSeederTraitTest;
 
     private $user;
     public const BASE_URL = '/api';
@@ -24,7 +26,7 @@ class TourApiTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::factory()->create();
+        $this->user = User::query()->adminRole();
 
     }
 

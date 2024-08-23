@@ -7,14 +7,16 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 use App\Models\User;
-use App\Models\Role;
 use App\Models\Travel;
 use Database\Seeders\RolesTableSeeder;
+use Database\Seeders\tests\traits\DatabaseSeederTraitTest;
 
 class TravelApiTest extends TestCase
 {
     use RefreshDatabase;
+    use DatabaseSeederTraitTest;
 
+    private $admin;
     private $user;
     public const BASE_URL = '/api';
 
@@ -22,7 +24,9 @@ class TravelApiTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::factory()->create();
+        $this->admin = User::query()->adminRole();
+        $this->user = User::query()->userRole();
+
     }
 
 
@@ -44,11 +48,9 @@ class TravelApiTest extends TestCase
         php artisan test --filter=test_admin_travel_api_authenticated_logged_in_user_cannot_add_admin_travel_return_unauthorize_error_403
         */
 
-        $this->seed(RolesTableSeeder::class);
+        $this->actingAs($this->user);
 
-        $this->user->roles()->attach(Role::User());
-
-        $response = $this->actingAs($this->user)->postJson(self::BASE_URL . '/admin/travels');
+        $response = $this->postJson(self::BASE_URL . '/admin/travels');
 
         $response->assertStatus(403);
         $this->assertCount(0, Travel::all());
@@ -62,11 +64,9 @@ class TravelApiTest extends TestCase
         php artisan test --filter=test_admin_travel_api_authenticated_logged_in_admin_add_travel_successfully_with_valid_data
         */
 
-        $this->seed(RolesTableSeeder::class);
+        $this->actingAs($this->admin);
 
-        $this->user->roles()->attach(Role::Admin());
-
-        $response = $this->actingAs($this->user)->postJson(self::BASE_URL . '/admin/travels', [
+        $response = $this->postJson(self::BASE_URL . '/admin/travels', [
             'is_public' => 1,
             'name' => '',
         ]);
@@ -77,7 +77,7 @@ class TravelApiTest extends TestCase
 
         $name = 'Travel 1';
 
-        $response = $this->actingAs($this->user)->postJson(self::BASE_URL . '/admin/travels', [
+        $response = $this->postJson(self::BASE_URL . '/admin/travels', [
             'is_public' => 1,
             'name' => $name,
             'number_of_days' => 1,
@@ -97,7 +97,7 @@ class TravelApiTest extends TestCase
                     ->where('name',$name)
                     ->first();
 
-        $response = $this->actingAs($this->user)->getJson(self::BASE_URL . '/admin/travels');
+        $response = $this->getJson(self::BASE_URL . '/admin/travels');
         $response->assertJsonFragment(['name' => $travel->name]);
         $response->assertJsonFragment(['slug' => $travel->slug]);
 
@@ -109,9 +109,7 @@ class TravelApiTest extends TestCase
         php artisan test --filter=test_admin_travel_api_authenticated_logged_in_admin_update_travel_successfully_with_valid_data
         */
 
-        $this->seed(RolesTableSeeder::class);
-
-        $this->user->roles()->attach(Role::Admin());
+        $this->actingAs($this->admin);
 
         /****************ADD TRAVEL ***************/
 
@@ -122,7 +120,7 @@ class TravelApiTest extends TestCase
 
         $endpoint = self::BASE_URL . '/admin/travels';
 
-        $response = $this->actingAs($this->user)->postJson($endpoint, [
+        $response = $this->postJson($endpoint, [
             'is_public' => 1,
             'name' => $name,
             'number_of_days' => 1,
@@ -143,7 +141,7 @@ class TravelApiTest extends TestCase
                     ->first();
 
 
-        $response = $this->actingAs($this->user)->getJson($endpoint);
+        $response = $this->getJson($endpoint);
         $response->assertJsonFragment(['name' => $travel->name]);
         $response->assertJsonFragment(['slug' => $travel->slug]);
 
@@ -153,7 +151,7 @@ class TravelApiTest extends TestCase
 
         $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id;
 
-        $response = $this->actingAs($this->user)->putJson($endpoint, [
+        $response = $this->putJson($endpoint, [
             'user_id' => $travel->user_id,
             'is_public' => 1,
             'name' => $nameEmpty='',
@@ -169,7 +167,7 @@ class TravelApiTest extends TestCase
 
         $nameUpdated = $travel->name . ' Updated';
 
-        $response = $this->actingAs($this->user)->putJson($endpoint, [
+        $response = $this->putJson($endpoint, [
             'user_id' => $travel->user_id,
             'is_public' => 1,
             'name' => $nameUpdated,
@@ -192,11 +190,10 @@ class TravelApiTest extends TestCase
                     ->first();
 
 
-        $response = $this->actingAs($this->user)->getJson($endpoint);
+        $response = $this->getJson($endpoint);
 
         $response->assertJsonFragment(['name' => $travel->name]);
         $response->assertJsonFragment(['slug' => $travel->slug]);
-
 
     }
 
@@ -206,9 +203,7 @@ class TravelApiTest extends TestCase
         php artisan test --filter=test_admin_travel_api_authenticated_logged_in_admin_delete_travel_successfully_response_status_204
         */
 
-        $this->seed(RolesTableSeeder::class);
-
-        $this->user->roles()->attach(Role::Admin());
+        $this->actingAs($this->admin);
 
 
         /****************ADD TRAVEL ***************/
@@ -217,7 +212,7 @@ class TravelApiTest extends TestCase
 
         $name = 'Travel 1';
 
-        $response = $this->actingAs($this->user)->postJson($endpoint, [
+        $response = $this->postJson($endpoint, [
             'is_public' => 1,
             'name' => $name,
             'number_of_days' => 1,
@@ -238,7 +233,7 @@ class TravelApiTest extends TestCase
                     ->first();
 
 
-        $response = $this->actingAs($this->user)->getJson($endpoint);
+        $response = $this->getJson($endpoint);
         $response->assertJsonFragment(['name' => $travel->name]);
         $response->assertJsonFragment(['slug' => $travel->slug]);
 
@@ -251,7 +246,7 @@ class TravelApiTest extends TestCase
             'name' => $travel->name
         ]);
 
-        $response = $this->actingAs($this->user)->deleteJson(self::BASE_URL . '/admin/travels/' . $travel->id);
+        $response = $this->deleteJson(self::BASE_URL . '/admin/travels/' . $travel->id);
         $response->assertStatus(204);
 
         $this->assertCount(0, Travel::all());
@@ -259,7 +254,7 @@ class TravelApiTest extends TestCase
             'name' => $travel->name
         ]);
 
-        $response = $this->actingAs($this->user)->get(self::BASE_URL . '/admin/travels');
+        $response = $this->get(self::BASE_URL . '/admin/travels');
 
         $response->assertStatus(200);
         $response->assertJsonMissing(['name' => $travel->name]);
