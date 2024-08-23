@@ -22,7 +22,8 @@ class TravelApiTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::factory()->create();
+        $this->user = User::query()->userRole();
+
     }
 
     public function test_travels_list_shows_only_public_records()
@@ -31,9 +32,8 @@ class TravelApiTest extends TestCase
         php artisan test --filter=test_travels_list_shows_only_public_records
         */
 
-        //dd(self::BASE_URL);
-
         $this->actingAs($this->user);
+
 
         $publicTravel = Travel::factory()->create(['is_public' => true]);
         $notPublicTravel = Travel::factory()->create(['is_public' => false]);
