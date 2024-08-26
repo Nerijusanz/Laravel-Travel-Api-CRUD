@@ -22,7 +22,7 @@ class TravelApiTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::query()->userRole();
+        $this->user = User::userRole();
 
     }
 

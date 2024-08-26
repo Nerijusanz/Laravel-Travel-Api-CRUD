@@ -26,7 +26,7 @@ class TourApiTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::query()->adminRole();
+        $this->user = User::adminRole();
 
     }
 
