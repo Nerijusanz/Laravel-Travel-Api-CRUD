@@ -71,7 +71,7 @@ class User extends Authenticatable
     public function scopeAdminRole(Builder $query)
     {
         return $query->whereHas('roles',function($query) {
-            $query->where('id',1);
+            $query->where('name',Role::ADMIN);
 
         })->get()->first();
     }
@@ -79,7 +79,7 @@ class User extends Authenticatable
     public function scopeUserRole(Builder $query)
     {
         return $query->whereHas('roles',function($query) {
-            $query->where('id',2);
+            $query->where('name',Role::USER);
 
         })->get()->first();
     }
