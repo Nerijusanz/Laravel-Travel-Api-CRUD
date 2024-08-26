@@ -24,8 +24,8 @@ class TravelApiTest extends TestCase
     {
         parent::setUp();
 
-        $this->admin = User::query()->adminRole();
-        $this->user = User::query()->userRole();
+        $this->admin = User::adminRole();
+        $this->user = User::userRole();
 
     }
 
