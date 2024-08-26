@@ -23,7 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'isRole' => \App\Http\Middleware\Api\V1\Admin\RoleApiMiddleware::class,
+            'AdminRole' => \App\Http\Middleware\Api\V1\Admin\AdminRoleApiMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
