@@ -15,13 +15,13 @@ class RolesTableSeederTest extends Seeder
         $roles = [
             [
                 'id'    => 1,
-                'name' => 'admin',
+                'name' => Role::ADMIN,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
             [
                 'id'    => 2,
-                'name' => 'user',
+                'name' => Role::USER,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
