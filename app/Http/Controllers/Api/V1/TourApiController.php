@@ -28,7 +28,7 @@ class TourApiController extends Controller
         return (TourApiResourceCollection::collection($tours))->response()->setStatusCode(Response::HTTP_OK);
     }
 
-    public function show(Travel $travel, Tour $tour): JsonResponse
+    public function show(Travel $travel, Tour $tour, TourApiService $tourApiService): JsonResponse
     {
         if($travel->isNotPublic()) return response()->json(['errors' => 'Travel forbidden'])->setStatusCode(Response::HTTP_FORBIDDEN);
 
