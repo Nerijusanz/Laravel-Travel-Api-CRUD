@@ -6,21 +6,19 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-use App\Models\Role;
+use Illuminate\Support\Facades\Auth;
 use App\Services\Api\V1\Admin\UserApiService;
 
 class AdminRoleApiMiddleware
 {
 
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, UserApiService $userApiService): Response
     {
 
-        if (!auth()->check())
+        if (! Auth::check())
             return response()->json(['errors' => 'Unauthenticated'], 401);
 
-        $userApiService = new UserApiService;
-
-        $user = auth()->user();
+        $user = Auth::user();
 
         if(! $userApiService->isAdminRole($user) )
             return response()->json(['errors'=>'Unauthorized'], Response::HTTP_FORBIDDEN);
