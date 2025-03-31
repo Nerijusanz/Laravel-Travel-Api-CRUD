@@ -46,6 +46,7 @@ class AuthenticateApiTest extends TestCase
         ]);
 
         $response->assertStatus(422);
+        $response->assertJsonFragment(['message' => 'The provided credentials are incorrect']);
     }
 
     public function test_authenticate_logout_not_logged_in_user_cannot_logout_return_errors_unauthenticate_response_401(): void

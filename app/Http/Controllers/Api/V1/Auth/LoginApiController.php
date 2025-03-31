@@ -22,7 +22,7 @@ class LoginApiController extends Controller
         if (! $user || ! Hash::check($request->validated('password'), $user->password)) {
 
             throw ValidationException::withMessages([
-                'errors' => ['The provided credentials are incorrect.'],
+                'errors' => ['The provided credentials are incorrect'],
             ]);
         }
 
