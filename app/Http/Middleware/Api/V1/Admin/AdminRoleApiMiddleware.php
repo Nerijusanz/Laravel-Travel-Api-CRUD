@@ -12,16 +12,18 @@ use App\Services\Api\V1\Admin\UserApiService;
 class AdminRoleApiMiddleware
 {
 
-    public function handle(Request $request, Closure $next, UserApiService $userApiService): Response
+    public function handle(Request $request, Closure $next): Response
     {
 
         if (! Auth::check())
-            return response()->json(['errors' => 'Unauthenticated'], 401);
+            return response()->json(['errors' => 'Unauthenticated'])->setStatusCode(Response::HTTP_UNAUTHORIZED);
 
         $user = Auth::user();
 
+        $userApiService = new UserApiService;
+
         if(! $userApiService->isAdminRole($user) )
-            return response()->json(['errors'=>'Unauthorized'], Response::HTTP_FORBIDDEN);
+            return response()->json(['errors'=>'Unauthorized'])->setStatusCode(Response::HTTP_FORBIDDEN);
 
 
         return $next($request);
