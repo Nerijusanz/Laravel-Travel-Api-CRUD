@@ -20,8 +20,9 @@ class TravelApiController extends Controller
     {
         $travels = $travelApiService->indexTravel();
 
-        return response()->json(TravelApiResourceCollection::collection($travels))
-                        ->setStatusCode(Response::HTTP_OK);
+        return (TravelApiResourceCollection::collection($travels))
+                ->response()
+                ->setStatusCode(Response::HTTP_OK);
     }
 
     public function show(Travel $travel, TravelApiService $travelApiService): JsonResponse
@@ -30,8 +31,9 @@ class TravelApiController extends Controller
 
         $travel = $travelApiService->showTravel($travel);
 
-        return response()->json(new TravelApiResource($travel))
-                        ->setStatusCode(Response::HTTP_OK);
+        return (new TravelApiResource($travel))
+                ->response()
+                ->setStatusCode(Response::HTTP_OK);
     }
 
 }
