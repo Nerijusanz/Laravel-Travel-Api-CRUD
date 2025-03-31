@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 
 
-
+Route::post('login', App\Http\Controllers\Api\V1\Auth\LoginApiController::class);
 Route::apiResource('travels', \App\Http\Controllers\Api\V1\TravelApiController::class);
 Route::apiResource('travels/{travel}/tours', \App\Http\Controllers\Api\V1\TourApiController::class);
 
@@ -18,22 +18,8 @@ Route::prefix('admin')->middleware(['auth:sanctum','AdminRole'])->group(function
 });
 
 
-Route::prefix('auth')->middleware([])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
 
-    Route::post('login', App\Http\Controllers\Api\V1\Auth\LoginApiController::class);
-
-
-    Route::middleware(['auth:sanctum'])->group(function () {
-
-        Route::post('logout', App\Http\Controllers\Api\V1\Auth\LogoutApiController::class);
-
-    });
+    Route::post('logout', App\Http\Controllers\Api\V1\Auth\LogoutApiController::class);
 
 });
-
-
-
-
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
