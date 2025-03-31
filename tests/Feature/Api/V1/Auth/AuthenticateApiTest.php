@@ -46,6 +46,7 @@ class AuthenticateApiTest extends TestCase
         ]);
 
         $response->assertStatus(422);
+        $response->assertJsonStructure(['errors']);
         $response->assertJsonFragment(['message' => 'The provided credentials are incorrect']);
     }
 
