@@ -84,33 +84,34 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_returns_correct_pagination
         */
 
-        $itemsPagination = 15;
-        $itemsRecord = $itemsPagination + 1;
+        $itemsPagination15 = 15;
+        $itemsRecords16 = 16;
 
         $this->actingAs($this->user);
 
-        $travel = Travel::factory()->create(['is_public' => true]);
+        $travel = Travel::factory()->create(['is_public' => 1]);
 
         $this->assertCount(1, Travel::all());
 
         $this->assertDatabaseHas(Travel::class, [
-            'name' => $travel->name
+            'id' => $travel->id
         ]);
 
-        $travel = Travel::query()
-                    ->where('name',$travel->name)
-                    ->first();
+
+        $travel = Travel::findOrFail($travel->id);
+
+        Tour::factory( $itemsRecords16 )->create(['travel_id' => $travel->id]);
 
 
-        $tour = Tour::factory( $itemsRecord )->create(['travel_id' => $travel->id]);
+        $travel->load(['tours']);
 
-        $this->assertCount($itemsRecord, $travel->tours()->get());
+        $this->assertCount($itemsRecords16, $travel->tours()->get());
 
 
         $response = $this->get(self::BASE_URL . '/travels/'. $travel->id .'/tours');
 
         $response->assertStatus(200);
-        $response->assertJsonCount($itemsPagination, 'data');
+        $response->assertJsonCount($itemsPagination15, 'data');
         $response->assertJsonPath('meta.current_page', 1);
         $response->assertJsonPath('meta.last_page', 2);
     }
