@@ -39,30 +39,33 @@ class TourApiTest extends TestCase
 
         $this->actingAs($this->user);
 
-        $travel = Travel::factory()->create(['is_public' => true]);
+        $travel = Travel::factory()->create(['is_public' => 1]);
 
 
         $this->assertCount(1, Travel::all());
 
         $this->assertDatabaseHas(Travel::class, [
-            'name' => $travel->name
+            'id' => $travel->id
         ]);
 
-        $travel = Travel::query()
-                    ->where('name',$travel->name)
-                    ->first();
 
+        $travel = Travel::findOrFail($travel->id);
 
         $tour = Tour::factory()->create(['travel_id' => $travel->id]);
 
-        $this->assertCount(1, $travel->tours()->get());
-
         $this->assertDatabaseHas(Tour::class, [
-            'name' => $tour->name
+            'id' => $tour->id,
+            'travel_id' => $travel->id
         ]);
 
+
+        $travel->load(['tours']);
+
+        $this->assertCount(1, $travel->tours()->get());
+
+
         $tour = $travel->tours()
-                ->where('name',$tour->name)
+                ->where('id',$tour->id)
                 ->first();
 
 
@@ -70,7 +73,7 @@ class TourApiTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
-        $response->assertJsonFragment(['name' => $tour->name]);
+        $response->assertJsonFragment(['id' => $tour->id]);
 
     }
 
