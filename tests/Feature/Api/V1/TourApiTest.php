@@ -125,33 +125,35 @@ class TourApiTest extends TestCase
 
         $this->actingAs($this->user);
 
-        $travel = Travel::factory()->create(['is_public' => true]);
+        $travel = Travel::factory()->create(['is_public' => 1]);
 
         $this->assertCount(1, Travel::all());
 
         $this->assertDatabaseHas(Travel::class, [
-            'name' => $travel->name
+            'id' => $travel->id
         ]);
 
-        $travel = Travel::query()
-                    ->where('name',$travel->name)
-                    ->first();
 
+        $travel = Travel::findOrFail($travel->id);
 
         $tour = Tour::factory()->create([
                     'travel_id' => $travel->id,
                     'price'=> '99.99',
                 ]);
 
+        $this->assertDatabaseHas(Tour::class, [
+            'id' => $tour->id,
+            'travel_id' => $travel->id
+        ]);
+
+
+        $travel->load(['tours']);
 
         $this->assertCount(1, $travel->tours()->get());
 
-        $this->assertDatabaseHas(Tour::class, [
-            'name' => $tour->name
-        ]);
 
         $tour = $travel->tours()
-                ->where('name',$tour->name)
+                ->where('id',$tour->id)
                 ->first();
 
         $response = $this->get(self::BASE_URL . '/travels/'. $travel->id .'/tours');
