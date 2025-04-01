@@ -30,12 +30,6 @@ class TourFilterApiRequest extends FormRequest
     }
 
 
-    protected function failedValidation(Validator $validator): void
-    {
-        throw new HttpResponseException(response()->json(['errors' => $validator->errors()], Response::HTTP_UNPROCESSABLE_ENTITY));
-    }
-
-
     public function messages(): array
     {
         return [
