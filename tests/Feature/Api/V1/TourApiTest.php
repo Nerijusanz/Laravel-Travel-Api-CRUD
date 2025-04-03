@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Travel;
 use App\Models\Tour;
+use App\Services\Api\V1\TourApiService;
 use Database\Seeders\tests\traits\DatabaseSeederTraitTest;
 
 class TourApiTest extends TestCase
@@ -21,6 +22,9 @@ class TourApiTest extends TestCase
     private $user;
     public const BASE_URL = '/api';
 
+    /*******TEST CLASS*******
+        php artisan test --filter=TourApiTest
+    ************************/
 
     public function setUp(): void
     {
@@ -138,14 +142,15 @@ class TourApiTest extends TestCase
 
         $tour = Tour::factory()->create([
                     'travel_id' => $travel->id,
-                    'price'=> '99.99',
+                    'price'=> $tourPrice = 100
                 ]);
+
 
         $this->assertDatabaseHas(Tour::class, [
             'id' => $tour->id,
-            'travel_id' => $travel->id
+            'travel_id' => $travel->id,
+            'price' => (int)($tourPrice * 100)
         ]);
-
 
         $travel->load(['tours']);
 
@@ -160,7 +165,7 @@ class TourApiTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
-        $response->assertJsonFragment(['price' => number_format($tour->price,2)]);
+        $response->assertJsonFragment(['price' => $tour->price]);
     }
 
     public function test_tours_by_travel_id_sorts_by_starting_date_correctly(): void

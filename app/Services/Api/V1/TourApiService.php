@@ -51,6 +51,24 @@ class TourApiService{
 
     }
 
+
+    public static function getPriceValue(int $value)
+    {
+        $value = ($value / 100);
+
+        return number_format($value,2);
+
+    }
+
+
+    public static function setPriceValue(int|float $value): int
+    {
+        if( !isset($value) || !is_numeric($value) ) return 0;
+
+        return (int)($value * 100);
+    }
+
+
     public static function formattedPrice(int|float $value)
     {
         return number_format($value, 2);
