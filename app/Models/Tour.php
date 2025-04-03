@@ -44,7 +44,7 @@ class Tour extends Model
     {
         return Attribute::make(
             get: fn (int $value) => (new TourApiService)::getPriceValue($value),
-            set: fn (int|float $value) => (new TourApiService)::setPriceValue($value)
+            set: fn (int|float|string $value) => (new TourApiService)::setPriceValue($value)
         );
     }
 
