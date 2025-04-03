@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
+use App\Services\Api\V1\TourApiService;
 
 class Tour extends Model
 {
@@ -24,24 +25,28 @@ class Tour extends Model
         'end_date',
     ];
 
+
     public function travel(): BelongsTo
     {
         return $this->belongsTo(Travel::class);
     }
 
+
     protected static function booted()
     {
+
         static::creating(function ($model) {
             $model->user_id = Auth::id();
         });
     }
 
-    public function price(): Attribute
+    protected function price(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $value / 100,
-            set: fn ($value) => ( !isset($value) || !is_numeric($value) )? 0 : ( ($value == (int) $value) ? (int) $value * 100 : (float) $value * 100 )
+            get: fn (int $value) => (new TourApiService)::getPriceValue($value),
+            set: fn (int|float $value) => (new TourApiService)::setPriceValue($value)
         );
     }
+
 
 }
