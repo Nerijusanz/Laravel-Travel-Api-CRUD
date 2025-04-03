@@ -61,7 +61,7 @@ class TourApiService{
     }
 
 
-    public static function setPriceValue(int|float $value): int
+    public static function setPriceValue(int|float|string $value): int
     {
         if( !isset($value) || !is_numeric($value) ) return 0;
 
