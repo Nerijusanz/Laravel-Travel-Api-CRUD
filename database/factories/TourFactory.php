@@ -5,9 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 use Carbon\Carbon;
-use App\Models\User;
-use App\Models\Travel;
-
+use App\Utilities\Numbers;
 
 class TourFactory extends Factory
 {
@@ -20,9 +18,9 @@ class TourFactory extends Factory
             'user_id' => 1,
             'travel_id' => 1,
             'name' => fake()->unique()->words(3, true),
-            'price' => number_format($price=rand(100,1000),2),
-            'start_date' => $startDate = Carbon::parse($current->copy())->addDays(rand(0,3))->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($startDate)->addDays(rand(0,3))->endOfDay()->toDateTimeString(),
+            'price' => $price = Numbers::generateRandomFloat(0,1000),
+            'start_date' => $startDate = Carbon::parse($current->copy())->addDays(mt_rand(0,3))->startOfDay()->toDateTimeString(),
+            'end_date' => $endDate = Carbon::parse($startDate)->addDays(mt_rand(0,3))->endOfDay()->toDateTimeString(),
         ];
     }
 }
