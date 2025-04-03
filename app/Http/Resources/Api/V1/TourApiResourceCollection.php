@@ -5,9 +5,6 @@ namespace App\Http\Resources\Api\V1;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-use App\Services\Api\V1\TourApiService;
-
-
 class TourApiResourceCollection extends JsonResource
 {
 
@@ -16,15 +13,10 @@ class TourApiResourceCollection extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'price' => $this->formattedPrice(),
+            'price' => $this->price,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
         ];
-    }
-
-    private function formattedPrice()
-    {
-        return (new TourApiService)::formattedPrice($this->price);
     }
 
 }
