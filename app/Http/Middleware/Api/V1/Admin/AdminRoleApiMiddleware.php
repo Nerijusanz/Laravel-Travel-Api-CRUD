@@ -20,9 +20,7 @@ class AdminRoleApiMiddleware
 
         $user = Auth::user();
 
-        $userApiService = new UserApiService;
-
-        if(! $userApiService->isAdminRole($user) )
+        if(! UserApiService::isAdminRole($user) )
             return response()->json(['errors'=>'Unauthorized'])->setStatusCode(Response::HTTP_FORBIDDEN);
 
 
