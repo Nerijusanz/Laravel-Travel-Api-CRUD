@@ -4,6 +4,8 @@ namespace App\Http\Requests\Api\V1\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+use Illuminate\Validation\Rules\Password;
+
 class LoginApiRequest extends FormRequest
 {
 
@@ -17,7 +19,7 @@ class LoginApiRequest extends FormRequest
     {
         return [
             'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
+            'password' => ['required', Password::defaults()],
         ];
     }
 }
