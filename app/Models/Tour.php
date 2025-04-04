@@ -43,8 +43,8 @@ class Tour extends Model
     protected function price(): Attribute
     {
         return Attribute::make(
-            get: fn (int $value) => (new TourApiService)::getPriceValue($value),
-            set: fn (int|float|string $value) => (new TourApiService)::setPriceValue($value)
+            get: fn (int $value) => TourApiService::getPriceValue($value),
+            set: fn (int|float|string $value) => TourApiService::setPriceValue($value)
         );
     }
 
