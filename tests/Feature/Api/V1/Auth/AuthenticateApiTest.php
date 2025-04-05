@@ -17,6 +17,13 @@ class AuthenticateApiTest extends TestCase
     private $user;
 
 
+    /*********************TEST CLASS*********************/
+    /*
+        php artisan test --filter=AuthenticateApiTest
+    */
+    /****************************************************/
+
+
     public function setUp(): void
     {
         parent::setUp();
