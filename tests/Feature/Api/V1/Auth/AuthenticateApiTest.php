@@ -3,18 +3,27 @@
 namespace Tests\Feature\Api\V1\Auth;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 use App\Models\User;
-use App\Models\Role;
-use Database\Seeders\RolesTableSeeder;
+use Database\Seeders\tests\traits\DatabaseSeederTraitTest;
 
 class AuthenticateApiTest extends TestCase
 {
     use RefreshDatabase;
+    use DatabaseSeederTraitTest;
 
     public const BASE_URL = '/api';
+    private $user;
+
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->user = User::userRole();
+
+    }
 
 
     public function test_authenticate_login_returns_token_with_valid_credentials(): void
@@ -114,19 +123,18 @@ class AuthenticateApiTest extends TestCase
         php artisan test --filter=test_authenticate_logout_logged_in_user_can_logout_successfully_return_response_204
         */
 
-        $user = User::factory()->create();
-
-
         $response = $this->postJson(self::BASE_URL . '/login', [
-            'email' => $user->email,
+            'email' => $this->user->email,
             'password' => 'password',
         ]);
 
         $response->assertStatus(200);
         $response->assertJsonStructure(['access_token']);
 
+        $this->actingAs($this->user);
 
-        $response = $this->actingAs($user)->postJson(self::BASE_URL . '/logout');
+        $response = $this->postJson(self::BASE_URL . '/logout');
+
         $response->assertStatus(204);
 
     }
