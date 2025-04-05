@@ -34,20 +34,31 @@ class AuthenticateApiTest extends TestCase
         $response->assertJsonStructure(['access_token']);
     }
 
-    public function test_authenticate_login_returns_validation_error_422_with_invalid_credentials(): void
+    public function test_authenticate_login_returns_authentication_errors_with_invalid_credentials_return_response_status_401(): void
     {
         /*
-        php artisan test --filter=test_authenticate_login_returns_validation_error_422_with_invalid_credentials
+        php artisan test --filter=test_authenticate_login_returns_authentication_errors_with_invalid_credentials_return_response_status_401
         */
 
+        $user = User::factory()->create();
+
         $response = $this->postJson(self::BASE_URL . '/login', [
-            'email' => 'nonexisting@user.com',
+            'email' => 'none-existing-email@user.com',
             'password' => 'password',
         ]);
 
-        $response->assertStatus(422);
-        $response->assertJsonStructure(['errors']);
-        $response->assertJsonFragment(['message' => 'The provided credentials are incorrect']);
+        $response->assertStatus(401);
+        $response->assertJsonFragment(['errors' => 'Credentials incorrect']);
+
+
+        $response = $this->postJson(self::BASE_URL . '/login', [
+            'email' => $user->email,
+            'password' => 'bad-password',
+        ]);
+
+        $response->assertStatus(401);
+        $response->assertJsonFragment(['errors' => 'Credentials incorrect']);
+
     }
 
     public function test_authenticate_logout_not_logged_in_user_cannot_logout_return_errors_unauthenticate_response_401(): void
