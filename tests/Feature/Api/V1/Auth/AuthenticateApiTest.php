@@ -7,8 +7,6 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 use App\Models\User;
-use App\Models\Role;
-use Database\Seeders\RolesTableSeeder;
 
 class AuthenticateApiTest extends TestCase
 {
@@ -125,8 +123,10 @@ class AuthenticateApiTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure(['access_token']);
 
+        $this->actingAs($user);
 
-        $response = $this->actingAs($user)->postJson(self::BASE_URL . '/logout');
+        $response = $this->postJson(self::BASE_URL . '/logout');
+
         $response->assertStatus(204);
 
     }
