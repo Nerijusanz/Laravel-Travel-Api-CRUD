@@ -39,10 +39,8 @@ class AuthenticateApiTest extends TestCase
         php artisan test --filter=test_authenticate_login_returns_token_with_valid_credentials
         */
 
-        $user = User::factory()->create();
-
         $response = $this->postJson(self::BASE_URL . '/login', [
-            'email' => $user->email,
+            'email' => $this->user->email,
             'password' => 'password',
         ]);
 
