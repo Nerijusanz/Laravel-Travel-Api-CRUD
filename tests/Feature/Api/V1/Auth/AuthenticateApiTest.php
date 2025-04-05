@@ -89,8 +89,6 @@ class AuthenticateApiTest extends TestCase
         php artisan test --filter=test_authenticate_login_returns_authentication_errors_with_invalid_credentials_return_response_status_401
         */
 
-        $user = User::factory()->create();
-
         $response = $this->postJson(self::BASE_URL . '/login', [
             'email' => 'none-existing-email@user.com',
             'password' => 'password',
@@ -101,8 +99,8 @@ class AuthenticateApiTest extends TestCase
 
 
         $response = $this->postJson(self::BASE_URL . '/login', [
-            'email' => $user->email,
-            'password' => 'bad-password',
+            'email' => $this->user->email,
+            'password' => 'wrong-password',
         ]);
 
         $response->assertStatus(401);
