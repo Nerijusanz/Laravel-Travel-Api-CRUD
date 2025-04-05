@@ -34,6 +34,41 @@ class AuthenticateApiTest extends TestCase
         $response->assertJsonStructure(['access_token']);
     }
 
+    public function test_authenticate_login_return_validation_errors_with_incorrect_credentials_return_response_status_422(): void
+    {
+        /*
+        php artisan test --filter=test_authenticate_login_return_validation_errors_with_incorrect_credentials_return_response_status_422
+        */
+
+        $response = $this->postJson(self::BASE_URL . '/login', [
+            'email' => 'incorrect-email.com',
+            'password' => 'pass',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['email','password'] ]);
+
+
+        $response = $this->postJson(self::BASE_URL . '/login', [
+            'email' => 'incorrect-email.com',
+            'password' => 'password',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['email'] ]);
+
+
+        $response = $this->postJson(self::BASE_URL . '/login', [
+            'email' => 'admin@admin.com',
+            'password' => 'pass',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['password'] ]);
+
+
+    }
+
     public function test_authenticate_login_returns_authentication_errors_with_invalid_credentials_return_response_status_401(): void
     {
         /*
