@@ -2,21 +2,19 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
 
+use App\Models\User;
+use App\Models\Role;
 
 class UsersTableSeeder extends Seeder
 {
 
     public function run(): void
     {
-        $users = [
-            [
-                'id'             => 1,
+
+        $admin = [
                 'name'           => 'Admin',
                 'email'          => 'admin@admin.com',
                 'email_verified_at' => now(),
@@ -24,9 +22,9 @@ class UsersTableSeeder extends Seeder
                 'remember_token' => null,
                 'created_at'     => now(),
                 'updated_at'     => now()
-            ],
-            [
-                'id'             => 2,
+        ];
+
+        $user = [
                 'name'           => 'User',
                 'email'          => 'user@user.com',
                 'email_verified_at' => now(),
@@ -34,9 +32,14 @@ class UsersTableSeeder extends Seeder
                 'remember_token' => null,
                 'created_at'     => now(),
                 'updated_at'     => now()
-            ],
         ];
 
-        User::insert($users);
+
+        $admin = User::create($admin);
+        $admin->roles()->sync(Role::Admin());
+
+        $user = User::create($user);
+        $user->roles()->sync(Role::User());
+
     }
 }
