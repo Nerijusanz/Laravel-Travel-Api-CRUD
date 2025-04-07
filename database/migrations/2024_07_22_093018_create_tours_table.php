@@ -7,23 +7,13 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
 
-    private string $tableName = 'tours';
-
-    private string $tableTravel = 'travels';
-
-    private string $columnUserId = 'user_id';
-
-    private string $columnTravelId = 'travel_id';
-
-
     public function up(): void
     {
 
-        Schema::create($this->tableName, function (Blueprint $table) {
-
+        Schema::create('tours', function (Blueprint $table) {
             $table->id();
-            $table->foreignId($this->columnUserId)->constrained()->cascadeOnDelete();
-            $table->foreignId($this->columnTravelId)->constrained($this->tableTravel)->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('travel_id')->constrained('travels')->onUpdate('cascade')->onDelete('cascade');
             $table->string('name');
             $table->integer('price');
             $table->datetime('start_date');
@@ -31,9 +21,9 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-
-            $table->index($this->columnUserId,$this->columnIndex($this->tableName,$this->columnUserId) );
-            $table->index($this->columnTravelId,$this->columnIndex($this->tableName,$this->columnTravelId) );
+            $table->index(['user_id']);
+            $table->index(['travel_id']);
+            $table->unique(['deleted_at']);
 
         });
 
@@ -43,24 +33,8 @@ return new class extends Migration
     public function down(): void
     {
 
-        Schema::table($this->tableName, function (Blueprint $table) {
+        Schema::dropIfExists('tours');
 
-            $table->dropForeign([$this->columnUserId]);
-            $table->dropForeign([$this->columnTravelId]);
-
-            $table->dropIndex($this->columnIndex($this->tableName,$this->columnUserId) );
-            $table->dropIndex($this->columnIndex($this->tableName,$this->columnTravelId) );
-
-        });
-
-        Schema::dropIfExists($this->tableName);
-
-    }
-
-
-    private function columnIndex(string $table, string $column): string
-    {
-        return $table . '_' . $column . '_idx';
     }
 
 };
