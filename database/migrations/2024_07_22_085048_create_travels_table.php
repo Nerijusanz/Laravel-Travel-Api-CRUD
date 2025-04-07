@@ -7,11 +7,19 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
 
+    private string $tableName = 'travels';
+
+    private string $columnUserId = 'user_id';
+
+
     public function up(): void
     {
-        Schema::create('travels', function (Blueprint $table) {
+
+        Schema::create('travels', function (Blueprint $table)
+        {
+
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId($this->columnUserId)->constrained()->cascadeOnDelete();
             $table->boolean('is_public')->default(false);
             $table->string('name');
             $table->string('slug')->unique();
@@ -22,14 +30,31 @@ return new class extends Migration
             $table->softDeletes();
 
 
-            $table->index('user_id','travels_user_id_idx');
+            $table->index($this->columnUserId,$this->columnIndex($this->tableName,$this->columnUserId) );
+
         });
+
     }
 
 
     public function down(): void
     {
-        $table->dropForeign(['user_id']);
+
+        Schema::table($this->tableName, function (Blueprint $table) {
+
+            $table->dropForeign([$this->columnUserId]);
+            $table->dropIndex( $this->columnIndex($this->tableName,$this->columnUserId) );
+
+        });
+
         Schema::dropIfExists('travels');
+
     }
+
+
+    private function columnIndex(string $table, string $column): string
+    {
+        return $table . '_' . $column . '_idx';
+    }
+
 };
