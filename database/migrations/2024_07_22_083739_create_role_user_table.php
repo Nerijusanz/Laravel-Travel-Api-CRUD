@@ -6,29 +6,50 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+
+    private string $tableName = 'role_user';
+
+    private string $columnUserId = 'user_id';
+
+    private string $columnRoleId = 'role_id';
+
+
     public function up(): void
     {
-        Schema::create('role_user', function (Blueprint $table) {
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('role_id')->constrained()->cascadeOnDelete();
 
-            $table->index('user_id','role_user_user_id_idx');
-            $table->index('role_id','role_user_role_id_idx');
+        Schema::create($this->tableName, function (Blueprint $table) {
+
+            $table->foreignId($this->columnUserId)->constrained()->cascadeOnDelete();
+            $table->foreignId($this->columnRoleId)->constrained()->cascadeOnDelete();
+
+            $table->index($this->columnUserId, $this->columnIndex($this->tableName,$this->columnUserId) );
+            $table->index($this->columnRoleId, $this->columnIndex($this->tableName,$this->columnRoleId) );
 
         });
+
     }
 
-    /**
-     * Reverse the migrations.
-     */
+
     public function down(): void
     {
-        $table->dropForeign(['user_id']);
-        $table->dropForeign(['role_id']);
 
-        Schema::dropIfExists('role_user');
+        Schema::table($this->tableName, function (Blueprint $table) {
+
+            $table->dropForeign([$this->columnUserId]);
+            $table->dropForeign([$this->columnRoleId]);
+            $table->dropIndex( $this->columnIndex($this->tableName,$this->columnUserId) );
+            $table->dropIndex( $this->columnIndex($this->tableName,$this->columnRoleId) );
+
+        });
+
+        Schema::dropIfExists($this->tableName);
+
     }
+
+
+    private function columnIndex(string $table, string $column): string
+    {
+        return $table . '_' . $column . '_idx';
+    }
+
 };
