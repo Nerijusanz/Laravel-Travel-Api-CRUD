@@ -4,7 +4,8 @@ namespace App\Services\Api\V1\Admin;
 
 use App\Models\Travel;
 
-class TravelApiService{
+class TravelApiService
+{
 
     public function indexTravel()
     {
@@ -15,9 +16,9 @@ class TravelApiService{
         return $travels;
     }
 
-    public function storeTravel(array $attributes): Travel
+    public function storeTravel(array $data): Travel
     {
-        $travel =  Travel::create($attributes);
+        $travel =  Travel::create($data);
 
         return $travel;
     }
@@ -29,9 +30,9 @@ class TravelApiService{
         return $travel;
     }
 
-    public function updateTravel(Travel $travel, array $attributes): Travel
+    public function updateTravel(Travel $travel, array $data): Travel
     {
-        $travel->update($attributes);
+        $travel->update($data);
 
         return $travel;
     }
