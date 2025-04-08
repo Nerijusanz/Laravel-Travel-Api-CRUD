@@ -19,7 +19,7 @@ class TourApiController extends Controller
 
     public function index(Travel $travel, TourFilterApiRequest $request, TourApiService $tourApiService): JsonResponse
     {
-        if($travel->isNotPublic()) return response()->json(['errors' => 'Travel forbidden'])->setStatusCode(Response::HTTP_FORBIDDEN);
+        if(!$travel->is_public) return response()->json(['errors' => 'Travel forbidden'])->setStatusCode(Response::HTTP_FORBIDDEN);
 
         $validatedRequest = $request->validated();
 
@@ -30,7 +30,7 @@ class TourApiController extends Controller
 
     public function show(Travel $travel, Tour $tour, TourApiService $tourApiService): JsonResponse
     {
-        if($travel->isNotPublic()) return response()->json(['errors' => 'Travel forbidden'])->setStatusCode(Response::HTTP_FORBIDDEN);
+        if(!$travel->is_public) return response()->json(['errors' => 'Travel forbidden'])->setStatusCode(Response::HTTP_FORBIDDEN);
 
         $tour = $tourApiService->showTour($travel,$tour);
 
