@@ -16,12 +16,11 @@ return new class extends Migration
             $table->boolean('is_public')->default(0);
             $table->string('name');
             $table->string('slug');
-            $table->unsignedTinyInteger('number_of_days');
-            $table->unsignedTinyInteger('number_of_nights');
-            $table->text('description');
+            $table->integer('number_of_days')->default(1);
+            $table->integer('number_of_nights')->default(0);
+            $table->text('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
-
 
             $table->index(['user_id']);
             $table->unique(['slug','deleted_at']);
@@ -33,9 +32,7 @@ return new class extends Migration
 
     public function down(): void
     {
-
         Schema::dropIfExists('travels');
-
     }
 
 };
