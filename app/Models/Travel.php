@@ -47,11 +47,6 @@ class Travel extends Model
         ];
     }
 
-    public function scopeIsPublic()
-    {
-        return $this->is_public;
-    }
-
     public function scopeIsNotPublic()
     {
         return $this->is_public == 0 ? true : false;
