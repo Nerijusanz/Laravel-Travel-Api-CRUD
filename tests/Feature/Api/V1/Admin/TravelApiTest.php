@@ -39,6 +39,10 @@ class TravelApiTest extends TestCase
 
         $response->assertStatus(401);
 
+        $response = $this->getJson(self::BASE_URL . '/admin/travels/1');
+
+        $response->assertStatus(401);
+
         $response = $this->postJson(self::BASE_URL . '/admin/travels');
 
         $response->assertStatus(401);
