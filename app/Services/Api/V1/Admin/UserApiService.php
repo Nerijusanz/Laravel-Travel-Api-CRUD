@@ -8,10 +8,9 @@ use App\Models\Role;
 class UserApiService
 {
 
-    public static function isAdminRole(User $user): bool
+    public static function isAdmin(User $user): bool
     {
         return $user->roles()->where('name', Role::ADMIN)->exists();
     }
 
 }
-?>
