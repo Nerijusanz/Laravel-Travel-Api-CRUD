@@ -61,10 +61,25 @@ class TravelApiTest extends TestCase
 
         $this->actingAs($this->user);
 
+        $response = $this->getJson(self::BASE_URL . '/admin/travels');
+
+        $response->assertStatus(403);
+
+        $response = $this->getJson(self::BASE_URL . '/admin/travels/1');
+
+        $response->assertStatus(403);
+
         $response = $this->postJson(self::BASE_URL . '/admin/travels');
 
         $response->assertStatus(403);
-        $this->assertCount(0, Travel::all());
+
+        $response = $this->putJson(self::BASE_URL . '/admin/travels/1');
+
+        $response->assertStatus(403);
+
+        $response = $this->deleteJson(self::BASE_URL . '/admin/travels/1');
+
+        $response->assertStatus(403);
 
     }
 

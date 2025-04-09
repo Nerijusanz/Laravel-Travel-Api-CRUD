@@ -14,15 +14,11 @@ class AdminRoleApiMiddleware
 
     public function handle(Request $request, Closure $next): Response
     {
-
-        if (! Auth::check())
+        if (!$user = $request->user() )
             return response()->json(['errors' => 'Unauthenticated'])->setStatusCode(Response::HTTP_UNAUTHORIZED);
 
-        $user = Auth::user();
-
-        if(! UserApiService::isAdminRole($user) )
+        if(!UserApiService::isAdminRole($user) )
             return response()->json(['errors'=>'Unauthorized'])->setStatusCode(Response::HTTP_FORBIDDEN);
-
 
         return $next($request);
     }
