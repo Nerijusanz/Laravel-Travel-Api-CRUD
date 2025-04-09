@@ -201,7 +201,7 @@ class TravelApiTest extends TestCase
             'number_of_nights' => 0,
         ]);
 
-        $response->assertStatus(202);
+        $response->assertStatus(200);
 
         $this->assertDatabaseMissing(Travel::class, [
             'name' => $travel->name
