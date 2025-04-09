@@ -45,7 +45,7 @@ class TravelApiController extends Controller
     {
         $travel = $travelApiService->update($request);
 
-        return (new TravelApiResource($travel))->response()->setStatusCode(Response::HTTP_ACCEPTED);
+        return (new TravelApiResource($travel))->response()->setStatusCode(Response::HTTP_OK);
     }
 
 
