@@ -49,8 +49,6 @@ class TravelApiService
     {
         $travel = Travel::findOrFail($request->route('travel') );
 
-        $travel->load(['tours']);
-
         $travel->tours()->delete();
 
         $travel->delete();
