@@ -38,11 +38,9 @@ class TravelApiService
 
     public function update(TravelUpdateApiRequest $request): Travel
     {
-        $validated = $request->safe()->except(['user_id']);
-
         $travel = Travel::findOrFail($request->route('travel') );
 
-        $travel->update($validated);
+        $travel->update($request->validated() );
 
         return $travel;
     }

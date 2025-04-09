@@ -178,7 +178,6 @@ class TravelApiTest extends TestCase
         $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id;
 
         $response = $this->putJson($endpoint, [
-            'user_id' => $travel->user_id,
             'is_public' => 1,
             'name' => $nameEmpty='',
             'number_of_days' => 1,
@@ -194,7 +193,6 @@ class TravelApiTest extends TestCase
         $nameUpdated = $travel->name . ' Updated';
 
         $response = $this->putJson($endpoint, [
-            'user_id' => $travel->user_id,
             'is_public' => 1,
             'name' => $nameUpdated,
             'number_of_days' => 1,
