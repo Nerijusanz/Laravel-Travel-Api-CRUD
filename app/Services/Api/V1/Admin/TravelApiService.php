@@ -11,7 +11,7 @@ use App\Http\Requests\Api\V1\Admin\TravelUpdateApiRequest;
 class TravelApiService
 {
 
-    public function indexTravel()
+    public function index()
     {
         $travels = Travel::query()
                         ->with(['tours'])
@@ -20,14 +20,14 @@ class TravelApiService
         return $travels;
     }
 
-    public function storeTravel(TravelStoreApiRequest $request): Travel
+    public function store(TravelStoreApiRequest $request): Travel
     {
         $travel = Travel::create($request->validated() );
 
         return $travel;
     }
 
-    public function showTravel(Request $request): Travel
+    public function show(Request $request): Travel
     {
         $travel = Travel::findOrFail($request->route('travel') );
 
@@ -36,7 +36,7 @@ class TravelApiService
         return $travel;
     }
 
-    public function updateTravel(TravelUpdateApiRequest $request): Travel
+    public function update(TravelUpdateApiRequest $request): Travel
     {
         $validated = $request->safe()->except(['user_id']);
 
@@ -47,7 +47,7 @@ class TravelApiService
         return $travel;
     }
 
-    public function destroyTravel(Request $request): Void
+    public function destroy(Request $request): Void
     {
         $travel = Travel::findOrFail($request->route('travel') );
 

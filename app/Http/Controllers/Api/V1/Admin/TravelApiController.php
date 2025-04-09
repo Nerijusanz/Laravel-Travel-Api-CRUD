@@ -19,7 +19,7 @@ class TravelApiController extends Controller
 
     public function index(TravelApiService $travelApiService): JsonResponse
     {
-        $travels = $travelApiService->indexTravel();
+        $travels = $travelApiService->index();
 
         return (TravelApiResourceCollection::collection($travels))->response()->setStatusCode(Response::HTTP_OK);
     }
@@ -27,7 +27,7 @@ class TravelApiController extends Controller
 
     public function store(TravelStoreApiRequest $request,TravelApiService $travelApiService): JsonResponse
     {
-        $travel = $travelApiService->storeTravel($request);
+        $travel = $travelApiService->store($request);
 
         return (new TravelApiResource($travel))->response()->setStatusCode(Response::HTTP_CREATED);
     }
@@ -35,7 +35,7 @@ class TravelApiController extends Controller
 
     public function show(Request $request,TravelApiService $travelApiService): JsonResponse
     {
-        $travel = $travelApiService->showTravel($request);
+        $travel = $travelApiService->show($request);
 
         return (new TravelApiResource($travel))->response()->setStatusCode(Response::HTTP_OK);
     }
@@ -43,7 +43,7 @@ class TravelApiController extends Controller
 
     public function update(TravelUpdateApiRequest $request,TravelApiService $travelApiService): JsonResponse
     {
-        $travel = $travelApiService->updateTravel($request);
+        $travel = $travelApiService->update($request);
 
         return (new TravelApiResource($travel))->response()->setStatusCode(Response::HTTP_ACCEPTED);
     }
@@ -51,7 +51,7 @@ class TravelApiController extends Controller
 
     public function destroy(Request $request,TravelApiService $travelApiService): JsonResponse
     {
-        $travelApiService->destroyTravel($request);
+        $travelApiService->destroy($request);
 
         return response()->json(null)->setStatusCode(Response::HTTP_NO_CONTENT);
     }
