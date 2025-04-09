@@ -53,6 +53,6 @@ class TravelApiController extends Controller
     {
         $travelApiService->destroy($request);
 
-        return response()->json(null)->setStatusCode(Response::HTTP_NO_CONTENT);
+        return response()->json()->setStatusCode(Response::HTTP_NO_CONTENT);
     }
 }
