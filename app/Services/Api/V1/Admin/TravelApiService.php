@@ -2,7 +2,11 @@
 
 namespace App\Services\Api\V1\Admin;
 
+use Illuminate\Http\Request;
+
 use App\Models\Travel;
+use App\Http\Requests\Api\V1\Admin\TravelStoreApiRequest;
+use App\Http\Requests\Api\V1\Admin\TravelUpdateApiRequest;
 
 class TravelApiService
 {
@@ -16,29 +20,37 @@ class TravelApiService
         return $travels;
     }
 
-    public function storeTravel(array $data): Travel
+    public function storeTravel(TravelStoreApiRequest $request): Travel
     {
-        $travel =  Travel::create($data);
+        $travel = Travel::create($request->validated() );
 
         return $travel;
     }
 
-    public function showTravel(Travel $travel): Travel
+    public function showTravel(Request $request): Travel
     {
+        $travel = Travel::findOrFail($request->route('travel') );
+
         $travel->load(['tours']);
 
         return $travel;
     }
 
-    public function updateTravel(Travel $travel, array $data): Travel
+    public function updateTravel(TravelUpdateApiRequest $request): Travel
     {
-        $travel->update($data);
+        $validated = $request->safe()->except(['user_id']);
+
+        $travel = Travel::findOrFail($request->route('travel') );
+
+        $travel->update($validated);
 
         return $travel;
     }
 
-    public function destroyTravel(Travel $travel): Void
+    public function destroyTravel(Request $request): Void
     {
+        $travel = Travel::findOrFail($request->route('travel') );
+
         $travel->load(['tours']);
 
         $travel->tours()->delete();
@@ -47,5 +59,3 @@ class TravelApiService
     }
 
 }
-
-?>

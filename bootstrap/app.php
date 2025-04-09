@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 
@@ -17,18 +18,20 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->alias([
-            'AdminRole' => \App\Http\Middleware\Api\V1\Admin\AdminRoleApiMiddleware::class,
+        $middleware->api(prepend: [
+
+        ]);
+        $middleware->api(append: [
+
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
 
-        $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+        $exceptions->render(function (NotFoundHttpException $e, Request $request){
 
-            if ($request->is('api/*')) {
-                return response()->json([
-                    'error' => 'Record not found.'
-                ], 404);
+            if($request->is('api/*') ){
+                return response()->json(['error' => 'Record not found.'])
+                        ->setStatusCode(Response::HTTP_NOT_FOUND);
             }
 
         });
@@ -36,4 +39,5 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (Throwable $e, Request $request) {
 
         });
+
     })->create();
