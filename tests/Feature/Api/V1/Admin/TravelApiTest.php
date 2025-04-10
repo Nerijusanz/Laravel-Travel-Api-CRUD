@@ -134,7 +134,7 @@ class TravelApiTest extends TestCase
 
         $response = $this->postJson(self::BASE_URL . '/admin/travels', [
             'is_public' => 1,
-            'name' => $toBigName=str()->random(256),
+            'name' => $toLongName=str()->random(256),
             'number_of_days' => 1,
             'number_of_nights' => 0,
             'description' => NULL,
@@ -280,7 +280,7 @@ class TravelApiTest extends TestCase
 
         $response = $this->putJson($endpoint, [
             'is_public' => 1,
-            'name' => $toBigName=str()->random(256),
+            'name' => $toLongName=str()->random(256),
             'number_of_days' => 1,
             'number_of_nights' => 0,
             'description' => NULL,
