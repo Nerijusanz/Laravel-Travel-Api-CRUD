@@ -21,9 +21,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['user_id']);
-            $table->index(['travel_id']);
-            $table->unique(['deleted_at']);
+            $table->unique(['name','deleted_at']);
+            $table->index(['user_id','travel_id']);
 
         });
 
@@ -32,9 +31,7 @@ return new class extends Migration
 
     public function down(): void
     {
-
         Schema::dropIfExists('tours');
-
     }
 
 };
