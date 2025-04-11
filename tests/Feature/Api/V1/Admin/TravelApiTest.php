@@ -358,57 +358,50 @@ class TravelApiTest extends TestCase
 
         $this->actingAs($this->admin);
 
-        $travel = Travel::factory()->create([
-            'is_public' => $isPublic=0,
-            'name' => $name='Travel 1',
-            'number_of_days' => $days=1,
-            'number_of_nights' => $nights=0,
-            'description' => NULL,
-        ]);
+        $travelOne = [
+            'is_public' => 0,
+            'name' => 'Travel 1',
+            'number_of_days' => 1,
+            'number_of_nights' => 0,
+            'description' => NULL
+        ];
 
-        $this->assertDatabaseHas(Travel::class, [
-            'is_public' => $isPublic,
-            'name' => $name,
-            'number_of_days' => $days,
-            'number_of_nights' => $nights
-        ]);
+        $travelOneUpdated = [
+            'is_public' => 1,
+            'name' => 'Travel 1 Updated',
+            'number_of_days' => 2,
+            'number_of_nights' => 1,
+            'description' => NULL
+        ];
+
+        $travel = Travel::factory()->create($travelOne);
+
+        $this->assertCount(1, Travel::all());
+
+        $this->assertDatabaseHas(Travel::class, $travelOne);
+
 
         $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id;
 
+        $response = $this->getJson($endpoint);
 
-        $response = $this->putJson($endpoint, [
-            'is_public' => $isPublicUpdated=1,
-            'name' => $nameUpdated = 'Travel 2',
-            'number_of_days' => $daysUpdated=2,
-            'number_of_nights' => $nightsUpdated=1,
-            'description' => NULL
-        ]);
+        $response->assertStatus(200);
+        $response->assertJsonFragment($travelOne);
+
+
+        $response = $this->putJson($endpoint, $travelOneUpdated);
 
         $response->assertStatus(200);
 
-        $this->assertDatabaseMissing(Travel::class, [
-            'name' => $name
-        ]);
+        $this->assertDatabaseMissing(Travel::class, $travelOne);
 
-        $this->assertDatabaseHas(Travel::class, [
-            'is_public' => $isPublicUpdated,
-            'name' => $nameUpdated,
-            'number_of_days' => $daysUpdated,
-            'number_of_nights' => $nightsUpdated
-        ]);
+        $this->assertDatabaseHas(Travel::class, $travelOneUpdated);
 
-        $travelUpdated = Travel::query()
-                    ->where('name',$nameUpdated)
-                    ->first();
-
-        $endpoint = self::BASE_URL . '/admin/travels/' . $travelUpdated->id;
 
         $response = $this->getJson($endpoint);
 
-        $response->assertJsonFragment(['is_public' => $isPublicUpdated]);
-        $response->assertJsonFragment(['name' => $nameUpdated]);
-        $response->assertJsonFragment(['number_of_days' => $daysUpdated]);
-        $response->assertJsonFragment(['number_of_nights' => $nightsUpdated]);
+        $response->assertStatus(200);
+        $response->assertJsonFragment($travelOneUpdated);
 
     }
 
