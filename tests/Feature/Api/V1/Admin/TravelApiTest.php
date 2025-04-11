@@ -413,44 +413,42 @@ class TravelApiTest extends TestCase
 
         $this->actingAs($this->admin);
 
-        $travel = Travel::factory()->create([
+        $travelOne = [
             'is_public' => 1,
             'name' => 'Travel 1',
             'number_of_days' => 1,
             'number_of_nights' => 0,
-            'description' => NULL,
-        ]);
+            'description' => NULL
+        ];
+
+        $travel = Travel::factory()->create($travelOne);
 
         $this->assertCount(1, Travel::all());
 
-        $this->assertDatabaseHas(Travel::class, [
-            'id' => $travel->id,
-            'name' => $travel->name
-        ]);
+        $this->assertDatabaseHas(Travel::class, $travelOne);
 
-        $response = $this->get(self::BASE_URL . '/admin/travels');
+
+        $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id;
+
+
+        $response = $this->getJson($endpoint);
 
         $response->assertStatus(200);
-        $response->assertJsonFragment(['id' => $travel->id ]);
-        $response->assertJsonFragment(['name' => $travel->name]);
+        $response->assertJsonFragment($travelOne);
 
 
-        $response = $this->deleteJson(self::BASE_URL . '/admin/travels/' . $travel->id);
+        $response = $this->deleteJson($endpoint);
 
         $response->assertStatus(204);
 
         $this->assertCount(0, Travel::all());
 
-        $this->assertDatabaseMissing(Travel::class, [
-            'id' => $travel->id,
-            'name' => $travel->name
-        ]);
+        $this->assertDatabaseMissing(Travel::class, $travelOne);
 
-        $response = $this->get(self::BASE_URL . '/admin/travels');
 
-        $response->assertStatus(200);
-        $response->assertJsonMissing(['id' => $travel->id ]);
-        $response->assertJsonMissing(['name' => $travel->name]);
+        $response = $this->getJson($endpoint);
+
+        $response->assertStatus(404);
 
     }
 
