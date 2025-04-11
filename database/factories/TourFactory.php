@@ -9,18 +9,35 @@ use App\Utilities\Numbers;
 
 class TourFactory extends Factory
 {
+    private int $user_id;
+    private int $travel_id;
+    private string $name;
+    private int|float $price;
+    private Carbon $startDate;
+    private Carbon $endDate;
+
+
+    private function loadData(): Void
+    {
+        $this->user_id = 1;
+        $this->travel_id = 1;
+        $this->name = fake()->unique()->words(3, true);
+        $this->price = Numbers::generateRandomFloat(0,1000);
+        $this->startDate = Carbon::now()->addDays(mt_rand(0,3))->startOfDay();
+        $this->endDate = Carbon::parse($this->startDate)->addDays(mt_rand(0,3))->endOfDay();
+    }
 
     public function definition(): array
     {
-        $current = Carbon::now();
+        $this->loadData();
 
         return [
-            'user_id' => 1,
-            'travel_id' => 1,
-            'name' => fake()->unique()->words(3, true),
-            'price' => $price = Numbers::generateRandomFloat(0,1000),
-            'start_date' => $startDate = Carbon::parse($current->copy())->addDays(mt_rand(0,3))->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($startDate)->addDays(mt_rand(0,3))->endOfDay()->toDateTimeString(),
+            'user_id' => $this->user_id,
+            'travel_id' => $this->travel_id,
+            'name' => $this->name,
+            'price' => $this->price,
+            'start_date' => $this->startDate,
+            'end_date' => $this->endDate
         ];
     }
 }
