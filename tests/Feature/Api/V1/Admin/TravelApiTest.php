@@ -420,60 +420,44 @@ class TravelApiTest extends TestCase
 
         $this->actingAs($this->admin);
 
-
-        /****************ADD TRAVEL ***************/
-
-        $endpoint = self::BASE_URL . '/admin/travels';
-
-        $name = 'Travel 1';
-
-        $response = $this->postJson($endpoint, [
+        $travel = Travel::factory()->create([
             'is_public' => 1,
-            'name' => $name,
+            'name' => 'Travel 1',
             'number_of_days' => 1,
             'number_of_nights' => 0,
-            'description' => 'Travel 1 description',
+            'description' => NULL,
         ]);
-
-        $response->assertStatus(201);
 
         $this->assertCount(1, Travel::all());
 
         $this->assertDatabaseHas(Travel::class, [
-            'name' => $name
-        ]);
-
-        $travel = Travel::query()
-                    ->where('name',$name)
-                    ->first();
-
-
-        $response = $this->getJson($endpoint);
-        $response->assertJsonFragment(['name' => $travel->name]);
-        $response->assertJsonFragment(['slug' => $travel->slug]);
-
-
-        /***************** DELETE TRAVEL ***************/
-
-
-        $this->assertCount(1, Travel::all());
-        $this->assertDatabaseHas(Travel::class, [
-            'name' => $travel->name
-        ]);
-
-        $response = $this->deleteJson(self::BASE_URL . '/admin/travels/' . $travel->id);
-        $response->assertStatus(204);
-
-        $this->assertCount(0, Travel::all());
-        $this->assertDatabaseMissing(Travel::class, [
+            'id' => $travel->id,
             'name' => $travel->name
         ]);
 
         $response = $this->get(self::BASE_URL . '/admin/travels');
 
         $response->assertStatus(200);
+        $response->assertJsonFragment(['id' => $travel->id ]);
+        $response->assertJsonFragment(['name' => $travel->name]);
+
+
+        $response = $this->deleteJson(self::BASE_URL . '/admin/travels/' . $travel->id);
+
+        $response->assertStatus(204);
+
+        $this->assertCount(0, Travel::all());
+
+        $this->assertDatabaseMissing(Travel::class, [
+            'id' => $travel->id,
+            'name' => $travel->name
+        ]);
+
+        $response = $this->get(self::BASE_URL . '/admin/travels');
+
+        $response->assertStatus(200);
+        $response->assertJsonMissing(['id' => $travel->id ]);
         $response->assertJsonMissing(['name' => $travel->name]);
-        $response->assertJsonMissing(['slug' => $travel->slug ]);
 
     }
 
