@@ -22,9 +22,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->unique(['name','slug','deleted_at']);
             $table->index(['user_id']);
-            $table->unique(['slug','deleted_at']);
-
         });
 
     }
