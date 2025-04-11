@@ -202,31 +202,29 @@ class TravelApiTest extends TestCase
 
         $this->actingAs($this->admin);
 
-        $endpoint = self::BASE_URL . '/admin/travels';
-
-        $response = $this->postJson($endpoint, [
+        $travelOne = [
             'is_public' => 1,
-            'name' => $name='Travel 1',
+            'name' => 'Travel 1',
             'number_of_days' => 1,
             'number_of_nights' => 0,
-            'description' => NULL,
-        ]);
+            'description' => NULL
+        ];
+
+        $endpoint = self::BASE_URL . '/admin/travels';
+
+        $response = $this->postJson($endpoint, $travelOne);
 
         $response->assertStatus(201);
 
         $this->assertCount(1, Travel::all());
 
-        $this->assertDatabaseHas(Travel::class, [
-            'name' => $name
-        ]);
+        $this->assertDatabaseHas(Travel::class, $travelOne);
 
-        $travel = Travel::query()
-                    ->where('name',$name)
-                    ->first();
 
         $response = $this->getJson($endpoint);
 
-        $response->assertJsonFragment(['name' => $travel->name]);
+        $response->assertStatus(200);
+        $response->assertJsonFragment($travelOne);
 
     }
 
