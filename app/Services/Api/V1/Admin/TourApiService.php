@@ -5,9 +5,10 @@ namespace App\Services\Api\V1\Admin;
 use App\Models\Tour;
 use App\Models\Travel;
 
-class TourApiService{
+class TourApiService
+{
 
-    public function indexTour(Travel $travel)
+    public function index(Travel $travel)
     {
         $travel->load(['tours']);
 
@@ -16,7 +17,7 @@ class TourApiService{
         return $tours;
     }
 
-    public function storeTour(Travel $travel, array $attributes): Tour
+    public function store(Travel $travel, array $attributes): Tour
     {
         $travel->load(['tours']);
 
@@ -25,7 +26,7 @@ class TourApiService{
         return $tour;
     }
 
-    public function showTour(Travel $travel,Tour $tour): Tour
+    public function show(Travel $travel,Tour $tour): Tour
     {
         $travel->load(['tours']);
 
@@ -34,7 +35,7 @@ class TourApiService{
         return $tour;
     }
 
-    public function updateTour(Travel $travel,Tour $tour,array $attributes): Tour
+    public function update(Travel $travel,Tour $tour,array $attributes): Tour
     {
         $travel->load(['tours']);
 
@@ -45,7 +46,7 @@ class TourApiService{
         return $tour;
     }
 
-    public function destroyTour(Travel $travel, Tour $tour): Void
+    public function destroy(Travel $travel, Tour $tour): Void
     {
         $travel->load(['tours']);
 
@@ -53,5 +54,3 @@ class TourApiService{
     }
 
 }
-
-?>
