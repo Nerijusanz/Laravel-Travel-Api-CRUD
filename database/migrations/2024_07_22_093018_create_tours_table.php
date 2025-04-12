@@ -9,13 +9,12 @@ return new class extends Migration
 
     public function up(): void
     {
-
         Schema::create('tours', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('travel_id')->constrained('travels')->onUpdate('cascade')->onDelete('cascade');
             $table->string('name');
-            $table->integer('price');
+            $table->integer('price')->default(0);
             $table->datetime('start_date');
             $table->datetime('end_date');
             $table->timestamps();
@@ -25,7 +24,6 @@ return new class extends Migration
             $table->index(['user_id','travel_id']);
 
         });
-
     }
 
 
