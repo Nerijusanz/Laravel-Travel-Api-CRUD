@@ -36,31 +36,30 @@ class TourApiTest extends TestCase
     }
 
 
-    public function test_admin_tour_api_unauthenticated_not_logged_in_public_user_cannot_access_admin_tours_return_unauthenticate_error_status_401(): void
+    public function test_admin_tour_api_unauthenticated_not_logged_in_user_cannot_access_admin_tours_return_unauthenticate_error_status_401(): void
     {
         /*
-        php artisan test --filter=test_admin_tour_api_unauthenticated_not_logged_in_public_user_cannot_access_admin_tours_return_unauthenticate_error_status_401
+        php artisan test --filter=test_admin_tour_api_unauthenticated_not_logged_in_user_cannot_access_admin_tours_return_unauthenticate_error_status_401
+
         */
 
-        $this->actingAs($this->user);
+        $response = $this->getJson(self::BASE_URL . '/admin/travels/1/tours');
 
-        $travel = Travel::factory()->create([
-            'is_public' => 1,
-            'name' => 'Travel 1',
-            'number_of_days' => 1,
-            'number_of_nights' => 0,
-            'description' => 'Travel 1 description',
-        ]);
+        $response->assertStatus(401);
 
-        $this->assertCount(1, Travel::all());
+        $response = $this->getJson(self::BASE_URL . '/admin/travels/1/tours/1');
 
-        $this->assertDatabaseHas(Travel::class, [
-            'name' => $travel->name
-        ]);
+        $response->assertStatus(401);
 
-        Auth::logout();
+        $response = $this->postJson(self::BASE_URL . '/admin/travels/1/tours');
 
-        $response = $this->postJson(self::BASE_URL . '/admin/travels/' . $travel->id . '/tours');
+        $response->assertStatus(401);
+
+        $response = $this->putJson(self::BASE_URL . '/admin/travels/1/tours/1');
+
+        $response->assertStatus(401);
+
+        $response = $this->deleteJson(self::BASE_URL . '/admin/travels/1/tours/1');
 
         $response->assertStatus(401);
     }
