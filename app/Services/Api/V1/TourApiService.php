@@ -5,7 +5,8 @@ namespace App\Services\Api\V1;
 use App\Models\Tour;
 use App\Models\Travel;
 
-class TourApiService{
+class TourApiService
+{
 
     public function indexTour(Travel $travel, array $data)
     {
@@ -68,12 +69,4 @@ class TourApiService{
         return (int)($value * 100);
     }
 
-
-    public static function formattedPrice(int|float $value)
-    {
-        return number_format($value, 2);
-    }
-
 }
-
-?>
