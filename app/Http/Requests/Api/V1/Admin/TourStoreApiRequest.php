@@ -3,14 +3,10 @@
 namespace App\Http\Requests\Api\V1\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
-
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
-use Symfony\Component\HttpFoundation\Response;
-
-use App\Models\User;
-use App\Models\Travel;
 use Illuminate\Validation\Rule;
+
+use App\Models\Tour;
+use App\Models\Travel;
 
 class TourStoreApiRequest extends FormRequest
 {
@@ -22,26 +18,13 @@ class TourStoreApiRequest extends FormRequest
 
     public function rules(): array
     {
-
         return [
-            'travel_id' => ['required','integer', Rule::exists(Travel::class,'id')],
-            'name' => ['required','string','min:2','max:255'],
-            'price' => ['required', 'numeric'],
+            'travel_id' => ['required','integer', Rule::exists(Travel::class,'id')->whereNull('deleted_at')],
+            'name' => ['required','string','min:2','max:255', Rule::unique(Tour::class)->whereNull('deleted_at')],
+            'price' => ['required', 'numeric','min:0'],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after:start_date'],
         ];
     }
 
-    protected function failedValidation(Validator $validator): void
-    {
-        throw new HttpResponseException(response()->json(['errors' => $validator->errors()], Response::HTTP_UNPROCESSABLE_ENTITY));
-    }
-
-
-    public function messages(): array
-    {
-        return [
-
-        ];
-    }
 }
