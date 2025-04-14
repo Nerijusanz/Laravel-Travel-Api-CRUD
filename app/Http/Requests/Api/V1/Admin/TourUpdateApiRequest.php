@@ -18,7 +18,7 @@ class TourUpdateApiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required','string','min:2','max:255',Rule::unique(Tour::class)->whereNull('deleted_at')],
+            'name' => ['required','string','min:2','max:255',Rule::unique(Tour::class)->ignore($this->tour)->whereNull('deleted_at')],
             'price' => ['required', 'numeric','min:0'],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after:start_date'],
