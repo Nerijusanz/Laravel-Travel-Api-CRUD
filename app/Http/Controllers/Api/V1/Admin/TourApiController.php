@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\JsonResponse;
 
-use App\Models\Tour;
-use App\Models\Travel;
 use App\Services\Api\V1\Admin\TourApiService;
 use App\Http\Requests\Api\V1\Admin\TourStoreApiRequest;
 use App\Http\Requests\Api\V1\Admin\TourUpdateApiRequest;
@@ -18,40 +16,38 @@ use App\Http\Resources\Api\V1\Admin\TourApiResourceCollection;
 class TourApiController extends Controller
 {
 
-    public function index(Travel $travel, TourApiService $tourApiService): JsonResponse
+    public function index(Request $request, TourApiService $tourApiService): JsonResponse
     {
-        $tours = $tourApiService->index($travel);
+        $tours = $tourApiService->index($request);
 
         return (TourApiResourceCollection::collection($tours))->response()->setStatusCode(Response::HTTP_OK);
     }
 
-    public function store(Travel $travel, TourStoreApiRequest $request, TourApiService $tourApiService): JsonResponse
+    public function store(TourStoreApiRequest $request, TourApiService $tourApiService): JsonResponse
     {
-        $tour = $tourApiService->store($travel, $request->validated());
+        $tour = $tourApiService->store($request);
 
         return (new TourApiResource($tour))->response()->setStatusCode(Response::HTTP_CREATED);
     }
 
-    public function show(Travel $travel, Tour $tour, TourApiService $tourApiService): JsonResponse
+    public function show(Request $request, TourApiService $tourApiService): JsonResponse
     {
-        $tour = $tourApiService->show($travel,$tour);
+        $tour = $tourApiService->show($request);
 
         return (new TourApiResource($tour))->response()->setStatusCode(Response::HTTP_OK);
     }
 
-    public function update(Travel $travel, Tour $tour, TourUpdateApiRequest $request, TourApiService $tourApiService): JsonResponse
+    public function update(TourUpdateApiRequest $request, TourApiService $tourApiService): JsonResponse
     {
-        $validatedRequest = $request->safe()->except(['user_id','travel_id']);
-
-        $tour = $tourApiService->update($travel,$tour,$validatedRequest);
+        $tour = $tourApiService->update($request);
 
         return (new TourApiResource($tour))->response()->setStatusCode(Response::HTTP_ACCEPTED);
     }
 
-    public function destroy(Travel $travel, Tour $tour, TourApiService $tourApiService): JsonResponse
+    public function destroy(Request $request, TourApiService $tourApiService): JsonResponse
     {
-        $tourApiService->destroy($travel,$tour);
+        $tourApiService->destroy($request);
 
-        return response()->json(null)->setStatusCode(Response::HTTP_NO_CONTENT);
+        return response()->json()->setStatusCode(Response::HTTP_NO_CONTENT);
     }
 }
