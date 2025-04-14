@@ -2,14 +2,20 @@
 
 namespace App\Services\Api\V1\Admin;
 
-use App\Models\Tour;
+use Illuminate\Http\Request;
+
 use App\Models\Travel;
+use App\Models\Tour;
+use App\Http\Requests\Api\V1\Admin\TourStoreApiRequest;
+use App\Http\Requests\Api\V1\Admin\TourUpdateApiRequest;
 
 class TourApiService
 {
 
-    public function index(Travel $travel)
+    public function index(Request $request)
     {
+        $travel = Travel::findOrFail($request->route('travel') );
+
         $travel->load(['tours']);
 
         $tours = $travel->tours()->paginate();
@@ -17,40 +23,42 @@ class TourApiService
         return $tours;
     }
 
-    public function store(Travel $travel, array $attributes): Tour
+    public function store(TourStoreApiRequest $request): Tour
     {
-        $travel->load(['tours']);
+        $travel = Travel::findOrFail($request->route('travel') );
 
-        $tour = $travel->tours()->create($attributes);
+        $tour = $travel->tours()->create($request->validated() );
 
         return $tour;
     }
 
-    public function show(Travel $travel,Tour $tour): Tour
+    public function show(Request $request): Tour
     {
-        $travel->load(['tours']);
+        $travel = Travel::findOrFail($request->route('travel') );
 
-        $tour = $travel->tours()->findOrFail($tour->id);
+        $tour = $travel->tours()->findOrFail($request->route('tour') );
 
         return $tour;
     }
 
-    public function update(Travel $travel,Tour $tour,array $attributes): Tour
+    public function update(TourUpdateApiRequest $request): Tour
     {
-        $travel->load(['tours']);
+        $travel = Travel::findOrFail($request->route('travel') );
 
-        $tour = $travel->tours()->findOrFail($tour->id);
+        $tour = $travel->tours()->findOrFail($request->route('tour') );
 
-        $tour->update($attributes);
+        $tour->update($request->validated() );
 
         return $tour;
     }
 
-    public function destroy(Travel $travel, Tour $tour): Void
+    public function destroy(Request $request): Void
     {
-        $travel->load(['tours']);
+        $travel = Travel::findOrFail($request->route('travel') );
 
-        $travel->tours()->findOrFail($tour->id)->delete();
+        $tour = $travel->tours()->findOrFail($request->route('tour') );
+
+        $tour->delete();
     }
 
 }
