@@ -24,11 +24,12 @@ class TravelApiController extends Controller
                 ->setStatusCode(Response::HTTP_OK);
     }
 
-    public function show(Travel $travel, TravelApiService $travelApiService): JsonResponse
+    public function show(Request $request, TravelApiService $travelApiService): JsonResponse
     {
-        if(!$travel->is_public) return response()->json(['errors' => 'Travel forbidden'])->setStatusCode(Response::HTTP_FORBIDDEN);
+        if(!$travelApiService->isPublic($request) )
+            return response()->json(['errors' => 'Travel forbidden'])->setStatusCode(Response::HTTP_FORBIDDEN);
 
-        $travel = $travelApiService->show($travel);
+        $travel = $travelApiService->show($request);
 
         return (new TravelApiResource($travel))
                 ->response()
