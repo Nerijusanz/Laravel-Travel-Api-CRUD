@@ -166,10 +166,10 @@ class TourApiTest extends TestCase
 
     }
 
-    public function test_admin_tour_api_authenticated_logged_in_admin_update_tour_successfully_with_valid_data_response_status_202(): void
+    public function test_admin_tour_api_authenticated_logged_in_admin_update_tour_successfully_with_valid_data_response_status_200(): void
     {
         /*
-        php artisan test --filter=test_admin_tour_api_authenticated_logged_in_admin_update_tour_successfully_with_valid_data_response_status_202
+        php artisan test --filter=test_admin_tour_api_authenticated_logged_in_admin_update_tour_successfully_with_valid_data_response_status_200
         */
 
         $this->actingAs($this->admin);
@@ -248,7 +248,7 @@ class TourApiTest extends TestCase
         ]);
 
 
-        $response->assertStatus(202);
+        $response->assertStatus(200);
 
         $this->assertCount(1, $travel->tours()->get());
 
