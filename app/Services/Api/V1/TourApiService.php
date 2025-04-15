@@ -33,25 +33,25 @@ class TourApiService
         return $tour;
     }
 
-    public function getTravelToursFilterByRequest(Travel $travel, array $data)
+    public function getTravelToursFilterByRequest(Travel $travel, array $req)
     {
         return $travel->tours()
-            ->when(isset($data['price_from']), function ($query) use ($data) {
-                $query->where('price', '>=', $data['price_from'] * 100);
+            ->when(isset($req['price_from']), function ($query) use ($req) {
+                $query->where('price', '>=', $req['price_from'] * 100);
             })
-            ->when(isset($data['price_to']), function ($query) use ($data) {
-                $query->where('price', '<=', $data['price_to'] * 100);
+            ->when(isset($req['price_to']), function ($query) use ($req) {
+                $query->where('price', '<=', $req['price_to'] * 100);
             })
-            ->when(isset($data['date_from']), function ($query) use ($data) {
-                $query->where('start_date', '>=', $data['date_from']);
+            ->when(isset($req['date_from']), function ($query) use ($req) {
+                $query->where('start_date', '>=', $req['date_from']);
             })
-            ->when(isset($data['date_to']), function ($query) use ($data) {
-                $query->where('start_date', '<=', $data['date_to']);
+            ->when(isset($req['date_to']), function ($query) use ($req) {
+                $query->where('start_date', '<=', $req['date_to']);
             })
-            ->when( (isset($data['sort_by']) && isset($data['order']) ), function ($query) use ($data) {
-                if (! in_array($data['sort_by'], ['price']) || (! in_array($data['order'], ['asc', 'desc']))) return;
+            ->when( (isset($req['sort_by']) && isset($req['order']) ), function ($query) use ($req) {
+                if (! in_array($req['sort_by'], ['price']) || (! in_array($req['order'], ['asc', 'desc']))) return;
 
-                $query->orderBy($data['sort_by'], $data['order']);
+                $query->orderBy($req['sort_by'], $req['order']);
             })
             ->orderBy('start_date')
             ->paginate();
