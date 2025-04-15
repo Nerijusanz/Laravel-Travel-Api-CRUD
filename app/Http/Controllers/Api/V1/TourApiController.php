@@ -23,7 +23,7 @@ class TourApiController extends Controller
 
         $validatedRequest = $request->validated();
 
-        $tours = $tourApiService->indexTour($travel,$validatedRequest);
+        $tours = $tourApiService->index($travel,$validatedRequest);
 
         return (TourApiResourceCollection::collection($tours))->response()->setStatusCode(Response::HTTP_OK);
     }
@@ -32,7 +32,7 @@ class TourApiController extends Controller
     {
         if(!$travel->is_public) return response()->json(['errors' => 'Travel forbidden'])->setStatusCode(Response::HTTP_FORBIDDEN);
 
-        $tour = $tourApiService->showTour($travel,$tour);
+        $tour = $tourApiService->show($travel,$tour);
 
         return (new TourApiResource($tour))->response()->setStatusCode(Response::HTTP_OK);
     }
