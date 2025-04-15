@@ -12,13 +12,12 @@ use App\Services\Api\V1\TravelApiService;
 use App\Http\Resources\Api\V1\TravelApiResource;
 use App\Http\Resources\Api\V1\TravelApiResourceCollection;
 
-
 class TravelApiController extends Controller
 {
 
     public function index(TravelApiService $travelApiService): JsonResponse
     {
-        $travels = $travelApiService->indexTravel();
+        $travels = $travelApiService->index();
 
         return (TravelApiResourceCollection::collection($travels))
                 ->response()
@@ -29,7 +28,7 @@ class TravelApiController extends Controller
     {
         if(!$travel->is_public) return response()->json(['errors' => 'Travel forbidden'])->setStatusCode(Response::HTTP_FORBIDDEN);
 
-        $travel = $travelApiService->showTravel($travel);
+        $travel = $travelApiService->show($travel);
 
         return (new TravelApiResource($travel))
                 ->response()

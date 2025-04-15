@@ -4,9 +4,10 @@ namespace App\Services\Api\V1;
 
 use App\Models\Travel;
 
-class TravelApiService{
+class TravelApiService
+{
 
-    public function indexTravel()
+    public function index()
     {
         $travels = Travel::query()
                         ->with(['tours'])
@@ -16,7 +17,7 @@ class TravelApiService{
         return $travels;
     }
 
-    public function showTravel(Travel $travel): Travel
+    public function show(Travel $travel): Travel
     {
         $travel->load(['tours']);
 
@@ -24,5 +25,3 @@ class TravelApiService{
     }
 
 }
-
-?>
