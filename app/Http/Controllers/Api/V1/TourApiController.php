@@ -16,9 +16,9 @@ use App\Http\Resources\Api\V1\TourApiResourceCollection;
 class TourApiController extends Controller
 {
 
-    public function index(TourFilterApiRequest $request,TravelApiService $travelApiService, TourApiService $tourApiService): JsonResponse
+    public function index(TourFilterApiRequest $request,TourApiService $tourApiService): JsonResponse
     {
-        if(!$travelApiService->isPublic($request) )
+        if(!TravelApiService::isPublic($request) )
             return response()->json(['errors' => 'Travel forbidden'])->setStatusCode(Response::HTTP_FORBIDDEN);
 
         $tours = $tourApiService->index($request);
@@ -26,9 +26,9 @@ class TourApiController extends Controller
         return (TourApiResourceCollection::collection($tours))->response()->setStatusCode(Response::HTTP_OK);
     }
 
-    public function show(Request $request,TravelApiService $travelApiService,TourApiService $tourApiService): JsonResponse
+    public function show(Request $request,TourApiService $tourApiService): JsonResponse
     {
-        if(!$travelApiService->isPublic($request) )
+        if(!TravelApiService::isPublic($request) )
             return response()->json(['errors' => 'Travel forbidden'])->setStatusCode(Response::HTTP_FORBIDDEN);
 
         $tour = $tourApiService->show($request);
