@@ -8,7 +8,7 @@ use App\Models\Travel;
 class TourApiService
 {
 
-    public function indexTour(Travel $travel, array $data)
+    public function index(Travel $travel, array $data)
     {
         $travel->load(['tours']);
 
@@ -17,7 +17,7 @@ class TourApiService
         return $tours;
     }
 
-    public function showTour(Travel $travel, Tour $tour): Tour
+    public function show(Travel $travel, Tour $tour): Tour
     {
         $travel->load(['tours']);
 
