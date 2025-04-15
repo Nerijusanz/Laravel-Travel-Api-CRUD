@@ -42,11 +42,11 @@ class TourApiService
             ->when(isset($req['price_to']), function ($query) use ($req) {
                 $query->where('price', '<=', $req['price_to'] * 100);
             })
-            ->when(isset($req['date_from']), function ($query) use ($req) {
-                $query->where('start_date', '>=', $req['date_from']);
+            ->when(isset($req['start_date']), function ($query) use ($req) {
+                $query->where('start_date', '>=', $req['start_date']);
             })
-            ->when(isset($req['date_to']), function ($query) use ($req) {
-                $query->where('start_date', '<=', $req['date_to']);
+            ->when(isset($req['end_date']), function ($query) use ($req) {
+                $query->where('start_date', '<=', $req['end_date']);
             })
             ->when( (isset($req['sort_by']) && isset($req['order']) ), function ($query) use ($req) {
                 if (! in_array($req['sort_by'], ['price']) || (! in_array($req['order'], ['asc', 'desc']))) return;
