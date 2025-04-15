@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\JsonResponse;
 
-use App\Models\Travel;
 use App\Services\Api\V1\TravelApiService;
 use App\Http\Resources\Api\V1\TravelApiResource;
 use App\Http\Resources\Api\V1\TravelApiResourceCollection;
