@@ -41,7 +41,7 @@ class TourApiController extends Controller
     {
         $tour = $tourApiService->update($request);
 
-        return (new TourApiResource($tour))->response()->setStatusCode(Response::HTTP_ACCEPTED);
+        return (new TourApiResource($tour))->response()->setStatusCode(Response::HTTP_OK);
     }
 
     public function destroy(Request $request, TourApiService $tourApiService): JsonResponse
