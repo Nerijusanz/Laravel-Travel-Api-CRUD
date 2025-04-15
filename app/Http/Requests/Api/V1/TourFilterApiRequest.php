@@ -17,8 +17,8 @@ class TourFilterApiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'price_from' => ['nullable','numeric'],
-            'price_to' => ['nullable','numeric'],
+            'price_from' => ['nullable','numeric','min:0'],
+            'price_to' => ['nullable','numeric','min:0'],
             'start_date' => ['nullable','date'],
             'end_date' => ['nullable','date','after:start_date'],
             'sort_by' => ['nullable',Rule::in(['price'])],
