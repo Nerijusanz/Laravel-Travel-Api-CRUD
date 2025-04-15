@@ -2,30 +2,36 @@
 
 namespace App\Services\Api\V1;
 
+use Illuminate\Http\Request;
+
 use App\Models\Tour;
 use App\Models\Travel;
+use App\Http\Requests\Api\V1\TourFilterApiRequest;
 
 class TourApiService
 {
 
-    public function index(Travel $travel, array $data)
+    public function index(TourFilterApiRequest $request)
     {
+        $travel = Travel::findOrFail($request->route('travel') );
+
         $travel->load(['tours']);
 
-        $tours = $this->getTravelToursFilterByRequest($travel, $data);
+        $validated = $request->validated();
+
+        $tours = $this->getTravelToursFilterByRequest($travel, $validated);
 
         return $tours;
     }
 
-    public function show(Travel $travel, Tour $tour): Tour
+    public function show(Request $request): Tour
     {
-        $travel->load(['tours']);
+        $travel = Travel::findOrFail($request->route('travel') );
 
-        $tour = $travel->tours()->findOrFail($tour->id);
+        $tour = $travel->tours()->findOrFail($request->route('tour') );
 
         return $tour;
     }
-
 
     public function getTravelToursFilterByRequest(Travel $travel, array $data)
     {
@@ -52,7 +58,6 @@ class TourApiService
 
     }
 
-
     public static function getPriceValue(int $value)
     {
         $value = ($value / 100);
@@ -60,7 +65,6 @@ class TourApiService
         return number_format($value,2);
 
     }
-
 
     public static function setPriceValue(int|float|string $value): int
     {
