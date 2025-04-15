@@ -28,7 +28,7 @@ class TravelApiService
         return $travel;
     }
 
-    public function isPublic(Request $request): bool
+    public static function isPublic(Request $request): bool
     {
         $travel = Travel::findOrFail($request->route('travel') );
 
