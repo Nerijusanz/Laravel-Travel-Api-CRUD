@@ -333,74 +333,48 @@ class TourApiTest extends TestCase
 
     }
 
-    public function test_admin_tour_api_authenticated_logged_in_admin_delete_tour_successfully_response_status_204(): void
+    public function test_admin_tour_api_authenticated_admin_delete_tour_response_status_204(): void
     {
         /*
-        php artisan test --filter=test_admin_tour_api_authenticated_logged_in_admin_delete_tour_successfully_response_status_204
+        php artisan test --filter=test_admin_tour_api_authenticated_admin_delete_tour_response_status_204
         */
 
         $this->actingAs($this->admin);
 
-        $travel = Travel::factory()->create([
-            'is_public' => 1,
-            'name' => 'Travel 1',
-            'number_of_days' => 1,
-            'number_of_nights' => 0,
-            'description' => 'Travel 1 description',
-        ]);
+        $travel = Travel::factory()->create();
 
-        $this->assertCount(1, Travel::all());
-
-        $this->assertDatabaseHas(Travel::class, [
-            'name' => $travel->name
-        ]);
-
-        $travel = Travel::query()
-                    ->where('name',$travel->name)
-                    ->first();
+        $tour = Tour::factory(['travel_id' => $travel->id])->create();
 
 
-        $current = Carbon::now();
+        $this->assertCount(1,$travel->tours()->get());
 
-        $tour = Tour::factory()->create([
-            'travel_id' => $travel->id,
-            'name' => 'Tour 1',
-            'price' => 100,
-            'start_date' =>  $startDate = $current->addDays(0)->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
-        ]);
-
-        $this->assertCount(1, $travel->tours()->get());
-
-        $this->assertDatabaseHas(Tour::class, [
-            'name' => $tour->name
-        ]);
-
-        $tour = $travel->tours()
-                ->where('name',$tour->name)
-                ->first();
+        $tourResponse = [
+            'id' => $tour->id,
+            'name' => $tour->name,
+            'price' => $tour->price,
+            'start_date' => $tour->start_date,
+            'end_date' => $tour->end_date
+        ];
 
 
-        $response = $this->get(self::BASE_URL . '/admin/travels/' . $travel->id . '/tours');
+        $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id . '/tours/' . $tour->id;
+
+        $response = $this->getJson($endpoint);
 
         $response->assertStatus(200);
-        $response->assertJsonCount(1, 'data');
-        $response->assertJsonFragment(['name' => $tour->name]);
+        $response->assertJsonFragment($tourResponse);
 
 
-        $response = $this->deleteJson(self::BASE_URL . '/admin/travels/' . $travel->id . '/tours/' . $tour->id);
+        $response = $this->deleteJson($endpoint);
+
         $response->assertStatus(204);
 
-        $this->assertCount(0, $travel->tours()->get());
-        $this->assertDatabaseMissing(Tour::class, [
-            'name' => $tour->name
-        ]);
+        $this->assertCount(0,$travel->tours()->get());
 
-        $response = $this->get(self::BASE_URL . '/admin/travels/' . $travel->id . '/tours');
 
-        $response->assertStatus(200);
-        $response->assertJsonCount(0, 'data');
-        $response->assertJsonMissing(['name' => $tour->name]);
+        $response = $this->getJson($endpoint);
+
+        $response->assertStatus(404);
 
     }
 
