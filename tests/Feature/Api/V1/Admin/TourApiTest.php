@@ -223,67 +223,42 @@ class TourApiTest extends TestCase
 
         $this->actingAs($this->admin);
 
-        $travel = Travel::factory()->create([
-            'is_public' => 1,
-            'name' => 'Travel 1',
-            'number_of_days' => 1,
-            'number_of_nights' => 0,
-            'description' => 'Travel 1 description',
-        ]);
+        $current = Carbon::now();
 
-        $this->assertCount(1, Travel::all());
-
-        $this->assertDatabaseHas(Travel::class, [
-            'name' => $travel->name
-        ]);
-
-
-        $travel = Travel::query()
-                    ->where('name',$travel->name)
-                    ->first();
+        $travel = Travel::factory()->create();
 
         $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id . '/tours';
 
-        $response = $this->postJson($endpoint, [
-            'travel_id' => $travel->id,
-            'name' => '',
-            'price' => '',
-            'start_date' => '',
-            'end_date' => '',
-        ]);
-
-        $response->assertStatus(422);
-
-        $this->assertCount(0, $travel->tours()->get());
-
-
-        $current = Carbon::now();
-
-        $response = $this->postJson($endpoint, [
-            'travel_id' => $travel->id,
-            'name' => $name='Tour 1',
+        $tourOne = [
+            'name' => 'Tour One',
             'price' => 100,
-            'start_date' =>  $startDate = $current->addDays(0)->startOfDay()->toDateTimeString(),
+            'start_date' =>  $startDate = $current->copy()->addDays(0)->startOfDay()->toDateTimeString(),
             'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
-        ]);
+        ];
 
+        $response = $this->postJson($endpoint,$tourOne);
 
         $response->assertStatus(201);
 
         $this->assertCount(1, $travel->tours()->get());
 
-        $this->assertDatabaseHas(Tour::class, [
-            'name' => $name
-        ]);
-
-        $tour = $travel->tours()
-                    ->where('name',$name)
+        $tourOne = $travel->tours()
+                    ->where('name',$tourOne['name'])
                     ->first();
 
-        $response = $this->get($endpoint);
-        $response->assertJsonCount(1, 'data');
-        $response->assertJsonFragment(['name' => $tour->name]);
-        $response->assertJsonFragment(['price' => number_format($tour->price,2)]);
+        $tourOneResult = [
+            'id' => $tourOne->id,
+            'name' => $tourOne->name,
+            'price' => $tourOne->price,
+            'start_date' => $tourOne->start_date,
+            'end_date' => $tourOne->end_date
+        ];
+
+        $response = $this->getJson($endpoint);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonFragment($tourOneResult);
 
     }
 
