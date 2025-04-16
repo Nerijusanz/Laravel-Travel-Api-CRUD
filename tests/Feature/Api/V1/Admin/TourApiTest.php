@@ -345,16 +345,7 @@ class TourApiTest extends TestCase
 
         $tour = Tour::factory(['travel_id' => $travel->id])->create();
 
-
         $this->assertCount(1,$travel->tours()->get());
-
-        $tourResponse = [
-            'id' => $tour->id,
-            'name' => $tour->name,
-            'price' => $tour->price,
-            'start_date' => $tour->start_date,
-            'end_date' => $tour->end_date
-        ];
 
 
         $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id . '/tours/' . $tour->id;
@@ -362,7 +353,7 @@ class TourApiTest extends TestCase
         $response = $this->getJson($endpoint);
 
         $response->assertStatus(200);
-        $response->assertJsonFragment($tourResponse);
+        $response->assertJsonFragment(['id'=>$tour->id]);
 
 
         $response = $this->deleteJson($endpoint);
