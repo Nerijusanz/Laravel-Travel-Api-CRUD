@@ -13,8 +13,8 @@ class TourFactory extends Factory
     private int $travel_id;
     private string $name;
     private int|float $price;
-    private Carbon $startDate;
-    private Carbon $endDate;
+    private string $startDate;
+    private string $endDate;
 
 
     private function loadData(): Void
@@ -23,8 +23,8 @@ class TourFactory extends Factory
         $this->travel_id = 1;
         $this->name = fake()->unique()->words(3, true);
         $this->price = Numbers::generateRandomFloat(0,1000);
-        $this->startDate = Carbon::now()->addDays(mt_rand(0,3))->startOfDay();
-        $this->endDate = Carbon::parse($this->startDate)->addDays(mt_rand(0,3))->endOfDay();
+        $this->startDate = Carbon::now()->addDays(mt_rand(0,3))->startOfDay()->toDateTimeString();
+        $this->endDate = Carbon::parse($this->startDate)->addDays(mt_rand(0,3))->endOfDay()->toDateTimeString();
     }
 
     public function definition(): array
