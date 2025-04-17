@@ -31,11 +31,10 @@ class TourApiTest extends TestCase
     }
 
 
-    public function test_admin_tour_api_unauthenticated_not_logged_in_user_cannot_access_admin_tours_return_unauthenticate_error_status_401(): void
+    public function test_admin_tour_api_unauthenticated_user_cannot_access_admin_tours_return_response_error_status_401(): void
     {
         /*
-        php artisan test --filter=test_admin_tour_api_unauthenticated_not_logged_in_user_cannot_access_admin_tours_return_unauthenticate_error_status_401
-
+        php artisan test --filter=test_admin_tour_api_unauthenticated_user_cannot_access_admin_tours_return_response_error_status_401
         */
 
         $response = $this->getJson(self::BASE_URL . '/admin/travels/1/tours');
