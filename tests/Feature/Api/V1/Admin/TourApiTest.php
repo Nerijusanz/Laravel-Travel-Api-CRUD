@@ -224,7 +224,7 @@ class TourApiTest extends TestCase
 
 
         $tourUpdated = [
-            'name' => $nameUpdated = $tour->name . $tour->id,
+            'name' => str()->random(10),
             'price' => $tour->price,
             'start_date' =>  $tour->start_date,
             'end_date' => $tour->end_date,
@@ -233,13 +233,12 @@ class TourApiTest extends TestCase
 
         $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id . '/tours/' . $tour->id;
 
-        $response = $this->putJson($endpoint,$tourUpdated);
 
+        $response = $this->putJson($endpoint,$tourUpdated);
         $response->assertStatus(200);
 
 
         $response = $this->getJson($endpoint);
-
         $response->assertStatus(200);
         $response->assertJsonFragment($tourUpdated);
 
