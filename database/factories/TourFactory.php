@@ -9,8 +9,7 @@ use App\Utilities\Numbers;
 
 class TourFactory extends Factory
 {
-    private int $user_id;
-    private int $travel_id;
+
     private string $name;
     private int|float $price;
     private string $startDate;
@@ -19,8 +18,6 @@ class TourFactory extends Factory
 
     private function loadData(): Void
     {
-        $this->user_id = 1;
-        $this->travel_id = 1;
         $this->name = fake()->unique()->words(3, true);
         $this->price = Numbers::generateRandomFloat(0,1000);
         $this->startDate = Carbon::now()->addDays(mt_rand(0,3))->startOfDay()->toDateTimeString();
@@ -32,8 +29,6 @@ class TourFactory extends Factory
         $this->loadData();
 
         return [
-            'user_id' => $this->user_id,
-            'travel_id' => $this->travel_id,
             'name' => $this->name,
             'price' => $this->price,
             'start_date' => $this->startDate,
