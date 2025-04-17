@@ -223,37 +223,37 @@ class TourApiTest extends TestCase
 
         $this->actingAs($this->admin);
 
-        $current = Carbon::now();
-
         $travel = Travel::factory()->create();
 
-        $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id . '/tours';
+        $tour = Tour::factory(['travel_id' => $travel->id])->create();
 
-        $tour = [
-            'name' => 'Tour One',
-            'price' => 100,
-            'start_date' =>  $startDate = $current->copy()->addDays(0)->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
+        $tourNew = [
+            'name' => str()->random(10),
+            'price' => $tour->price,
+            'start_date' =>  $tour->start_date,
+            'end_date' => $tour->end_date,
         ];
 
-        $this->assertCount(0, $travel->tours()->get());
 
-
-        $response = $this->postJson($endpoint,$tour);
-
-        $response->assertStatus(201);
+        $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id . '/tours';
 
         $this->assertCount(1, $travel->tours()->get());
 
 
-        $tour = $travel->tours()->first();
+        $response = $this->postJson($endpoint,$tourNew);
 
+        $response->assertStatus(201);
+
+        $this->assertCount(2, $travel->tours()->get());
+
+
+        $tourNew = $travel->tours()->latest()->first();
 
         $response = $this->getJson($endpoint);
 
         $response->assertStatus(200);
 
-        $response->assertJsonFragment(['id' => $tour->id]);
+        $response->assertJsonFragment(['id' => $tourNew->id]);
 
     }
 
