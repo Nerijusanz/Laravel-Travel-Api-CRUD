@@ -94,122 +94,73 @@ class TourApiTest extends TestCase
 
     }
 
-    public function test_admin_tour_api_authenticated_logged_in_admin_add_tour_with_incorrect_data_return_validation_error_response_status_422(): void
+    public function test_admin_tour_api_authenticated_admin_add_tour_invalid_data_return_validation_error_response_status_422(): void
     {
         /*
-        php artisan test --filter=test_admin_tour_api_authenticated_logged_in_admin_add_tour_with_incorrect_data_return_validation_error_response_status_422
+        php artisan test --filter=test_admin_tour_api_authenticated_admin_add_tour_invalid_data_return_validation_error_response_status_422
         */
 
         $this->actingAs($this->admin);
 
-        $current = Carbon::now();
+        $travel = Travel::factory()->create();
+
+        $tour = Tour::factory(['travel_id' => $travel->id])->create();
 
 
-        $response = $this->postJson(self::BASE_URL . '/admin/travels/1/tours', [
-            'name' => NULL,
-            'price' => NULL,
-            'start_date' => NULL,
-            'end_date' => NULL,
-        ]);
+        $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id . '/tours';
 
+        $invalid = [];
+        $invalid['name_to_short'] = ['name' => str()->random(1)];
+        $invalid['name_to_long'] = ['name' => str()->random(256)];
+        $invalid['name_unique'] = ['name' => $tour->name];
+        $invalid['price_format'] = ['price' => str()->random(4)];
+        $invalid['price_min_0'] = ['price' => mt_rand(-100,-1)];
+        $invalid['start_date_format'] = ['start_date' => str()->random(10)];
+        $invalid['end_date_format'] = ['end_date' => str()->random(10)];
+        $invalid['end_date_after_start_date'] = ['start_date' => $tour->start_date,'end_date' => $tour->start_date];
+
+
+        $response = $this->postJson($endpoint, []);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['name','price','start_date','end_date'] ]);
 
 
-        $response = $this->postJson(self::BASE_URL . '/admin/travels/1/tours', [
-            'name' => $toShortName='T',
-            'price' => 100,
-            'start_date' => $startDate = $current->copy()->addDays(0)->startOfDay(),
-            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay(),
-        ]);
-
+        $response = $this->postJson($endpoint, $invalid['name_to_short']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['name'] ]);
 
 
-        $response = $this->postJson(self::BASE_URL . '/admin/travels/1/tours', [
-            'name' => $toLongName=str()->random(256),
-            'price' => 100,
-            'start_date' => $startDate = $current->copy()->addDays(0)->startOfDay(),
-            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay(),
-        ]);
-
+        $response = $this->postJson($endpoint, $invalid['name_to_long']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['name'] ]);
 
 
-        /****************** Start Name Unique Validation *****************/
-
-        $travel = Travel::factory()->create();
-
-        Tour::factory()->create([
-            'travel_id' => $travel->id,
-            'name' => $uniqueName='Tour Unique',
-        ]);
-
-        $response = $this->postJson(self::BASE_URL . '/admin/travels/' . $travel->id . '/tours', [
-            'name' => $uniqueNameAlreadyTaken=$uniqueName,
-            'price' => 100,
-            'start_date' => $startDate = $current->copy()->addDays(0)->startOfDay(),
-            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay(),
-        ]);
-
+        $response = $this->postJson($endpoint,$invalid['name_unique']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['name'] ]);
 
-        /******************************************************************/
 
-        $response = $this->postJson(self::BASE_URL . '/admin/travels/1/tours', [
-            'name' => 'Tour 1',
-            'price' => $priceMustBeCorrectNumber='1xx',
-            'start_date' => $startDate = $current->copy()->addDays(0)->startOfDay(),
-            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay(),
-        ]);
-
+        $response = $this->postJson($endpoint, $invalid['price_format']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['price'] ]);
 
 
-        $response = $this->postJson(self::BASE_URL . '/admin/travels/1/tours', [
-            'name' => 'Tour 1',
-            'price' => $priceMustBeMinZero='-1.00',
-            'start_date' => $startDate = $current->copy()->addDays(0)->startOfDay(),
-            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay(),
-        ]);
-
+        $response = $this->postJson($endpoint, $invalid['price_min_0']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['price'] ]);
 
 
-        $response = $this->postJson(self::BASE_URL . '/admin/travels/1/tours', [
-            'name' => 'Tour 1',
-            'price' => 100,
-            'start_date' => $starDateIncorrectValue='xxxx-xx-xx xx:xx:xx',
-            'end_date' => $endDateIncorrectValue='xxxx-xx-xx xx:xx:xx',
-        ]);
-
+        $response = $this->postJson($endpoint,$invalid['start_date_format']);
         $response->assertStatus(422);
-        $response->assertJsonStructure(['errors' => ['start_date','end_date'] ]);
+        $response->assertJsonStructure(['errors' => ['start_date'] ]);
 
 
-        $response = $this->postJson(self::BASE_URL . '/admin/travels/1/tours', [
-            'name' => 'Tour 1',
-            'price' => 100,
-            'start_date' => $startDate = $current->copy()->addDays(0)->startOfDay(),
-            'end_date' => $endDateIncorrectValue = 'xxxx-xx-xx',
-        ]);
-
+        $response = $this->postJson($endpoint, $invalid['end_date_format']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['end_date'] ]);
 
 
-        $response = $this->postJson(self::BASE_URL . '/admin/travels/1/tours', [
-            'name' => 'Tour 1',
-            'price' => 100,
-            'start_date' => $startDate = $current->copy()->addDays(0)->startOfDay(),
-            'end_date' => $endDateMustBeAfterStartDate = Carbon::parse($startDate)->addDays(0)->startOfDay(),
-        ]);
-
+        $response = $this->postJson($endpoint, $invalid['end_date_after_start_date']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['end_date'] ]);
 
