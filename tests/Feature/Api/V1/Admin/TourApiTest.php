@@ -3,17 +3,12 @@
 namespace Tests\Feature\Api\V1\Admin;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Database\Seeders\tests\traits\DatabaseSeederTraitTest;
 use App\Models\User;
 use App\Models\Travel;
 use App\Models\Tour;
-use Database\Seeders\RolesTableSeeder;
-use Database\Seeders\tests\traits\DatabaseSeederTraitTest;
-
 
 class TourApiTest extends TestCase
 {
