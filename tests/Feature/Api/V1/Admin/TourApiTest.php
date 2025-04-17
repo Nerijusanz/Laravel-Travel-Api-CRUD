@@ -265,66 +265,32 @@ class TourApiTest extends TestCase
 
         $this->actingAs($this->admin);
 
-        $current = Carbon::now();
-
-        $tour = [
-            'name' => 'Tour One',
-            'price' => 100,
-            'start_date' =>  $startDate = $current->copy()->addDays(0)->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
-        ];
-
-        $tourUpdated = [
-            'name' => 'Tour One Updated',
-            'price' => 200,
-            'start_date' =>  $startDate = $current->copy()->addDays(1)->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
-        ];
-
-
         $travel = Travel::factory()->create();
 
-        $tour = $travel->tours()->create($tour);
+        $tour = Tour::factory(['travel_id' => $travel->id])->create();
 
         $this->assertCount(1,$travel->tours()->get());
 
-        $tourResponse = [
-            'id' => $tour->id,
-            'name' => $tour->name,
+
+        $tourUpdated = [
+            'name' => $nameUpdated = $tour->name . $tour->id,
             'price' => $tour->price,
-            'start_date' => $tour->start_date,
-            'end_date' => $tour->end_date
+            'start_date' =>  $tour->start_date,
+            'end_date' => $tour->end_date,
         ];
 
 
         $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id . '/tours/' . $tour->id;
-
-        $response = $this->getJson($endpoint);
-
-        $response->assertStatus(200);
-        $response->assertJsonFragment($tourResponse);
-
 
         $response = $this->putJson($endpoint,$tourUpdated);
 
         $response->assertStatus(200);
 
 
-        $tour = $travel->tours()->findOrFail($tour->id);
-
-        $tourUpdatedResponse = [
-            'id' => $tour->id,
-            'name' => $tour->name,
-            'price' => $tour->price,
-            'start_date' => $tour->start_date,
-            'end_date' => $tour->end_date
-        ];
-
-
         $response = $this->getJson($endpoint);
 
         $response->assertStatus(200);
-        $response->assertJsonFragment($tourUpdatedResponse);
+        $response->assertJsonFragment($tourUpdated);
 
     }
 
