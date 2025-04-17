@@ -58,10 +58,10 @@ class TourApiTest extends TestCase
         $response->assertStatus(401);
     }
 
-    public function test_admin_tour_api_authenticated_logged_in_not_admin_user_cannot_access_admin_tours_return_unauthorize_error_status_403(): void
+    public function test_admin_tour_api_authenticated_user_cannot_access_admin_tours_return_response_error_status_403(): void
     {
         /*
-        php artisan test --filter=test_admin_tour_api_authenticated_logged_in_not_admin_user_cannot_access_admin_tours_return_unauthorize_error_status_403
+        php artisan test --filter=test_admin_tour_api_authenticated_user_cannot_access_admin_tours_return_response_error_status_403
         */
 
         $this->actingAs($this->user);
