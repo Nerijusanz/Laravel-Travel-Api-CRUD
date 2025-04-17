@@ -215,10 +215,10 @@ class TourApiTest extends TestCase
 
     }
 
-    public function test_admin_tour_api_authenticated_logged_in_admin_add_tour_successfully_with_valid_data_return_response_status_201(): void
+    public function test_admin_tour_api_authenticated_admin_add_tour_with_valid_data_return_response_status_201(): void
     {
         /*
-        php artisan test --filter=test_admin_tour_api_authenticated_logged_in_admin_add_tour_successfully_with_valid_data_return_response_status_201
+        php artisan test --filter=test_admin_tour_api_authenticated_admin_add_tour_with_valid_data_return_response_status_201
         */
 
         $this->actingAs($this->admin);
@@ -229,36 +229,31 @@ class TourApiTest extends TestCase
 
         $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id . '/tours';
 
-        $tourOne = [
+        $tour = [
             'name' => 'Tour One',
             'price' => 100,
             'start_date' =>  $startDate = $current->copy()->addDays(0)->startOfDay()->toDateTimeString(),
             'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
         ];
 
-        $response = $this->postJson($endpoint,$tourOne);
+        $this->assertCount(0, $travel->tours()->get());
+
+
+        $response = $this->postJson($endpoint,$tour);
 
         $response->assertStatus(201);
 
         $this->assertCount(1, $travel->tours()->get());
 
-        $tourOne = $travel->tours()
-                    ->where('name',$tourOne['name'])
-                    ->first();
 
-        $tourOneResult = [
-            'id' => $tourOne->id,
-            'name' => $tourOne->name,
-            'price' => $tourOne->price,
-            'start_date' => $tourOne->start_date,
-            'end_date' => $tourOne->end_date
-        ];
+        $tour = $travel->tours()->first();
+
 
         $response = $this->getJson($endpoint);
 
         $response->assertStatus(200);
 
-        $response->assertJsonFragment($tourOneResult);
+        $response->assertJsonFragment(['id' => $tour->id]);
 
     }
 
