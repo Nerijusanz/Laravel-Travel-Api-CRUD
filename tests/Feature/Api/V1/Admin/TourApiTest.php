@@ -166,6 +166,79 @@ class TourApiTest extends TestCase
 
     }
 
+    public function test_admin_tour_api_authenticated_admin_update_tour_invalid_data_return_validation_error_response_status_422(): void
+    {
+        /*
+        php artisan test --filter=test_admin_tour_api_authenticated_admin_update_tour_invalid_data_return_validation_error_response_status_422
+        */
+
+        $this->actingAs($this->admin);
+
+        $travel = Travel::factory()->create();
+
+        $tourOne = Tour::factory(['travel_id' => $travel->id])->create();
+        $tour = Tour::factory(['travel_id' => $travel->id])->create();
+
+
+        $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id . '/tours/' . $tour->id;
+
+        $invalid = [];
+        $invalid['name_to_short'] = ['name' => str()->random(1)];
+        $invalid['name_to_long'] = ['name' => str()->random(256)];
+        $invalid['name_unique'] = ['name' => $tourOne->name];
+        $invalid['price_format'] = ['price' => str()->random(4)];
+        $invalid['price_min_0'] = ['price' => mt_rand(-100,-1)];
+        $invalid['start_date_format'] = ['start_date' => str()->random(10)];
+        $invalid['end_date_format'] = ['end_date' => str()->random(10)];
+        $invalid['end_date_after_start_date'] = ['start_date' => $tour->start_date,'end_date' => $tour->start_date];
+
+
+        $response = $this->putJson($endpoint, []);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['name','price','start_date','end_date'] ]);
+
+
+        $response = $this->putJson($endpoint, $invalid['name_to_short']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['name'] ]);
+
+
+        $response = $this->putJson($endpoint, $invalid['name_to_long']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['name'] ]);
+
+
+        $response = $this->putJson($endpoint,$invalid['name_unique']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['name'] ]);
+
+
+        $response = $this->putJson($endpoint, $invalid['price_format']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['price'] ]);
+
+
+        $response = $this->putJson($endpoint, $invalid['price_min_0']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['price'] ]);
+
+
+        $response = $this->putJson($endpoint,$invalid['start_date_format']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['start_date'] ]);
+
+
+        $response = $this->putJson($endpoint, $invalid['end_date_format']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['end_date'] ]);
+
+
+        $response = $this->putJson($endpoint, $invalid['end_date_after_start_date']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['end_date'] ]);
+
+    }
+
     public function test_admin_tour_api_authenticated_admin_add_tour_with_valid_data_return_response_status_201(): void
     {
         /*
