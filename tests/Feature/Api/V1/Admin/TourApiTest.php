@@ -3,17 +3,12 @@
 namespace Tests\Feature\Api\V1\Admin;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Database\Seeders\tests\traits\DatabaseSeederTraitTest;
 use App\Models\User;
 use App\Models\Travel;
 use App\Models\Tour;
-use Database\Seeders\RolesTableSeeder;
-use Database\Seeders\tests\traits\DatabaseSeederTraitTest;
-
 
 class TourApiTest extends TestCase
 {
@@ -36,11 +31,10 @@ class TourApiTest extends TestCase
     }
 
 
-    public function test_admin_tour_api_unauthenticated_not_logged_in_user_cannot_access_admin_tours_return_unauthenticate_error_status_401(): void
+    public function test_admin_tour_api_unauthenticated_user_cannot_access_admin_tours_return_response_error_status_401(): void
     {
         /*
-        php artisan test --filter=test_admin_tour_api_unauthenticated_not_logged_in_user_cannot_access_admin_tours_return_unauthenticate_error_status_401
-
+        php artisan test --filter=test_admin_tour_api_unauthenticated_user_cannot_access_admin_tours_return_response_error_status_401
         */
 
         $response = $this->getJson(self::BASE_URL . '/admin/travels/1/tours');
@@ -64,10 +58,10 @@ class TourApiTest extends TestCase
         $response->assertStatus(401);
     }
 
-    public function test_admin_tour_api_authenticated_logged_in_not_admin_user_cannot_access_admin_tours_return_unauthorize_error_status_403(): void
+    public function test_admin_tour_api_authenticated_user_cannot_access_admin_tours_return_response_error_status_403(): void
     {
         /*
-        php artisan test --filter=test_admin_tour_api_authenticated_logged_in_not_admin_user_cannot_access_admin_tours_return_unauthorize_error_status_403
+        php artisan test --filter=test_admin_tour_api_authenticated_user_cannot_access_admin_tours_return_response_error_status_403
         */
 
         $this->actingAs($this->user);
