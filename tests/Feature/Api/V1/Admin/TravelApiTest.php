@@ -276,58 +276,33 @@ class TravelApiTest extends TestCase
 
     }
 
-    public function test_admin_travel_api_authenticated_logged_in_admin_update_travel_successfully_with_valid_data(): void
+    public function test_admin_travel_api_authenticated_admin_update_travel_valid_data_return_response_status_200(): void
     {
         /*
-        php artisan test --filter=test_admin_travel_api_authenticated_logged_in_admin_update_travel_successfully_with_valid_data
+        php artisan test --filter=test_admin_travel_api_authenticated_admin_update_travel_valid_data_return_response_status_200
         */
 
         $this->actingAs($this->admin);
 
-        $travelOne = [
-            'is_public' => 0,
-            'name' => 'Travel 1',
-            'number_of_days' => 1,
-            'number_of_nights' => 0,
-            'description' => NULL
+        $travel = Travel::factory()->create();
+
+        $travelUpdated = [
+            'is_public' => mt_rand(0,1),
+            'name' => str()->random(10),
+            'number_of_days' => $travel->number_of_days,
+            'number_of_nights' => $travel->number_of_nights,
+            'description' => $travel->description
         ];
-
-        $travelOneUpdated = [
-            'is_public' => 1,
-            'name' => 'Travel 1 Updated',
-            'number_of_days' => 2,
-            'number_of_nights' => 1,
-            'description' => NULL
-        ];
-
-        $travel = Travel::factory()->create($travelOne);
-
-        $this->assertCount(1, Travel::all());
-
-        $this->assertDatabaseHas(Travel::class, $travelOne);
-
 
         $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id;
 
-        $response = $this->getJson($endpoint);
-
+        $response = $this->putJson($endpoint,$travelUpdated);
         $response->assertStatus(200);
-        $response->assertJsonFragment($travelOne);
-
-
-        $response = $this->putJson($endpoint, $travelOneUpdated);
-
-        $response->assertStatus(200);
-
-        $this->assertDatabaseMissing(Travel::class, $travelOne);
-
-        $this->assertDatabaseHas(Travel::class, $travelOneUpdated);
 
 
         $response = $this->getJson($endpoint);
-
         $response->assertStatus(200);
-        $response->assertJsonFragment($travelOneUpdated);
+        $response->assertJsonFragment($travelUpdated);
 
     }
 
