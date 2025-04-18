@@ -3,16 +3,15 @@
 namespace Tests\Feature\Api\V1\Admin;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
+use Database\Seeders\tests\traits\DatabaseSeederTraitTest;
 use App\Models\User;
 use App\Models\Travel;
-use Database\Seeders\RolesTableSeeder;
-use Database\Seeders\tests\traits\DatabaseSeederTraitTest;
 
 class TravelApiTest extends TestCase
 {
+
     use RefreshDatabase;
     use DatabaseSeederTraitTest;
 
@@ -28,7 +27,6 @@ class TravelApiTest extends TestCase
         $this->user = User::userRole();
 
     }
-
 
     public function test_admin_travel_api_unauthenticated_user_cannot_access_admin_travels_return_response_error_status_401(): void
     {
@@ -55,7 +53,6 @@ class TravelApiTest extends TestCase
 
         $response->assertStatus(401);
     }
-
 
     public function test_admin_travel_api_authenticated_user_cannot_access_admin_travels_return_response_error_status_403(): void
     {
@@ -86,7 +83,6 @@ class TravelApiTest extends TestCase
         $response->assertStatus(403);
 
     }
-
 
     public function test_admin_travel_api_authenticated_admin_add_travel_invalid_data_return_validation_error_response_status_422(): void
     {
@@ -163,7 +159,6 @@ class TravelApiTest extends TestCase
 
     }
 
-
     public function test_admin_travel_api_authenticated_admin_update_travel_invalid_data_return_validation_error_response_status_422(): void
     {
         /*
@@ -239,7 +234,6 @@ class TravelApiTest extends TestCase
         $response->assertJsonStructure(['errors' => ['number_of_nights'] ]);
 
     }
-
 
     public function test_admin_travel_api_authenticated_admin_add_travel_valid_data_return_response_status_201(): void
     {
