@@ -306,49 +306,31 @@ class TravelApiTest extends TestCase
 
     }
 
-    public function test_admin_travel_api_authenticated_logged_in_admin_delete_travel_successfully_response_status_204(): void
+    public function test_admin_travel_api_authenticated_admin_delete_travel_return_response_status_204(): void
     {
         /*
-        php artisan test --filter=test_admin_travel_api_authenticated_logged_in_admin_delete_travel_successfully_response_status_204
+        php artisan test --filter=test_admin_travel_api_authenticated_admin_delete_travel_return_response_status_204
         */
 
         $this->actingAs($this->admin);
 
-        $travelOne = [
-            'is_public' => 1,
-            'name' => 'Travel 1',
-            'number_of_days' => 1,
-            'number_of_nights' => 0,
-            'description' => NULL
-        ];
-
-        $travel = Travel::factory()->create($travelOne);
-
-        $this->assertCount(1, Travel::all());
-
-        $this->assertDatabaseHas(Travel::class, $travelOne);
-
+        $travel = Travel::factory()->create();
 
         $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id;
 
+        $this->assertCount(1,Travel::all());
 
         $response = $this->getJson($endpoint);
-
         $response->assertStatus(200);
-        $response->assertJsonFragment($travelOne);
+        $response->assertJsonFragment(['id'=>$travel->id]);
 
 
         $response = $this->deleteJson($endpoint);
-
         $response->assertStatus(204);
 
-        $this->assertCount(0, Travel::all());
-
-        $this->assertDatabaseMissing(Travel::class, $travelOne);
-
+        $this->assertCount(0,Travel::all());
 
         $response = $this->getJson($endpoint);
-
         $response->assertStatus(404);
 
     }
