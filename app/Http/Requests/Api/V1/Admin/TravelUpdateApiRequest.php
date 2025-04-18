@@ -23,7 +23,7 @@ class TravelUpdateApiRequest extends FormRequest
 
         return [
             'is_public' => ['required','boolean'],
-            'name' => ['required','string','min:2','max:255', Rule::unique(Travel::class)->whereNull('deleted_at')->ignore($this->travel)],
+            'name' => ['required','string','min:2','max:255', Rule::unique(Travel::class)->ignore($this->travel)->whereNull('deleted_at')],
             'number_of_days' => ['required', 'integer','min:1'],
             'number_of_nights' => $numberOfNightsRule,
             'description' => ['nullable','string'],
