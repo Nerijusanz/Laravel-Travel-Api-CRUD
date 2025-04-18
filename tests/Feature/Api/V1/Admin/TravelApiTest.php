@@ -164,6 +164,83 @@ class TravelApiTest extends TestCase
     }
 
 
+    public function test_admin_travel_api_authenticated_admin_update_travel_invalid_data_return_validation_error_response_status_422(): void
+    {
+        /*
+        php artisan test --filter=test_admin_travel_api_authenticated_admin_update_travel_invalid_data_return_validation_error_response_status_422
+        */
+
+        $this->actingAs($this->admin);
+
+        $travelOne = Travel::factory()->create();
+        $travel = Travel::factory()->create();
+
+        $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id;
+
+        $invalid = [];
+        $invalid['is_public_format'] = ['is_public' => str()->random(3)];
+        $invalid['name_to_short'] = ['name' => str()->random(1)];
+        $invalid['name_to_long'] = ['name' => str()->random(256)];
+        $invalid['name_unique'] = ['name' => $travelOne->name];
+        $invalid['number_of_days_format'] = ['number_of_days' => str()->random(3)];
+        $invalid['number_of_days_min_1'] = ['number_of_days' => mt_rand(-5,0)];
+        $invalid['number_of_nights_format'] = ['number_of_nights' => str()->random(3)];
+        $invalid['number_of_nights_min_0'] = ['number_of_nights' => mt_rand(-100,-1)];
+        $invalid['number_of_nights_less_number_of_days'] = ['number_of_days' => $travel->number_of_days,'number_of_nights' => $travel->number_of_days];
+
+
+        $response = $this->putJson($endpoint, []);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['is_public','name','number_of_days','number_of_nights'] ]);
+
+
+        $response = $this->putJson($endpoint, $invalid['is_public_format']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['is_public'] ]);
+
+
+        $response = $this->putJson($endpoint, $invalid['name_to_short']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['name'] ]);
+
+
+        $response = $this->putJson($endpoint, $invalid['name_to_long']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['name'] ]);
+
+
+        $response = $this->putJson($endpoint, $invalid['name_unique']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['name'] ]);
+
+
+        $response = $this->putJson($endpoint, $invalid['number_of_days_format']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['number_of_days'] ]);
+
+
+        $response = $this->putJson($endpoint, $invalid['number_of_days_min_1']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['number_of_days'] ]);
+
+
+        $response = $this->putJson($endpoint, $invalid['number_of_nights_format']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['number_of_nights'] ]);
+
+
+        $response = $this->putJson($endpoint, $invalid['number_of_nights_min_0']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['number_of_nights'] ]);
+
+
+        $response = $this->putJson($endpoint, $invalid['number_of_nights_less_number_of_days']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['number_of_nights'] ]);
+
+    }
+
+
     public function test_admin_travel_api_authenticated_logged_in_admin_add_travel_successfully_with_valid_data(): void
     {
         /*
