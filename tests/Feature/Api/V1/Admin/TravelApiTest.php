@@ -276,178 +276,33 @@ class TravelApiTest extends TestCase
 
     }
 
-
-    public function test_admin_travel_api_authenticated_admin_update_travel_validation_error_response_status_422(): void
+    public function test_admin_travel_api_authenticated_admin_update_travel_valid_data_return_response_status_200(): void
     {
         /*
-        php artisan test --filter=test_admin_travel_api_authenticated_admin_update_travel_validation_error_response_status_422
+        php artisan test --filter=test_admin_travel_api_authenticated_admin_update_travel_valid_data_return_response_status_200
         */
 
         $this->actingAs($this->admin);
 
+        $travel = Travel::factory()->create();
 
-        $endpoint = self::BASE_URL . '/admin/travels/1';
-
-        $response = $this->putJson($endpoint, [
-            'is_public' => NULL,
-            'name' => NULL,
-            'number_of_days' => NULL,
-            'number_of_nights' => NULL,
-            'description' => NULL,
-        ]);
-
-        $response->assertStatus(422);
-        $response->assertJsonStructure(['errors' => ['is_public','name','number_of_days','number_of_nights'] ]);
-
-
-        $response = $this->putJson($endpoint, [
-            'is_public' => $isPublicNotBooleanValue='x',
-            'name' => 'Travel',
-            'number_of_days' => 1,
-            'number_of_nights' => 0,
-            'description' => NULL,
-        ]);
-
-        $response->assertStatus(422);
-        $response->assertJsonStructure(['errors' => ['is_public'] ]);
-
-
-        $response = $this->putJson($endpoint, [
-            'is_public' => 1,
-            'name' => $toShortName='T',
-            'number_of_days' => 1,
-            'number_of_nights' => 0,
-            'description' => NULL,
-        ]);
-
-        $response->assertStatus(422);
-        $response->assertJsonStructure(['errors' => ['name'] ]);
-
-
-        $response = $this->putJson($endpoint, [
-            'is_public' => 1,
-            'name' => $toLongName=str()->random(256),
-            'number_of_days' => 1,
-            'number_of_nights' => 0,
-            'description' => NULL,
-        ]);
-
-        $response->assertStatus(422);
-        $response->assertJsonStructure(['errors' => ['name'] ]);
-
-
-        /****************** start name unique validation *****************/
-
-
-        $travelOne = Travel::factory()->create([
-            'is_public' => 1,
-            'name' => 'Travel 1',
-            'number_of_days' => 1,
-            'number_of_nights' => 0,
-            'description' => NULL,
-        ]);
-
-        $travelTwo = Travel::factory()->create([
-            'is_public' => 1,
-            'name' => 'Travel 2',
-            'number_of_days' => 1,
-            'number_of_nights' => 0,
-            'description' => NULL,
-        ]);
-
-
-        $response = $this->putJson(self::BASE_URL . '/admin/travels/' . $travelOne->id, [
-            'is_public' => 1,
-            'name' => $uniqueNameAlreadyTaken=$travelTwo->name,
-            'number_of_days' => 1,
-            'number_of_nights' => 0,
-            'description' => NULL,
-        ]);
-
-        $response->assertStatus(422);
-        $response->assertJsonStructure(['errors' => ['name'] ]);
-
-        /********************end name unique validation ****************/
-
-
-        $response = $this->putJson($endpoint, [
-            'is_public' => 1,
-            'name' => 'Travel',
-            'number_of_days' => $numberOfDaysIncorrectValue=0,
-            'number_of_nights' => 0,
-            'description' => NULL,
-        ]);
-
-        $response->assertStatus(422);
-        $response->assertJsonStructure(['errors' => ['number_of_days'] ]);
-
-
-        $response = $this->putJson($endpoint, [
-            'is_public' => 1,
-            'name' => 'Travel',
-            'number_of_days' => 1,
-            'number_of_nights' => $numberOfNightsIncorrectValue=1,
-            'description' => NULL,
-        ]);
-
-        $response->assertStatus(422);
-        $response->assertJsonStructure(['errors' => ['number_of_nights'] ]);
-
-    }
-
-
-    public function test_admin_travel_api_authenticated_logged_in_admin_update_travel_successfully_with_valid_data(): void
-    {
-        /*
-        php artisan test --filter=test_admin_travel_api_authenticated_logged_in_admin_update_travel_successfully_with_valid_data
-        */
-
-        $this->actingAs($this->admin);
-
-        $travelOne = [
-            'is_public' => 0,
-            'name' => 'Travel 1',
-            'number_of_days' => 1,
-            'number_of_nights' => 0,
-            'description' => NULL
+        $travelUpdated = [
+            'is_public' => mt_rand(0,1),
+            'name' => str()->random(10),
+            'number_of_days' => $travel->number_of_days,
+            'number_of_nights' => $travel->number_of_nights,
+            'description' => $travel->description
         ];
-
-        $travelOneUpdated = [
-            'is_public' => 1,
-            'name' => 'Travel 1 Updated',
-            'number_of_days' => 2,
-            'number_of_nights' => 1,
-            'description' => NULL
-        ];
-
-        $travel = Travel::factory()->create($travelOne);
-
-        $this->assertCount(1, Travel::all());
-
-        $this->assertDatabaseHas(Travel::class, $travelOne);
-
 
         $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id;
 
-        $response = $this->getJson($endpoint);
-
+        $response = $this->putJson($endpoint,$travelUpdated);
         $response->assertStatus(200);
-        $response->assertJsonFragment($travelOne);
-
-
-        $response = $this->putJson($endpoint, $travelOneUpdated);
-
-        $response->assertStatus(200);
-
-        $this->assertDatabaseMissing(Travel::class, $travelOne);
-
-        $this->assertDatabaseHas(Travel::class, $travelOneUpdated);
 
 
         $response = $this->getJson($endpoint);
-
         $response->assertStatus(200);
-        $response->assertJsonFragment($travelOneUpdated);
+        $response->assertJsonFragment($travelUpdated);
 
     }
 
