@@ -57,10 +57,10 @@ class TravelApiTest extends TestCase
     }
 
 
-    public function test_admin_travel_api_authenticated_logged_in_user_cannot_add_admin_travel_return_unauthorize_error_403(): void
+    public function test_admin_travel_api_authenticated_user_cannot_access_admin_travels_return_response_error_status_403(): void
     {
         /*
-        php artisan test --filter=test_admin_travel_api_authenticated_logged_in_user_cannot_add_admin_travel_return_unauthorize_error_403
+        php artisan test --filter=test_admin_travel_api_authenticated_user_cannot_access_admin_travels_return_response_error_status_403
         */
 
         $this->actingAs($this->user);
