@@ -15,16 +15,15 @@ class TravelUpdateApiRequest extends FormRequest
         return true;
     }
 
-
     public function rules(): array
     {
         $numberOfDays = request()->input('number_of_days');
 
-        $numberOfNightsRule = (isset($numberOfDays) && is_numeric($numberOfDays) && $numberOfDays > 0 )? ['required', 'integer','min:0','lt:number_of_days'] : ['required','integer','min:0'];
+        $numberOfNightsRule = (!isset($numberOfDays) || !is_numeric($numberOfDays) || $numberOfDays < 1 )?  ['required','integer','min:0'] : ['required', 'integer','min:0','lt:number_of_days'];
 
         return [
             'is_public' => ['required','boolean'],
-            'name' => ['required','string','min:2','max:255', Rule::unique(Travel::class)->whereNull('deleted_at')->ignore($this->travel)],
+            'name' => ['required','string','min:2','max:255', Rule::unique(Travel::class)->ignore($this->travel)->whereNull('deleted_at')],
             'number_of_days' => ['required', 'integer','min:1'],
             'number_of_nights' => $numberOfNightsRule,
             'description' => ['nullable','string'],
