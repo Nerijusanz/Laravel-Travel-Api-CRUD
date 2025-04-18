@@ -23,7 +23,7 @@ class TravelFactory extends Factory
         $this->slug = SlugService::createSlug(Travel::class, 'slug', $this->name);
         $this->numberOfDays = mt_rand(1,10);
         $this->numberOfNights = ($this->numberOfDays - 1);
-        $this->description = $this->name;
+        $this->description = str()->random(5);
     }
 
     public function definition(): array
