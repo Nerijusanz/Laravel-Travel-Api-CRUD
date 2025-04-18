@@ -30,10 +30,10 @@ class TravelApiTest extends TestCase
     }
 
 
-    public function test_admin_travel_api_unauthenticated_not_logged_in_public_user_cannot_access_admin_travels_return_unauthenticate_error_status_401(): void
+    public function test_admin_travel_api_unauthenticated_user_cannot_access_admin_travels_return_response_error_status_401(): void
     {
         /*
-        php artisan test --filter=test_admin_travel_api_unauthenticated_not_logged_in_public_user_cannot_access_admin_travels_return_unauthenticate_error_status_401
+        php artisan test --filter=test_admin_travel_api_unauthenticated_user_cannot_access_admin_travels_return_response_error_status_401
         */
         $response = $this->getJson(self::BASE_URL . '/admin/travels');
 
