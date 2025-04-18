@@ -15,13 +15,11 @@ class TravelStoreApiRequest extends FormRequest
         return true;
     }
 
-
     public function rules(): array
     {
-
         $numberOfDays = request()->input('number_of_days');
 
-        $numberOfNightsRule = (isset($numberOfDays) && is_numeric($numberOfDays) && $numberOfDays > 0 )? ['required', 'integer','min:0','lt:number_of_days'] : ['required','integer','min:0'];
+        $numberOfNightsRule = (!isset($numberOfDays) || !is_numeric($numberOfDays) || $numberOfDays < 1 )?  ['required','integer','min:0'] : ['required', 'integer','min:0','lt:number_of_days'];
 
         return [
             'is_public' => ['required','boolean'],
