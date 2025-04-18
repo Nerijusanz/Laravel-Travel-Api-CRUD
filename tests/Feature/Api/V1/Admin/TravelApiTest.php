@@ -241,37 +241,38 @@ class TravelApiTest extends TestCase
     }
 
 
-    public function test_admin_travel_api_authenticated_logged_in_admin_add_travel_successfully_with_valid_data(): void
+    public function test_admin_travel_api_authenticated_admin_add_travel_valid_data_return_response_status_201(): void
     {
         /*
-        php artisan test --filter=test_admin_travel_api_authenticated_logged_in_admin_add_travel_successfully_with_valid_data
+        php artisan test --filter=test_admin_travel_api_authenticated_admin_add_travel_valid_data_return_response_status_201
         */
 
         $this->actingAs($this->admin);
 
-        $travelOne = [
-            'is_public' => 1,
-            'name' => 'Travel 1',
-            'number_of_days' => 1,
-            'number_of_nights' => 0,
-            'description' => NULL
+        $travel = Travel::factory()->create();
+
+        $travelNew = [
+            'is_public' => $travel->is_public,
+            'name' => str()->random(10),
+            'number_of_days' => $travel->number_of_days,
+            'number_of_nights' => $travel->number_of_nights,
+            'description' => $travel->description
         ];
 
         $endpoint = self::BASE_URL . '/admin/travels';
 
-        $response = $this->postJson($endpoint, $travelOne);
-
-        $response->assertStatus(201);
-
         $this->assertCount(1, Travel::all());
 
-        $this->assertDatabaseHas(Travel::class, $travelOne);
+        $response = $this->postJson($endpoint,$travelNew);
+        $response->assertStatus(201);
 
+        $this->assertCount(2, Travel::all());
+
+        $travelNew = Travel::query()->latest()->first();
 
         $response = $this->getJson($endpoint);
-
         $response->assertStatus(200);
-        $response->assertJsonFragment($travelOne);
+        $response->assertJsonFragment(['id' => $travelNew->id]);
 
     }
 
