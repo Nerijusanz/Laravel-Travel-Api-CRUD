@@ -180,9 +180,9 @@ class TravelApiTest extends TestCase
         $invalid['name_to_short'] = ['name' => str()->random(1)];
         $invalid['name_to_long'] = ['name' => str()->random(256)];
         $invalid['name_unique'] = ['name' => $travelOne->name];
-        $invalid['number_of_days_format'] = ['number_of_days' => str()->random(3)];
+        $invalid['number_of_days_format'] = ['number_of_days' => str()->random(10)];
         $invalid['number_of_days_min_1'] = ['number_of_days' => mt_rand(-5,0)];
-        $invalid['number_of_nights_format'] = ['number_of_nights' => str()->random(3)];
+        $invalid['number_of_nights_format'] = ['number_of_nights' => str()->random(10)];
         $invalid['number_of_nights_min_0'] = ['number_of_nights' => mt_rand(-100,-1)];
         $invalid['number_of_nights_less_number_of_days'] = ['number_of_days' => $travel->number_of_days,'number_of_nights' => $travel->number_of_days];
 
