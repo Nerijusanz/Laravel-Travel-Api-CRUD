@@ -281,7 +281,7 @@ class TravelApiTest extends TestCase
         $travel = Travel::factory()->create();
 
         $travelUpdated = [
-            'is_public' => mt_rand(0,1),
+            'is_public' => $travel->is_public,
             'name' => str()->random(10),
             'number_of_days' => $travel->number_of_days,
             'number_of_nights' => $travel->number_of_nights,
