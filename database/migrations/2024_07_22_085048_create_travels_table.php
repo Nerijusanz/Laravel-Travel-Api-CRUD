@@ -13,7 +13,7 @@ return new class extends Migration
         Schema::create('travels', function (Blueprint $table){
             $table->id();
             $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->boolean('is_public')->default(0);
+            $table->integer('is_public')->default(0);
             $table->string('name');
             $table->string('slug');
             $table->integer('number_of_days')->default(1);
