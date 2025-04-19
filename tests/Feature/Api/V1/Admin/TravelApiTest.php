@@ -11,6 +11,9 @@ use App\Models\Travel;
 
 class TravelApiTest extends TestCase
 {
+    /*
+    php artisan test --filter=TravelApiTest
+    */
 
     use RefreshDatabase;
     use DatabaseSeederTraitTest;
