@@ -22,7 +22,7 @@ class TravelUpdateApiRequest extends FormRequest
         $numberOfNightsRule = (!isset($numberOfDays) || !is_numeric($numberOfDays) || $numberOfDays < 1 )?  ['required','integer','min:0'] : ['required', 'integer','min:0','lt:number_of_days'];
 
         return [
-            'is_public' => ['required','boolean'],
+            'is_public' => ['required','integer', Rule::in([0,1])],
             'name' => ['required','string','min:2','max:255', Rule::unique(Travel::class)->ignore($this->travel)->whereNull('deleted_at')],
             'number_of_days' => ['required', 'integer','min:1'],
             'number_of_nights' => $numberOfNightsRule,

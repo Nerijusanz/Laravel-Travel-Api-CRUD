@@ -9,7 +9,7 @@ use App\Models\Travel;
 
 class TravelFactory extends Factory
 {
-    private bool $isPublic;
+    private int $isPublic;
     private string $name;
     private string $slug;
     private int $numberOfDays;

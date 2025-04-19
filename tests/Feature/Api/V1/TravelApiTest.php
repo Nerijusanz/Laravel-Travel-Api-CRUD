@@ -35,8 +35,8 @@ class TravelApiTest extends TestCase
         $this->actingAs($this->user);
 
 
-        $publicTravel = Travel::factory()->create(['is_public' => true]);
-        $notPublicTravel = Travel::factory()->create(['is_public' => false]);
+        $publicTravel = Travel::factory()->create(['is_public' => 1]);
+        $notPublicTravel = Travel::factory()->create(['is_public' => 0]);
 
         $this->assertCount(2,Travel::all());
 
@@ -68,7 +68,7 @@ class TravelApiTest extends TestCase
 
         $this->actingAs($this->user);
 
-        $travel = Travel::factory($itemsRecords)->create(['is_public' => true]);
+        $travel = Travel::factory($itemsRecords)->create(['is_public' => 1]);
 
         $this->assertCount($itemsRecords,Travel::all());
 
