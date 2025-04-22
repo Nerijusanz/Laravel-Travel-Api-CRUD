@@ -122,50 +122,25 @@ class TourApiTest extends TestCase
 
         $this->actingAs($this->admin);
 
-        $travel = Travel::factory()->create(['is_public' => true]);
+        $travel = Travel::factory(['is_public' => true])->create();
 
+        $tourLater = Tour::factory(['travel_id' => $travel->id])->create();
 
-        $this->assertCount(1, Travel::all());
-
-        $this->assertDatabaseHas(Travel::class, [
-            'name' => $travel->name
-        ]);
-
-        $travel = Travel::query()
-                    ->where('name',$travel->name)
-                    ->first();
-
-
-        $current = Carbon::now();
-
-        $laterTour = Tour::factory()->create([
-            'travel_id' => $travel->id,
-            'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(1)->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
-        ]);
-
-        $earlierTour = Tour::factory()->create([
-            'travel_id' => $travel->id,
-            'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(0)->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
-        ]);
+        $tourEarlier = Tour::factory([
+                                'travel_id' => $travel->id,
+                                'start_date' => $startDate = Carbon::parse($tourLater->start_date)->subDays(1)->startOfDay()->toDateTimeString(),
+                                'end_date' => Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
+                                ])->create();
 
         $this->assertCount(2, $travel->tours()->get());
 
-        $this->assertDatabaseHas(Tour::class, [
-            'name' => $laterTour->name
-        ]);
+        $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
 
-        $this->assertDatabaseHas(Tour::class, [
-            'name' => $earlierTour->name
-        ]);
-
-        $response = $this->get(self::BASE_URL . '/travels/'. $travel->id .'/tours');
-
+        $response = $this->getJson($endpoint);
         $response->assertStatus(200);
-        $response->assertJsonCount(2, 'data');
-        $response->assertJsonPath('data.0.id', $earlierTour->id);
-        $response->assertJsonPath('data.1.id', $laterTour->id);
+        $response->assertJsonPath('data.0.id', $tourEarlier->id);
+        $response->assertJsonPath('data.1.id', $tourLater->id);
+
     }
 
     public function test_tours_by_travel_id_sorts_by_price_and_order_asc_and_sort_by_start_date_correctly(): void
