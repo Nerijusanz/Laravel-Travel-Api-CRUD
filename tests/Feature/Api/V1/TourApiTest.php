@@ -19,7 +19,7 @@ class TourApiTest extends TestCase
     use RefreshDatabase;
     use DatabaseSeederTraitTest;
 
-    private $user;
+    private $admin;
     public const BASE_URL = '/api';
 
     /*******TEST CLASS*******
@@ -30,7 +30,7 @@ class TourApiTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::adminRole();
+        $this->admin = User::adminRole();
 
     }
 
@@ -41,7 +41,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_returns_correct_tour
         */
 
-        $this->actingAs($this->user);
+        $this->actingAs($this->admin);
 
         $travel = Travel::factory()->create(['is_public' => 1]);
 
@@ -70,7 +70,7 @@ class TourApiTest extends TestCase
         $itemsPagination15 = 15;
         $itemsRecords16 = 16;
 
-        $this->actingAs($this->user);
+        $this->actingAs($this->admin);
 
         $travel = Travel::factory()->create(['is_public' => 1]);
 
@@ -106,7 +106,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tour_price_is_correctly_formatted
         */
 
-        $this->actingAs($this->user);
+        $this->actingAs($this->admin);
 
         $travel = Travel::factory()->create(['is_public' => 1]);
 
@@ -153,7 +153,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_sorts_by_starting_date_correctly
         */
 
-        $this->actingAs($this->user);
+        $this->actingAs($this->admin);
 
         $travel = Travel::factory()->create(['is_public' => true]);
 
@@ -208,7 +208,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_sorts_by_price_and_order_asc_and_sort_by_start_date_correctly
         */
 
-        $this->actingAs($this->user);
+        $this->actingAs($this->admin);
 
         $travel = Travel::factory()->create(['is_public' => true]);
 
@@ -275,7 +275,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_sorts_by_price_and_order_desc_and_sort_by_start_date_correctly
         */
 
-        $this->actingAs($this->user);
+        $this->actingAs($this->admin);
 
         $travel = Travel::factory()->create(['is_public' => true]);
 
@@ -341,7 +341,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_sort_by_price_ranges_correctly
         */
 
-        $this->actingAs($this->user);
+        $this->actingAs($this->admin);
 
         $travel = Travel::factory()->create(['is_public' => true]);
 
@@ -418,7 +418,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_and_sort_by_starting_date_correctly
         */
 
-        $this->actingAs($this->user);
+        $this->actingAs($this->admin);
 
         $travel = Travel::factory()->create(['is_public' => true]);
 
@@ -515,7 +515,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tour_by_travel_id_returns_validation_error_status_code_422
         */
 
-        $this->actingAs($this->user);
+        $this->actingAs($this->admin);
 
         $travel = Travel::factory()->create(['is_public' => true]);
 
