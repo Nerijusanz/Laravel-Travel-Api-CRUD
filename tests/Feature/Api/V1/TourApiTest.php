@@ -179,71 +179,40 @@ class TourApiTest extends TestCase
 
     }
 
-    public function test_tours_by_travel_id_sorts_by_price_and_order_desc_and_sort_by_start_date_correctly(): void
+    public function test_tours_by_travel_id_filter_by_price_max_to_min_by_start_date_desc(): void
     {
-
         /*
-        php artisan test --filter=test_tours_by_travel_id_sorts_by_price_and_order_desc_and_sort_by_start_date_correctly
+        php artisan test --filter=test_tours_by_travel_id_filter_by_price_max_to_min_by_start_date_desc
         */
 
         $this->actingAs($this->admin);
 
         $travel = Travel::factory()->create(['is_public' => true]);
 
-        $this->assertCount(1, Travel::all());
+        $tourExpensiveLater = Tour::factory(['travel_id' => $travel->id])->create();
 
-        $this->assertDatabaseHas(Travel::class, [
-            'name' => $travel->name
-        ]);
+        $tourExpensiveEarlier = Tour::factory([
+                                    'travel_id' => $travel->id,
+                                    'price' => $tourExpensiveLater->price,
+                                    'start_date' => $startDate = Carbon::parse($tourExpensiveLater->start_date)->subDays(1)->startOfDay()->toDateTimeString(),
+                                    'end_date' => Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
+                                    ])->create();
 
-        $travel = Travel::query()
-                    ->where('name',$travel->name)
-                    ->first();
-
-
-        $current = Carbon::now();
-
-        $expensiveLaterTour = Tour::factory()->create([
-            'travel_id' => $travel->id,
-            'price' => 500,
-            'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(1)->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
-        ]);
-
-        $expensiveEarlierTour = Tour::factory()->create([
-            'travel_id' => $travel->id,
-            'price' => 500,
-            'start_date' =>  $startDate = Carbon::parse($current->copy())->addDays(0)->startOfDay()->toDateTimeString(),
-            'end_date' => $endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
-        ]);
-
-        $cheapTour = Tour::factory()->create([
-            'travel_id' => $travel->id,
-            'price' => 200,
-        ]);
-
+        $tourCheap = Tour::factory([
+                        'travel_id' => $travel->id,
+                        'price' => ($tourExpensiveLater->price - 1)
+                        ])->create();
 
         $this->assertCount(3, $travel->tours()->get());
 
-        $this->assertDatabaseHas(Tour::class, [
-            'name' => $expensiveLaterTour->name
-        ]);
+        $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours?sort_by=price&order=desc';
 
-        $this->assertDatabaseHas(Tour::class, [
-            'name' => $expensiveEarlierTour ->name
-        ]);
-
-        $this->assertDatabaseHas(Tour::class, [
-            'name' => $cheapTour->name
-        ]);
-
-        $response = $this->get(self::BASE_URL . '/travels/'. $travel->id .'/tours?sort_by=price&order=desc');
-
+        $response = $this->getJson($endpoint);
         $response->assertStatus(200);
-        $response->assertJsonCount(3, 'data');
-        $response->assertJsonPath('data.0.id', $expensiveEarlierTour->id);
-        $response->assertJsonPath('data.1.id', $expensiveLaterTour->id);
-        $response->assertJsonPath('data.2.id', $cheapTour->id);
+        $response->assertJsonPath('data.0.id', $tourExpensiveEarlier->id);
+        $response->assertJsonPath('data.1.id', $tourExpensiveLater->id);
+        $response->assertJsonPath('data.2.id', $tourCheap->id);
+
     }
 
     public function test_tours_by_travel_id_sort_by_price_ranges_correctly(): void
