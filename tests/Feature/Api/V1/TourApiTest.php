@@ -62,41 +62,29 @@ class TourApiTest extends TestCase
 
     public function test_tours_by_travel_id_returns_correct_pagination(): void
     {
-
         /*
         php artisan test --filter=test_tours_by_travel_id_returns_correct_pagination
         */
 
+        $this->actingAs($this->admin);
+
         $itemsPagination15 = 15;
         $itemsRecords16 = 16;
 
-        $this->actingAs($this->admin);
+        $travel = Travel::factory(['is_public' => 1])->create();
 
-        $travel = Travel::factory()->create(['is_public' => 1]);
-
-        $this->assertCount(1, Travel::all());
-
-        $this->assertDatabaseHas(Travel::class, [
-            'id' => $travel->id
-        ]);
-
-
-        $travel = Travel::findOrFail($travel->id);
-
-        Tour::factory( $itemsRecords16 )->create(['travel_id' => $travel->id]);
-
-
-        $travel->load(['tours']);
+        Tour::factory(['travel_id' => $travel->id])->count($itemsRecords16)->create();
 
         $this->assertCount($itemsRecords16, $travel->tours()->get());
 
+        $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
 
-        $response = $this->get(self::BASE_URL . '/travels/'. $travel->id .'/tours');
-
+        $response = $this->getJson($endpoint);
         $response->assertStatus(200);
         $response->assertJsonCount($itemsPagination15, 'data');
         $response->assertJsonPath('meta.current_page', 1);
         $response->assertJsonPath('meta.last_page', 2);
+
     }
 
     public function test_tour_price_is_correctly_formatted(): void
