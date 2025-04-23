@@ -58,11 +58,11 @@ class TourApiService
 
     }
 
-    public static function getPriceValue(int $value)
+    public static function getPriceValue(int $value): float
     {
         $value = ($value / 100);
 
-        return number_format($value,2);
+        return number_format((float)$value, 2, '.', '');
 
     }
 
