@@ -149,17 +149,17 @@ class TourApiTest extends TestCase
 
         $tourCheapLater = Tour::factory(['travel_id' => $travel->id])->create();
 
+        $tourExpensive = Tour::factory([
+                            'travel_id' => $travel->id,
+                            'price' => ($tourCheapLater->price + $tourCheapLater->price)
+                            ])->create();
+
         $tourCheapEarlier = Tour::factory([
             'travel_id' => $travel->id,
             'price' => $tourCheapLater->price,
             'start_date' => $startDate = Carbon::parse($tourCheapLater->start_date)->subDays(mt_rand(1,10))->startOfDay()->toDateTimeString(),
             'end_date' => Carbon::parse($startDate)->addDays(mt_rand(0,10))->endOfDay()->toDateTimeString(),
             ])->create();
-
-        $tourExpensive = Tour::factory([
-                                'travel_id' => $travel->id,
-                                'price' => ($tourCheapLater->price + 1)
-                                ])->create();
 
         $this->assertCount(3, $travel->tours()->get());
 
