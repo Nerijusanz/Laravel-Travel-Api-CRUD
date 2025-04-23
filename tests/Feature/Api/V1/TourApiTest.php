@@ -217,7 +217,7 @@ class TourApiTest extends TestCase
 
         $this->actingAs($this->admin);
 
-        $travel = Travel::factory(['is_public' => true])->create();
+        $travel = Travel::factory(['is_public' => 1])->create();
 
         $tourCheap = Tour::factory(['travel_id' => $travel->id])->create();
 
