@@ -3,18 +3,19 @@
 namespace Tests\Feature\Api\V1;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
+use Database\Seeders\tests\traits\DatabaseSeederTraitTest;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Travel;
 use App\Models\Tour;
-use App\Services\Api\V1\TourApiService;
-use Database\Seeders\tests\traits\DatabaseSeederTraitTest;
 
 class TourApiTest extends TestCase
 {
+    /*
+    php artisan test --filter=TourApiTest
+    */
 
     use RefreshDatabase;
     use DatabaseSeederTraitTest;
@@ -22,9 +23,6 @@ class TourApiTest extends TestCase
     private $admin;
     public const BASE_URL = '/api';
 
-    /*******TEST CLASS*******
-        php artisan test --filter=TourApiTest
-    ************************/
 
     public function setUp(): void
     {
@@ -33,7 +31,6 @@ class TourApiTest extends TestCase
         $this->admin = User::adminRole();
 
     }
-
 
     public function test_tours_by_travel_id_returns_correct_tour(): void
     {
