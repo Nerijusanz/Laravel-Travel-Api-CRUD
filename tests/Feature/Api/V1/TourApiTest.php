@@ -122,8 +122,8 @@ class TourApiTest extends TestCase
 
         $tourEarlier = Tour::factory([
                                 'travel_id' => $travel->id,
-                                'start_date' => $startDate = Carbon::parse($tourLater->start_date)->subDays(1)->startOfDay()->toDateTimeString(),
-                                'end_date' => Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
+                                'start_date' => $startDate = Carbon::parse($tourLater->start_date)->subDays(mt_rand(1,10))->startOfDay()->toDateTimeString(),
+                                'end_date' => Carbon::parse($startDate)->addDays(mt_rand(0,10))->endOfDay()->toDateTimeString(),
                                 ])->create();
 
         $this->assertCount(2, $travel->tours()->get());
