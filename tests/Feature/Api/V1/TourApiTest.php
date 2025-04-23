@@ -94,10 +94,7 @@ class TourApiTest extends TestCase
 
         $travel = Travel::factory()->create(['is_public' => 1]);
 
-        $tour = Tour::factory([
-                        'travel_id' => $travel->id,
-                        'price'=> 100
-                        ])->create();
+        $tour = Tour::factory(['travel_id' => $travel->id])->create();
 
         $this->assertCount(1, $travel->tours()->get());
 
