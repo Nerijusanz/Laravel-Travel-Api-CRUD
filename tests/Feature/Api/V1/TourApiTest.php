@@ -183,19 +183,19 @@ class TourApiTest extends TestCase
 
         $travel = Travel::factory()->create(['is_public' => true]);
 
-        $tourExpensiveLater = Tour::factory(['travel_id' => $travel->id])->create();
+        $tourCheap = Tour::factory(['travel_id' => $travel->id])->create();
+
+        $tourExpensiveLater = Tour::factory([
+                                    'travel_id' => $travel->id,
+                                    'price' => ($tourCheap->price + $tourCheap->price)
+                                    ])->create();
 
         $tourExpensiveEarlier = Tour::factory([
                                     'travel_id' => $travel->id,
                                     'price' => $tourExpensiveLater->price,
-                                    'start_date' => $startDate = Carbon::parse($tourExpensiveLater->start_date)->subDays(1)->startOfDay()->toDateTimeString(),
-                                    'end_date' => Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
+                                    'start_date' => $startDate = Carbon::parse($tourExpensiveLater->start_date)->subDays(mt_rand(1,10))->startOfDay()->toDateTimeString(),
+                                    'end_date' => Carbon::parse($startDate)->addDays(mt_rand(1,10))->endOfDay()->toDateTimeString(),
                                     ])->create();
-
-        $tourCheap = Tour::factory([
-                        'travel_id' => $travel->id,
-                        'price' => ($tourExpensiveLater->price - 1)
-                        ])->create();
 
         $this->assertCount(3, $travel->tours()->get());
 
