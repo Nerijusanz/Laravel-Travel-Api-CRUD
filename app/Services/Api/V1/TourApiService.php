@@ -36,11 +36,36 @@ class TourApiService
     public function getTravelToursFilterByRequest(Travel $travel, array $req)
     {
         return $travel->tours()
-            ->when(isset($req['price_from']), function ($query) use ($req) {
-                $query->where('price', '>=', $req['price_from'] * 100);
-            })
-            ->when(isset($req['price_to']), function ($query) use ($req) {
-                $query->where('price', '<=', $req['price_to'] * 100);
+            ->when( ( isset($req['price_from']) || isset($req['price_to']) ), function ($query) use ($req) {
+
+                if(isset($req['price_from']) && isset($req['price_to']) ){
+
+                    $priceFrom = self::setPriceValue($req['price_from']);
+                    $priceTo = self::setPriceValue($req['price_to']);
+
+                    $query->whereBetween('price', [$priceFrom,$priceTo]);
+
+                    return;
+                }
+
+                if(isset($req['price_from']) && !isset($req['price_to']) ){
+
+                    $priceFrom = self::setPriceValue($req['price_from']);
+
+                    $query->where('price', '>=', $priceFrom);
+
+                    return;
+                }
+
+                if(isset($req['price_to']) && !isset($req['price_from']) ){
+
+                    $priceTo = self::setPriceValue($req['price_to']);
+
+                    $query->where('price', '<=', $priceTo);
+
+                    return;
+                }
+
             })
             ->when(isset($req['start_date']), function ($query) use ($req) {
                 $query->where('start_date', '>=', $req['start_date']);
