@@ -67,11 +67,29 @@ class TourApiService
                 }
 
             })
-            ->when(isset($req['start_date']), function ($query) use ($req) {
-                $query->where('start_date', '>=', $req['start_date']);
-            })
-            ->when(isset($req['end_date']), function ($query) use ($req) {
-                $query->where('start_date', '<=', $req['end_date']);
+            ->when( ( isset($req['start_date']) || isset($req['end_date']) ), function ($query) use ($req) {
+
+                if( isset($req['start_date']) && isset($req['end_date']) ){
+
+                    $query->whereBetween('start_date', [ $req['start_date'],$req['end_date'] ]);
+
+                    return;
+                }
+
+                if( isset($req['start_date']) && !isset($req['end_date']) ){
+
+                    $query->where('start_date', '>=' , $req['start_date']);
+
+                    return;
+                }
+
+                if( isset($req['end_date']) && !isset($req['start_date']) ){
+
+                    $query->where('start_date', '<=' , $req['end_date']);
+
+                    return;
+                }
+
             })
             ->when( (isset($req['sort_by']) && isset($req['order']) ), function ($query) use ($req) {
                 if (! in_array($req['sort_by'], ['price']) || (! in_array($req['order'], ['asc', 'desc']))) return;
