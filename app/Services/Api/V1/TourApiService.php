@@ -92,9 +92,9 @@ class TourApiService
 
             })
             ->when( (isset($req['sort_by']) && isset($req['order']) ), function ($query) use ($req) {
-                if (! in_array($req['sort_by'], ['price']) || (! in_array($req['order'], ['asc', 'desc']))) return;
 
                 $query->orderBy($req['sort_by'], $req['order']);
+
             })
             ->orderBy('start_date')
             ->paginate();
