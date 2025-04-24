@@ -19,11 +19,11 @@ class TourFilterApiRequest extends FormRequest
 
         $priceFrom = request()->input('price_from');
 
-        $priceTo = (!isset($priceFrom) || !is_numeric($priceFrom) || $priceFrom < 1 )?  ['nullable','numeric','min:0'] : ['nullable', 'numeric','min:0','gte:price_from'];
+        $priceToRule = (!isset($priceFrom) || !is_numeric($priceFrom) || $priceFrom < 1 )?  ['nullable','numeric','min:0'] : ['nullable', 'numeric','min:0','gte:price_from'];
 
         return [
             'price_from' => ['nullable','numeric','min:0'],
-            'price_to' => $priceTo,
+            'price_to' => $priceToRule,
             'start_date' => ['nullable','date'],
             'end_date' => ['nullable','date','after:start_date'],
             'sort_by' => ['nullable',Rule::in(['price'])],
