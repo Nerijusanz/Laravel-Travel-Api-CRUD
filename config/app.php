@@ -10,6 +10,8 @@ return [
 
     'settings' => [
         'decimal' => 2,
+        'decimal_separator' => '.',
+        'thousands_separator' => '',
     ],
 
     /*
