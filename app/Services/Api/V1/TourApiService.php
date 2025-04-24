@@ -36,22 +36,65 @@ class TourApiService
     public function getTravelToursFilterByRequest(Travel $travel, array $req)
     {
         return $travel->tours()
-            ->when(isset($req['price_from']), function ($query) use ($req) {
-                $query->where('price', '>=', $req['price_from'] * 100);
+            ->when( ( isset($req['price_from']) || isset($req['price_to']) ), function ($query) use ($req) {
+
+                if(isset($req['price_from']) && isset($req['price_to']) ){
+
+                    $priceFrom = self::setPriceValue($req['price_from']);
+                    $priceTo = self::setPriceValue($req['price_to']);
+
+                    $query->whereBetween('price', [$priceFrom,$priceTo]);
+
+                    return;
+                }
+
+                if(isset($req['price_from']) && !isset($req['price_to']) ){
+
+                    $priceFrom = self::setPriceValue($req['price_from']);
+
+                    $query->where('price', '>=', $priceFrom);
+
+                    return;
+                }
+
+                if(isset($req['price_to']) && !isset($req['price_from']) ){
+
+                    $priceTo = self::setPriceValue($req['price_to']);
+
+                    $query->where('price', '<=', $priceTo);
+
+                    return;
+                }
+
             })
-            ->when(isset($req['price_to']), function ($query) use ($req) {
-                $query->where('price', '<=', $req['price_to'] * 100);
-            })
-            ->when(isset($req['start_date']), function ($query) use ($req) {
-                $query->where('start_date', '>=', $req['start_date']);
-            })
-            ->when(isset($req['end_date']), function ($query) use ($req) {
-                $query->where('start_date', '<=', $req['end_date']);
+            ->when( ( isset($req['start_date']) || isset($req['end_date']) ), function ($query) use ($req) {
+
+                if( isset($req['start_date']) && isset($req['end_date']) ){
+
+                    $query->whereBetween('start_date', [ $req['start_date'],$req['end_date'] ]);
+
+                    return;
+                }
+
+                if( isset($req['start_date']) && !isset($req['end_date']) ){
+
+                    $query->where('start_date', '>=' , $req['start_date']);
+
+                    return;
+                }
+
+                if( isset($req['end_date']) && !isset($req['start_date']) ){
+
+                    $query->where('start_date', '<=' , $req['end_date']);
+
+                    return;
+                }
+
             })
             ->when( (isset($req['sort_by']) && isset($req['order']) ), function ($query) use ($req) {
-                if (! in_array($req['sort_by'], ['price']) || (! in_array($req['order'], ['asc', 'desc']))) return;
 
                 $query->orderBy($req['sort_by'], $req['order']);
+
             })
             ->orderBy('start_date')
             ->paginate();
