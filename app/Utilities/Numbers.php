@@ -13,7 +13,7 @@ class Numbers
 
         $randValue =  $minValue + mt_rand() / mt_getrandmax() * ($maxValue - $minValue);
 
-        return number_format((float)$randValue, 2, '.', '');
+        return number_format((float)$randValue,config('app.settings.decimal'), '.', '');
 
     }
 
