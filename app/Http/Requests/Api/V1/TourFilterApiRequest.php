@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Api\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
-
 use Illuminate\Validation\Rule;
 
 class TourFilterApiRequest extends FormRequest
@@ -16,15 +15,11 @@ class TourFilterApiRequest extends FormRequest
 
     public function rules(): array
     {
-
         $priceFrom = request()->input('price_from');
-
-        $priceToRule = (!isset($priceFrom) || !is_numeric($priceFrom) || $priceFrom < 1 )?  ['nullable','numeric','min:0'] : ['nullable', 'numeric','min:0','gte:price_from'];
-
+        $priceToRule = (!isset($priceFrom) || !is_numeric($priceFrom) || $priceFrom < 1 )? ['nullable','numeric','min:0'] : ['nullable', 'numeric','min:0','gte:price_from'];
 
         $startDate = request()->input('start_date');
-        $endDateRule = ( !isset($startDate) )?  ['nullable','date'] : ['nullable','date','after_or_equal:start_date'];
-
+        $endDateRule = ( !isset($startDate) )? ['nullable','date'] : ['nullable','date','after_or_equal:start_date'];
 
         return [
             'price_from' => ['nullable','numeric','min:0'],
@@ -32,10 +27,9 @@ class TourFilterApiRequest extends FormRequest
             'start_date' => ['nullable','date'],
             'end_date' => $endDateRule,
             'sort_by' => ['nullable',Rule::in(['price'])],
-            'order' => ['nullable',Rule::in(['asc', 'desc'])],
+            'order' => ['nullable',Rule::in(['asc','desc'])],
         ];
     }
-
 
     public function messages(): array
     {
