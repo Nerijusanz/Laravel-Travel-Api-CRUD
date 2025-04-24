@@ -105,7 +105,7 @@ class TourApiService
     {
         $value = ($value / 100);
 
-        return number_format((float)$value, 2, '.', '');
+        return number_format((float)$value,config('app.settings.decimal'), '.', '');
 
     }
 
