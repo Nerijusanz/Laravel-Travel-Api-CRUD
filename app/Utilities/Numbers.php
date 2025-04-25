@@ -17,7 +17,7 @@ class Numbers
 
     }
 
-    public static function number_format_decimal(float $value): float
+    public static function number_format_decimal(int|float|string $value): float
     {
         return number_format(
                         floatval($value),
