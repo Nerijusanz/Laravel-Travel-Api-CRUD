@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Tour;
 use App\Models\Travel;
 use App\Http\Requests\Api\V1\TourFilterApiRequest;
+use App\Utilities\Numbers;
 
 class TourApiService
 {
@@ -105,8 +106,7 @@ class TourApiService
     {
         $value = ($value / 100);
 
-        return number_format((float)$value,config('app.settings.decimal'), '.', '');
-
+        return Numbers::number_format_decimal($value);
     }
 
     public static function setPriceValue(int|float|string $value): int
