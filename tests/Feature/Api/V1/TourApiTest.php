@@ -84,10 +84,10 @@ class TourApiTest extends TestCase
 
     }
 
-    public function test_tour_price_is_correctly_formatted(): void
+    public function test_tours_by_travel_id_returns_tour_price_correct_formatted(): void
     {
         /*
-        php artisan test --filter=test_tour_price_is_correctly_formatted
+        php artisan test --filter=test_tours_by_travel_id_returns_tour_price_correct_formatted
         */
 
         $this->actingAs($this->admin);
@@ -108,10 +108,10 @@ class TourApiTest extends TestCase
 
     }
 
-    public function test_tours_by_travel_id_sorts_by_starting_date_correctly(): void
+    public function test_tours_by_travel_id_returns_tours_by_starting_date(): void
     {
         /*
-        php artisan test --filter=test_tours_by_travel_id_sorts_by_starting_date_correctly
+        php artisan test --filter=test_tours_by_travel_id_returns_tours_by_starting_date
         */
 
         $this->actingAs($this->admin);
@@ -137,10 +137,10 @@ class TourApiTest extends TestCase
 
     }
 
-    public function test_tours_by_travel_id_filter_by_price_min_to_max_by_start_date_asc(): void
+    public function test_tours_by_travel_id_returns_tours_by_price_min_to_max_by_start_date(): void
     {
         /*
-        php artisan test --filter=test_tours_by_travel_id_filter_by_price_min_to_max_by_start_date_asc
+        php artisan test --filter=test_tours_by_travel_id_returns_tours_by_price_min_to_max_by_start_date
         */
 
         $this->actingAs($this->admin);
@@ -173,10 +173,10 @@ class TourApiTest extends TestCase
 
     }
 
-    public function test_tours_by_travel_id_filter_by_price_max_to_min_by_start_date_desc(): void
+    public function test_tours_by_travel_id_returns_tours_by_price_max_to_min_by_start_date(): void
     {
         /*
-        php artisan test --filter=test_tours_by_travel_id_filter_by_price_max_to_min_by_start_date_desc
+        php artisan test --filter=test_tours_by_travel_id_returns_tours_by_price_max_to_min_by_start_date
         */
 
         $this->actingAs($this->admin);
@@ -209,10 +209,10 @@ class TourApiTest extends TestCase
 
     }
 
-    public function test_tours_by_travel_id_filter_by_price_range(): void
+    public function test_tours_by_travel_id_returns_tours_by_price_range(): void
     {
         /*
-        php artisan test --filter=test_tours_by_travel_id_filter_by_price_range
+        php artisan test --filter=test_tours_by_travel_id_returns_tours_by_price_range
         */
 
         $this->actingAs($this->admin);
@@ -290,10 +290,10 @@ class TourApiTest extends TestCase
 
     }
 
-    public function test_tours_by_travel_id_filter_by_starting_date(): void
+    public function test_tours_by_travel_id_return_tours_by_date_range(): void
     {
         /*
-        php artisan test --filter=test_tours_by_travel_id_filter_by_starting_date
+        php artisan test --filter=test_tours_by_travel_id_return_tours_by_date_range
         */
 
         $this->actingAs($this->admin);
@@ -407,11 +407,10 @@ class TourApiTest extends TestCase
 
     }
 
-    public function test_tour_by_travel_id_returns_validation_error_status_code_422(): void
+    public function test_tour_by_travel_id_returns_tours_validation_errors_status_code_422(): void
     {
-
         /*
-        php artisan test --filter=test_tour_by_travel_id_returns_validation_error_status_code_422
+        php artisan test --filter=test_tour_by_travel_id_returns_tours_validation_errors_status_code_422
         */
 
         $this->actingAs($this->admin);
