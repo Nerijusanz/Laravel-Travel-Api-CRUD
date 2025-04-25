@@ -6,11 +6,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Travel;
+use App\Utilities\Numbers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-
-use App\Services\Api\V1\TourApiService;
 
 class Tour extends Model
 {
@@ -43,8 +42,8 @@ class Tour extends Model
     protected function price(): Attribute
     {
         return Attribute::make(
-            get: fn (int $value) => TourApiService::getPriceValue($value),
-            set: fn (int|float|string $value) => TourApiService::setPriceValue($value)
+            get: fn (int $value) => Numbers::getAttributeNumberValue($value),
+            set: fn (int|float|string $value) => Numbers::setAttributeNumberValue($value)
         );
     }
 

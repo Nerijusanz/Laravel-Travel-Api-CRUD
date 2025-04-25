@@ -27,4 +27,18 @@ class Numbers
                     );
     }
 
+    public static function getAttributeNumberValue(int $value): float
+    {
+        $value = ($value / 100);
+
+        return Numbers::number_format_decimal($value);
+    }
+
+    public static function setAttributeNumberValue(int|float|string $value): int
+    {
+        if( !isset($value) || !is_numeric($value) ) return 0;
+
+        return (int)($value * 100);
+    }
+
 }
