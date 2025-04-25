@@ -72,16 +72,14 @@ class User extends Authenticatable
     {
         return $query->whereHas('roles',function($query) {
             $query->where('name',Role::ADMIN);
-
-        })->get()->first();
+        })->first();
     }
 
     public function scopeUserRole(Builder $query)
     {
         return $query->whereHas('roles',function($query) {
             $query->where('name',Role::USER);
-
-        })->get()->first();
+        })->first();
     }
 
 }
