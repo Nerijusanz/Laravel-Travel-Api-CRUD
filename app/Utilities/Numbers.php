@@ -17,4 +17,14 @@ class Numbers
 
     }
 
+    public static function number_format_decimal(float $value): float
+    {
+        return number_format(
+                        floatval($value),
+                        config('app.settings.decimal'),
+                        config('app.settings.decimal_separator'),
+                        config('app.settings.thousands_separator')
+                    );
+    }
+
 }
