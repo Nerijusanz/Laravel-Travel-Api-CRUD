@@ -11,9 +11,9 @@ class Numbers
         $minValue = ( !isset($minValue) || !is_numeric($minValue) )? 0 : $minValue;
         $maxValue = ( !isset($maxValue) || !is_numeric($maxValue) )? 0 : $maxValue;
 
-        $randValue =  $minValue + mt_rand() / mt_getrandmax() * ($maxValue - $minValue);
+        $value =  $minValue + mt_rand() / mt_getrandmax() * ($maxValue - $minValue);
 
-        return number_format((float)$randValue,config('app.settings.decimal'), '.', '');
+        return self::number_format_decimal($value);
 
     }
 
