@@ -26,12 +26,12 @@ class Numbers
 
     public static function getAttributeNumberValue(int $value)
     {
-        return Numbers::number_format_decimal( ($value / 100) );
+        return Numbers::number_format_decimal( ($value / config('app.settings.attribute_number_value_multiplayer') ) );
     }
 
     public static function setAttributeNumberValue(int|float|string $value)
     {
-        return ( !isset($value) || !is_numeric($value) ) ? 0 : ($value * 100);
+        return ( !isset($value) || !is_numeric($value) ) ? 0 : ($value * config('app.settings.attribute_number_value_multiplayer') );
     }
 
 }

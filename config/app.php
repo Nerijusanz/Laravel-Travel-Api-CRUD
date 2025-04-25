@@ -12,6 +12,7 @@ return [
         'decimal' => 2,
         'decimal_separator' => '.',
         'thousands_separator' => '',
+        'attribute_number_value_multiplayer' => 100
     ],
 
     /*
