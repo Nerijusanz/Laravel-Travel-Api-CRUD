@@ -41,8 +41,8 @@ class TourApiService
 
                 if(isset($req['price_from']) && isset($req['price_to']) ){
 
-                    $priceFrom = self::setPriceValue($req['price_from']);
-                    $priceTo = self::setPriceValue($req['price_to']);
+                    $priceFrom = Numbers::setAttributeNumberValue($req['price_from']);
+                    $priceTo = Numbers::setAttributeNumberValue($req['price_to']);
 
                     $query->whereBetween('price', [$priceFrom,$priceTo]);
 
@@ -51,7 +51,7 @@ class TourApiService
 
                 if(isset($req['price_from']) && !isset($req['price_to']) ){
 
-                    $priceFrom = self::setPriceValue($req['price_from']);
+                    $priceFrom = Numbers::setAttributeNumberValue($req['price_from']);
 
                     $query->where('price', '>=', $priceFrom);
 
@@ -60,7 +60,7 @@ class TourApiService
 
                 if(isset($req['price_to']) && !isset($req['price_from']) ){
 
-                    $priceTo = self::setPriceValue($req['price_to']);
+                    $priceTo = Numbers::setAttributeNumberValue($req['price_to']);
 
                     $query->where('price', '<=', $priceTo);
 
@@ -100,20 +100,6 @@ class TourApiService
             ->orderBy('start_date')
             ->paginate();
 
-    }
-
-    public static function getPriceValue(int $value): float
-    {
-        $value = ($value / 100);
-
-        return Numbers::number_format_decimal($value);
-    }
-
-    public static function setPriceValue(int|float|string $value): int
-    {
-        if( !isset($value) || !is_numeric($value) ) return 0;
-
-        return (int)($value * 100);
     }
 
 }
