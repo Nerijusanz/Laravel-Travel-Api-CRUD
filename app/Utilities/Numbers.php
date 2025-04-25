@@ -6,10 +6,7 @@ class Numbers
 {
     public static function generateRandomFloat(int|float|string $minValue, int|float|string $maxValue)
     {
-        $minValue = ( !isset($minValue) || !is_numeric($minValue) )? 0 : $minValue;
-        $maxValue = ( !isset($maxValue) || !is_numeric($maxValue) )? 0 : $maxValue;
-
-        $value =  $minValue + mt_rand() / mt_getrandmax() * ($maxValue - $minValue);
+        $value = $minValue + mt_rand() / mt_getrandmax() * ($maxValue - $minValue);
 
         return Numbers::number_format_decimal($value);
     }
