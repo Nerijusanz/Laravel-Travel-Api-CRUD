@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-use App\Models\Travel;
-use App\Utilities\Numbers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+
+use App\Models\Travel;
+use App\Utilities\Numbers;
 
 class Tour extends Model
 {
@@ -24,17 +24,14 @@ class Tour extends Model
         'end_date',
     ];
 
-
     public function travel(): BelongsTo
     {
         return $this->belongsTo(Travel::class);
     }
 
-
     protected static function booted()
     {
-
-        static::creating(function ($model) {
+        static::creating(function ($model){
             $model->user_id = Auth::id();
         });
     }
@@ -46,6 +43,5 @@ class Tour extends Model
             set: fn (int|float|string $value) => Numbers::setAttributeNumberValue($value)
         );
     }
-
 
 }
