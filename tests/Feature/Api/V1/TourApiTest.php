@@ -32,6 +32,90 @@ class TourApiTest extends TestCase
 
     }
 
+    public function test_tours_by_travel_id_request_filter_tours_invalid_data_return_validation_errors_response_status_422(): void
+    {
+        /*
+        php artisan test --filter=test_tours_by_travel_id_request_filter_tours_invalid_data_return_validation_errors_response_status_422
+        */
+
+        $this->actingAs($this->admin);
+
+        $travel = Travel::factory()->create(['is_public' => 1]);
+
+        $tour = Tour::factory(['travel_id' => $travel->id])->create();
+
+        $this->assertCount(1, $travel->tours()->get());
+
+        $endpoint = self::BASE_URL . '/travels/' . $travel->id . '/tours';
+
+        $invalid = [];
+        $invalid['price_from']['numeric'] = str()->random(6);
+        $invalid['price_from']['min:0'] = mt_rand(-100,-1);
+
+        $invalid['price_to']['numeric'] = str()->random(6);
+        $invalid['price_to']['min:0'] = mt_rand(-100,-1);
+        $invalid['price_to']['gte:price_from'] = [
+                                            $priceFrom = $tour->price_from,
+                                            $priceTo = ($priceFrom - 1),
+                                            'price_from' => $priceFrom,
+                                            'price_to' => $priceTo
+                                            ];
+
+        $invalid['start_date']['date'] = str()->random(10);
+
+        $invalid['end_date']['date'] = str()->random(10);
+        $invalid['end_date']['after_or_equal:start_date'] = [
+                                            $startDate = $tour->start_date,
+                                            $endDate = Carbon::parse($startDate)->subDays(1)->endOfDay()->toDateTimeString(),
+                                            'start_date' => $startDate, 'end_date' => $endDate ];
+
+        $invalid['sort_by']['rule::in'] = str()->random(10);
+
+        $invalid['order']['rule::in'] = str()->random(5);
+
+
+        $response = $this->getJson($endpoint . '?price_from=' . $invalid['price_from']['numeric']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['price_from'] ]);
+
+        $response = $this->getJson($endpoint . '?price_from=' . $invalid['price_from']['min:0']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['price_from'] ]);
+
+        $response = $this->getJson($endpoint . '?price_to=' . $invalid['price_to']['numeric']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['price_to'] ]);
+
+        $response = $this->getJson($endpoint . '?price_to=' . $invalid['price_to']['min:0']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['price_to'] ]);
+
+        $response = $this->getJson($endpoint . '?price_from=' . $invalid['price_to']['gte:price_from']['price_from'] . '&price_to=' . $invalid['price_to']['gte:price_from']['price_to']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['price_to'] ]);
+
+        $response = $this->getJson($endpoint . '?start_date=' . $invalid['start_date']['date']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['start_date'] ]);
+
+        $response = $this->getJson($endpoint . '?end_date=' . $invalid['end_date']['date']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['end_date'] ]);
+
+        $response = $this->getJson($endpoint . '?start_date=' . $invalid['end_date']['after_or_equal:start_date']['start_date'] . '&end_date=' . $invalid['end_date']['after_or_equal:start_date']['end_date']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['end_date'] ]);
+
+        $response = $this->getJson($endpoint . '?sort_by=' . $invalid['sort_by']['rule::in']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['sort_by'] ]);
+
+        $response = $this->getJson($endpoint . '?order=' . $invalid['order']['rule::in']);
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors' => ['order'] ]);
+
+    }
+
     public function test_tours_by_travel_id_returns_correct_tour(): void
     {
         /*
@@ -405,36 +489,6 @@ class TourApiTest extends TestCase
         $response = $this->getJson($endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
         $response->assertJsonCount(0, 'data');
 
-    }
-
-    public function test_tour_by_travel_id_returns_tours_validation_errors_status_code_422(): void
-    {
-        /*
-        php artisan test --filter=test_tour_by_travel_id_returns_tours_validation_errors_status_code_422
-        */
-
-        $this->actingAs($this->admin);
-
-        $travel = Travel::factory()->create(['is_public' => true]);
-
-        $this->assertCount(1, Travel::all());
-
-        $this->assertDatabaseHas(Travel::class, [
-            'name' => $travel->name
-        ]);
-
-        $travel = Travel::query()
-                    ->where('name',$travel->name)
-                    ->first();
-
-
-        $endpoint = self::BASE_URL . '/travels/' . $travel->id . '/tours';
-
-        $response = $this->getJson($endpoint . '?start_date=xxxx-xx-xx');
-        $response->assertStatus(422);
-
-        $response = $this->getJson($endpoint . '?price_from=abcde');
-        $response->assertStatus(422);
     }
 
 }
