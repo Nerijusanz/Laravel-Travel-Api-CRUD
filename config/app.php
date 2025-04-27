@@ -8,12 +8,15 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'settings' => [
-        'decimal' => 2,
-        'decimal_separator' => '.',
-        'thousands_separator' => '',
-        'attribute_number_value_multiplayer' => 100
-    ],
+    $settings = [],
+
+    $settings['numbers']['decimals']['decimal_number'] = 2,
+    $settings['numbers']['decimals']['decimal_separator'] = '.',
+    $settings['numbers']['decimals']['thousands_separator']= '',
+    $settings['numbers']['attributes']['number_value_multiplayer'] = 100,
+
+
+    'settings' => $settings,
 
     /*
     |--------------------------------------------------------------------------
