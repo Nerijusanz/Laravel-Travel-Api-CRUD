@@ -15,20 +15,20 @@ class Numbers
     {
         return number_format(
                         $value,
-                        config('app.settings.decimal'),
-                        config('app.settings.decimal_separator'),
-                        config('app.settings.thousands_separator')
+                        config('app.settings.numbers.decimals.decimal_number'),
+                        config('app.settings.numbers.decimals.decimal_separator'),
+                        config('app.settings.numbers.decimals.thousands_separator')
                     );
     }
 
     public static function getAttributeNumberValue(int $value)
     {
-        return Numbers::number_format_decimal( ($value / config('app.settings.attribute_number_value_multiplayer') ) );
+        return Numbers::number_format_decimal( ($value / config('app.settings.numbers.attributes.number_value_multiplayer') ) );
     }
 
     public static function setAttributeNumberValue(int|float|string $value)
     {
-        return ( !isset($value) || !is_numeric($value) ) ? 0 : ($value * config('app.settings.attribute_number_value_multiplayer') );
+        return ( !isset($value) || !is_numeric($value) ) ? 0 : ($value * config('app.settings.numbers.attributes.number_value_multiplayer') );
     }
 
 }
