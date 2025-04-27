@@ -10,6 +10,8 @@ return [
 
     $settings = [],
 
+    $settings['pagination']['default_pagination'] = 15,
+
     $settings['numbers']['decimals']['decimal_number'] = 2,
     $settings['numbers']['decimals']['decimal_separator'] = '.',
     $settings['numbers']['decimals']['thousands_separator']= '',
