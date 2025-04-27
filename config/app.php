@@ -10,7 +10,7 @@ return [
 
     $settings = [],
 
-    $settings['pagination']['default_pagination'] = 15,
+    $settings['pagination']['default_items_per_page'] = 15,
 
     $settings['numbers']['decimals']['decimal_number'] = 2,
     $settings['numbers']['decimals']['decimal_separator'] = '.',

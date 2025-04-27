@@ -149,20 +149,22 @@ class TourApiTest extends TestCase
 
         $this->actingAs($this->admin);
 
-        $itemsPagination15 = 15;
-        $itemsRecords16 = 16;
+        $itemsPerPage = config('app.settings.pagination.default_items_per_page');
+        $itemsRecords = ($itemsPerPage + 1);
 
         $travel = Travel::factory(['is_public' => 1])->create();
 
-        Tour::factory(['travel_id' => $travel->id])->count($itemsRecords16)->create();
+        Tour::factory(['travel_id' => $travel->id])
+                        ->count($itemsRecords)
+                        ->create();
 
-        $this->assertCount($itemsRecords16, $travel->tours()->get());
+        $this->assertCount($itemsRecords, $travel->tours()->get());
 
         $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
 
         $response = $this->getJson($endpoint);
         $response->assertStatus(200);
-        $response->assertJsonCount($itemsPagination15, 'data');
+        $response->assertJsonCount($itemsPerPage, 'data');
         $response->assertJsonPath('meta.current_page', 1);
         $response->assertJsonPath('meta.last_page', 2);
 
