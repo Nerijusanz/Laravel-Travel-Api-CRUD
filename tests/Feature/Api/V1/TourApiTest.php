@@ -21,6 +21,7 @@ class TourApiTest extends TestCase
     use DatabaseSeederTraitTest;
 
     private $admin;
+    private $user;
     public const BASE_URL = '/api';
 
 
@@ -29,6 +30,7 @@ class TourApiTest extends TestCase
         parent::setUp();
 
         $this->admin = User::adminRole();
+        $this->user = User::userRole();
 
     }
 
