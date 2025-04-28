@@ -252,26 +252,21 @@ class TourApiTest extends TestCase
             'end_date' => $tour->end_date,
         ];
 
-
         $endpoint = self::BASE_URL . '/admin/travels/' . $travel->id . '/tours';
 
         $this->assertCount(1, $travel->tours()->get());
 
-
         $response = $this->postJson($endpoint,$tourNew);
-
         $response->assertStatus(201);
-
         $this->assertCount(2, $travel->tours()->get());
 
-
-        $tourNew = $travel->tours()->latest()->first();
+        $tourNew = $travel->tours()
+                            ->where('name', $tourNew['name'])
+                            ->first();
 
         $response = $this->getJson($endpoint);
-
         $response->assertStatus(200);
-
-        $response->assertJsonFragment(['id' => $tourNew->id]);
+        $response->assertJsonFragment(['id' => $tourNew->id ]);
 
     }
 
