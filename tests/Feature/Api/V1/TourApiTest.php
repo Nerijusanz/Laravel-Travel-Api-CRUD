@@ -48,6 +48,8 @@ class TourApiTest extends TestCase
 
         $this->assertCount(1, $travel->tours()->get());
 
+        $this->actingAs($this->user);
+
         $endpoint = self::BASE_URL . '/travels/' . $travel->id . '/tours';
 
         $invalid = [];
@@ -57,19 +59,17 @@ class TourApiTest extends TestCase
         $invalid['price_to']['numeric'] = str()->random(6);
         $invalid['price_to']['min:0'] = mt_rand(-100,-1);
         $invalid['price_to']['gte:price_from'] = [
-                                            $priceFrom = $tour->price_from,
-                                            $priceTo = ($priceFrom - 1),
-                                            'price_from' => $priceFrom,
-                                            'price_to' => $priceTo
+                                            'price_from' => $priceFrom = $tour->price_from,
+                                            'price_to' => $priceTo = ($priceFrom - 1)
                                             ];
 
         $invalid['start_date']['date'] = str()->random(10);
 
         $invalid['end_date']['date'] = str()->random(10);
         $invalid['end_date']['after_or_equal:start_date'] = [
-                                            $startDate = $tour->start_date,
-                                            $endDate = Carbon::parse($startDate)->subDays(1)->endOfDay()->toDateTimeString(),
-                                            'start_date' => $startDate, 'end_date' => $endDate ];
+                                            'start_date' => $startDate = $tour->start_date,
+                                            'end_date' => $endDate = Carbon::parse($startDate)->subDays(1)->endOfDay()->toDateTimeString()
+                                        ];
 
         $invalid['sort_by']['rule::in'] = str()->random(10);
 
