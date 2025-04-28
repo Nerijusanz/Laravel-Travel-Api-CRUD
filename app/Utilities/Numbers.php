@@ -15,9 +15,9 @@ class Numbers
     {
         return number_format(
                         $value,
-                        config('app.settings.numbers.decimals.decimal_number'),
-                        config('app.settings.numbers.decimals.decimal_separator'),
-                        config('app.settings.numbers.decimals.thousands_separator')
+                        config('app.settings.numbers.number_format.decimal_number_precision'),
+                        config('app.settings.numbers.number_format.decimal_separator'),
+                        config('app.settings.numbers.number_format.thousands_separator')
                     );
     }
 
