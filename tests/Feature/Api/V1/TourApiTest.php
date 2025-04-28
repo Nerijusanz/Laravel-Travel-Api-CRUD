@@ -21,6 +21,7 @@ class TourApiTest extends TestCase
     use DatabaseSeederTraitTest;
 
     private $admin;
+    private $user;
     public const BASE_URL = '/api';
 
 
@@ -29,6 +30,7 @@ class TourApiTest extends TestCase
         parent::setUp();
 
         $this->admin = User::adminRole();
+        $this->user = User::userRole();
 
     }
 
@@ -46,6 +48,8 @@ class TourApiTest extends TestCase
 
         $this->assertCount(1, $travel->tours()->get());
 
+        $this->actingAs($this->user);
+
         $endpoint = self::BASE_URL . '/travels/' . $travel->id . '/tours';
 
         $invalid = [];
@@ -55,19 +59,17 @@ class TourApiTest extends TestCase
         $invalid['price_to']['numeric'] = str()->random(6);
         $invalid['price_to']['min:0'] = mt_rand(-100,-1);
         $invalid['price_to']['gte:price_from'] = [
-                                            $priceFrom = $tour->price_from,
-                                            $priceTo = ($priceFrom - 1),
-                                            'price_from' => $priceFrom,
-                                            'price_to' => $priceTo
+                                            'price_from' => $priceFrom = $tour->price_from,
+                                            'price_to' => $priceTo = ($priceFrom - 1)
                                             ];
 
         $invalid['start_date']['date'] = str()->random(10);
 
         $invalid['end_date']['date'] = str()->random(10);
         $invalid['end_date']['after_or_equal:start_date'] = [
-                                            $startDate = $tour->start_date,
-                                            $endDate = Carbon::parse($startDate)->subDays(1)->endOfDay()->toDateTimeString(),
-                                            'start_date' => $startDate, 'end_date' => $endDate ];
+                                            'start_date' => $startDate = $tour->start_date,
+                                            'end_date' => $endDate = Carbon::parse($startDate)->subDays(1)->endOfDay()->toDateTimeString()
+                                        ];
 
         $invalid['sort_by']['rule::in'] = str()->random(10);
 
@@ -130,10 +132,11 @@ class TourApiTest extends TestCase
 
         $this->assertCount(1, $travel->tours()->get());
 
-        $tour = $travel->tours()->first();
+        $this->actingAs($this->user);
 
         $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
 
+        $tour = $travel->tours()->findOrFail($tour->id);
 
         $response = $this->getJson($endpoint);
         $response->assertStatus(200);
@@ -147,11 +150,11 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_returns_correct_pagination
         */
 
-        $this->actingAs($this->admin);
-
         $itemsPerPage = config('app.settings.pagination.default_items_per_page');
         $itemsRecords = ($itemsPerPage + 1);
         $page=1;
+
+        $this->actingAs($this->admin);
 
         $travel = Travel::factory(['is_public' => 1])->create();
 
@@ -160,6 +163,8 @@ class TourApiTest extends TestCase
                         ->create();
 
         $this->assertCount($itemsRecords, $travel->tours()->get());
+
+        $this->actingAs($this->user);
 
         $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
 
@@ -189,6 +194,7 @@ class TourApiTest extends TestCase
         $response->assertJsonCount(1, 'data');
         $response->assertJsonPath('meta.current_page', $page2);
         $response->assertJsonPath('meta.last_page', 2);
+        $response->assertJsonPath('meta.total', $itemsRecords);
         $response->assertJsonPath('data.0.id', $tourOutPagination->id);
 
     }
@@ -207,13 +213,18 @@ class TourApiTest extends TestCase
 
         $this->assertCount(1, $travel->tours()->get());
 
-        $tour = $travel->tours()->first();
+        $this->actingAs($this->user);
 
         $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
 
+        $tour = $travel->tours()->findOrFail($tour->id);
+
         $response = $this->getJson($endpoint);
         $response->assertStatus(200);
-        $response->assertJsonFragment(['price' => $tour->price]);
+        $response->assertJsonFragment([
+                                'id' => $tour->id,
+                                'price' => $tour->price
+                            ]);
 
     }
 
@@ -236,6 +247,8 @@ class TourApiTest extends TestCase
                                 ])->create();
 
         $this->assertCount(2, $travel->tours()->get());
+
+        $this->actingAs($this->user);
 
         $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
 
