@@ -132,10 +132,11 @@ class TourApiTest extends TestCase
 
         $this->assertCount(1, $travel->tours()->get());
 
-        $tour = $travel->tours()->first();
+        $this->actingAs($this->user);
 
         $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
 
+        $tour = $travel->tours()->findOrFail($tour->id);
 
         $response = $this->getJson($endpoint);
         $response->assertStatus(200);
