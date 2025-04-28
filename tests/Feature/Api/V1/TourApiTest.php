@@ -151,6 +151,7 @@ class TourApiTest extends TestCase
 
         $itemsPerPage = config('app.settings.pagination.default_items_per_page');
         $itemsRecords = ($itemsPerPage + 1);
+        $page=1;
 
         $travel = Travel::factory(['is_public' => 1])->create();
 
@@ -162,11 +163,33 @@ class TourApiTest extends TestCase
 
         $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
 
+        $tourOutPagination = $travel->tours()
+                                    ->orderBy('start_date')
+                                    ->get()
+                                    ->last();
+
         $response = $this->getJson($endpoint);
         $response->assertStatus(200);
         $response->assertJsonCount($itemsPerPage, 'data');
-        $response->assertJsonPath('meta.current_page', 1);
+        $response->assertJsonPath('meta.current_page', $page);
         $response->assertJsonPath('meta.last_page', 2);
+        $response->assertJsonPath('meta.total', $itemsRecords);
+        $response->assertJsonMissing(['data.*.id' => $tourOutPagination->id]);
+
+        $response = $this->getJson($endpoint . '?page=' . $page);
+        $response->assertStatus(200);
+        $response->assertJsonCount($itemsPerPage, 'data');
+        $response->assertJsonPath('meta.current_page', $page);
+        $response->assertJsonPath('meta.last_page', 2);
+        $response->assertJsonPath('meta.total', $itemsRecords);
+        $response->assertJsonMissing(['data.*.id' => $tourOutPagination->id]);
+
+        $response = $this->getJson($endpoint . '?page=' . ($page2 = $page + 1) );
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+        $response->assertJsonPath('meta.current_page', $page2);
+        $response->assertJsonPath('meta.last_page', 2);
+        $response->assertJsonPath('data.0.id', $tourOutPagination->id);
 
     }
 
