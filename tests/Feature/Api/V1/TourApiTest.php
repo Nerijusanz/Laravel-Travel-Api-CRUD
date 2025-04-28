@@ -150,11 +150,11 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_returns_correct_pagination
         */
 
-        $this->actingAs($this->admin);
-
         $itemsPerPage = config('app.settings.pagination.default_items_per_page');
         $itemsRecords = ($itemsPerPage + 1);
         $page=1;
+
+        $this->actingAs($this->admin);
 
         $travel = Travel::factory(['is_public' => 1])->create();
 
@@ -163,6 +163,8 @@ class TourApiTest extends TestCase
                         ->create();
 
         $this->assertCount($itemsRecords, $travel->tours()->get());
+
+        $this->actingAs($this->user);
 
         $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
 
@@ -192,6 +194,7 @@ class TourApiTest extends TestCase
         $response->assertJsonCount(1, 'data');
         $response->assertJsonPath('meta.current_page', $page2);
         $response->assertJsonPath('meta.last_page', 2);
+        $response->assertJsonPath('meta.total', $itemsRecords);
         $response->assertJsonPath('data.0.id', $tourOutPagination->id);
 
     }
