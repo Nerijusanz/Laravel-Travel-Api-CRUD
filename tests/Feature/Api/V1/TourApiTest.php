@@ -362,15 +362,20 @@ class TourApiTest extends TestCase
 
         $tourExpensive = Tour::factory([
             'travel_id' => $travel->id,
-            'price' => ($tourCheap->price + $tourCheap->price)
+            'price' => $priceExpensive = ($tourCheap->price * 2 )
             ])->create();
 
         $this->assertCount(2, $travel->tours()->get());
 
+        $this->actingAs($this->user);
 
         $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
 
-        $response = $this->getJson($endpoint . '?price_to=' . ($tourCheap->price - 1) );
+        $tourCheap = $travel->tours()->findOrFail($tourCheap->id);
+        $tourExpensive = $travel->tours()->findOrFail($tourExpensive->id);
+
+
+        $response = $this->getJson($endpoint . '?price_to=' . $priceTo = ($tourCheap->price - 1) );
         $response->assertJsonCount(0, 'data');
 
         $response = $this->getJson($endpoint . '?price_to=' . $tourCheap->price);
@@ -383,7 +388,7 @@ class TourApiTest extends TestCase
         $response->assertJsonFragment(['id' => $tourCheap->id]);
         $response->assertJsonFragment(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_to=' . ($tourExpensive->price - 1) );
+        $response = $this->getJson($endpoint . '?price_to=' . $priceTo = ($tourExpensive->price - 1) );
         $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['id' => $tourCheap->id]);
         $response->assertJsonMissing(['id' => $tourExpensive->id]);
@@ -398,7 +403,7 @@ class TourApiTest extends TestCase
         $response->assertJsonMissing(['id' => $tourCheap->id]);
         $response->assertJsonFragment(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . ($tourExpensive->price + 1) );
+        $response = $this->getJson($endpoint . '?price_from=' . $priceFrom = ($tourExpensive->price + 1) );
         $response->assertJsonCount(0, 'data');
 
         $response = $this->getJson($endpoint . '?price_from=' . $tourCheap->price . '&price_to=' . $tourCheap->price);
@@ -411,12 +416,12 @@ class TourApiTest extends TestCase
         $response->assertJsonFragment(['id' => $tourCheap->id]);
         $response->assertJsonFragment(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . ($tourCheap->price + 1) . '&price_to=' . $tourExpensive->price);
+        $response = $this->getJson($endpoint . '?price_from=' . $priceFrom = ($tourCheap->price + 1) . '&price_to=' . $tourExpensive->price);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonMissing(['id' => $tourCheap->id]);
         $response->assertJsonFragment(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . ($tourCheap->price + 1) . '&price_to=' . ($tourExpensive->price - 1) );
+        $response = $this->getJson($endpoint . '?price_from=' . $priceFrom = ($tourCheap->price + 1) . '&price_to=' . $priceTo = ($tourExpensive->price - 1) );
         $response->assertJsonCount(0, 'data');
 
         $response = $this->getJson($endpoint . '?price_from=' . $tourExpensive->price . '&price_to=' . $tourExpensive->price);
@@ -424,7 +429,7 @@ class TourApiTest extends TestCase
         $response->assertJsonMissing(['id' => $tourCheap->id]);
         $response->assertJsonFragment(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . ($tourExpensive->price + 1) . '&price_to=' . ($tourExpensive->price + 1) );
+        $response = $this->getJson($endpoint . '?price_from=' . $priceFrom = ($tourExpensive->price + 1) . '&price_to=' . $priceTo = ($tourExpensive->price + 1) );
         $response->assertJsonCount(0, 'data');
 
     }
