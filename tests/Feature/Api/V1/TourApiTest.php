@@ -327,10 +327,12 @@ class TourApiTest extends TestCase
                                     'travel_id' => $travel->id,
                                     'price' => $tourExpensiveLater->price,
                                     'start_date' => $startDate = Carbon::parse($tourExpensiveLater->start_date)->subDays(mt_rand(1,10))->startOfDay()->toDateTimeString(),
-                                    'end_date' => $endDate = Carbon::parse($startDate)->addDays(mt_rand(1,10))->endOfDay()->toDateTimeString(),
+                                    'end_date' => $endDate = Carbon::parse($startDate)->addDays(mt_rand(0,10))->endOfDay()->toDateTimeString(),
                                     ])->create();
 
         $this->assertCount(3, $travel->tours()->get());
+
+        $this->actingAs($this->user);
 
         $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours?sort_by=price&order=desc';
 
