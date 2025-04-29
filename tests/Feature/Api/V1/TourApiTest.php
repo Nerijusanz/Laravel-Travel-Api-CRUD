@@ -52,6 +52,8 @@ class TourApiTest extends TestCase
 
         $endpoint = self::BASE_URL . '/travels/' . $travel->id . '/tours';
 
+        $tour = $travel->tours()->findOrFail($tour->id);
+
         $invalid = [];
         $invalid['price_from']['numeric'] = str()->random(6);
         $invalid['price_from']['min:0'] = mt_rand(-100,-1);
@@ -243,7 +245,7 @@ class TourApiTest extends TestCase
         $tourEarlier = Tour::factory([
                                 'travel_id' => $travel->id,
                                 'start_date' => $startDate = Carbon::parse($tourLater->start_date)->subDays(mt_rand(1,10))->startOfDay()->toDateTimeString(),
-                                'end_date' => Carbon::parse($startDate)->addDays(mt_rand(0,10))->endOfDay()->toDateTimeString(),
+                                'end_date' => $endDate = Carbon::parse($startDate)->addDays(mt_rand(0,10))->endOfDay()->toDateTimeString(),
                                 ])->create();
 
         $this->assertCount(2, $travel->tours()->get());
@@ -251,6 +253,9 @@ class TourApiTest extends TestCase
         $this->actingAs($this->user);
 
         $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
+
+        $tourEarlier = $travel->tours()->findOrFail($tourEarlier->id);
+        $tourLater = $travel->tours()->findOrFail($tourLater->id);
 
         $response = $this->getJson($endpoint);
         $response->assertStatus(200);
@@ -273,19 +278,25 @@ class TourApiTest extends TestCase
 
         $tourExpensive = Tour::factory([
                             'travel_id' => $travel->id,
-                            'price' => ($tourCheapLater->price + $tourCheapLater->price)
+                            'price' => $priceExpensive = ($tourCheapLater->price * 2 )
                             ])->create();
 
         $tourCheapEarlier = Tour::factory([
             'travel_id' => $travel->id,
             'price' => $tourCheapLater->price,
             'start_date' => $startDate = Carbon::parse($tourCheapLater->start_date)->subDays(mt_rand(1,10))->startOfDay()->toDateTimeString(),
-            'end_date' => Carbon::parse($startDate)->addDays(mt_rand(0,10))->endOfDay()->toDateTimeString(),
+            'end_date' => $endDate = Carbon::parse($startDate)->addDays(mt_rand(0,10))->endOfDay()->toDateTimeString(),
             ])->create();
 
         $this->assertCount(3, $travel->tours()->get());
 
+        $this->actingAs($this->user);
+
         $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours?sort_by=price&order=asc';
+
+        $tourCheapEarlier = $travel->tours()->findOrFail($tourCheapEarlier->id);
+        $tourCheapLater = $travel->tours()->findOrFail($tourCheapLater->id);
+        $tourExpensive = $travel->tours()->findOrFail($tourExpensive->id);
 
         $response = $this->getJson($endpoint);
         $response->assertStatus(200);
@@ -309,19 +320,25 @@ class TourApiTest extends TestCase
 
         $tourExpensiveLater = Tour::factory([
                                     'travel_id' => $travel->id,
-                                    'price' => ($tourCheap->price + $tourCheap->price)
+                                    'price' => $priceExpensive = ($tourCheap->price * 2 )
                                     ])->create();
 
         $tourExpensiveEarlier = Tour::factory([
                                     'travel_id' => $travel->id,
                                     'price' => $tourExpensiveLater->price,
                                     'start_date' => $startDate = Carbon::parse($tourExpensiveLater->start_date)->subDays(mt_rand(1,10))->startOfDay()->toDateTimeString(),
-                                    'end_date' => Carbon::parse($startDate)->addDays(mt_rand(1,10))->endOfDay()->toDateTimeString(),
+                                    'end_date' => $endDate = Carbon::parse($startDate)->addDays(mt_rand(0,10))->endOfDay()->toDateTimeString(),
                                     ])->create();
 
         $this->assertCount(3, $travel->tours()->get());
 
+        $this->actingAs($this->user);
+
         $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours?sort_by=price&order=desc';
+
+        $tourExpensiveEarlier = $travel->tours()->findOrFail($tourExpensiveEarlier->id);
+        $tourExpensiveLater = $travel->tours()->findOrFail($tourExpensiveLater->id);
+        $tourCheap = $travel->tours()->findOrFail($tourCheap->id);
 
         $response = $this->getJson($endpoint);
         $response->assertStatus(200);
@@ -345,15 +362,20 @@ class TourApiTest extends TestCase
 
         $tourExpensive = Tour::factory([
             'travel_id' => $travel->id,
-            'price' => ($tourCheap->price + $tourCheap->price)
+            'price' => $priceExpensive = ($tourCheap->price * 2 )
             ])->create();
 
         $this->assertCount(2, $travel->tours()->get());
 
+        $this->actingAs($this->user);
 
         $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
 
-        $response = $this->getJson($endpoint . '?price_to=' . ($tourCheap->price - 1) );
+        $tourCheap = $travel->tours()->findOrFail($tourCheap->id);
+        $tourExpensive = $travel->tours()->findOrFail($tourExpensive->id);
+
+
+        $response = $this->getJson($endpoint . '?price_to=' . $priceTo = ($tourCheap->price - 1) );
         $response->assertJsonCount(0, 'data');
 
         $response = $this->getJson($endpoint . '?price_to=' . $tourCheap->price);
@@ -366,7 +388,7 @@ class TourApiTest extends TestCase
         $response->assertJsonFragment(['id' => $tourCheap->id]);
         $response->assertJsonFragment(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_to=' . ($tourExpensive->price - 1) );
+        $response = $this->getJson($endpoint . '?price_to=' . $priceTo = ($tourExpensive->price - 1) );
         $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['id' => $tourCheap->id]);
         $response->assertJsonMissing(['id' => $tourExpensive->id]);
@@ -381,7 +403,7 @@ class TourApiTest extends TestCase
         $response->assertJsonMissing(['id' => $tourCheap->id]);
         $response->assertJsonFragment(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . ($tourExpensive->price + 1) );
+        $response = $this->getJson($endpoint . '?price_from=' . $priceFrom = ($tourExpensive->price + 1) );
         $response->assertJsonCount(0, 'data');
 
         $response = $this->getJson($endpoint . '?price_from=' . $tourCheap->price . '&price_to=' . $tourCheap->price);
@@ -394,12 +416,12 @@ class TourApiTest extends TestCase
         $response->assertJsonFragment(['id' => $tourCheap->id]);
         $response->assertJsonFragment(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . ($tourCheap->price + 1) . '&price_to=' . $tourExpensive->price);
+        $response = $this->getJson($endpoint . '?price_from=' . $priceFrom = ($tourCheap->price + 1) . '&price_to=' . $tourExpensive->price);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonMissing(['id' => $tourCheap->id]);
         $response->assertJsonFragment(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . ($tourCheap->price + 1) . '&price_to=' . ($tourExpensive->price - 1) );
+        $response = $this->getJson($endpoint . '?price_from=' . $priceFrom = ($tourCheap->price + 1) . '&price_to=' . $priceTo = ($tourExpensive->price - 1) );
         $response->assertJsonCount(0, 'data');
 
         $response = $this->getJson($endpoint . '?price_from=' . $tourExpensive->price . '&price_to=' . $tourExpensive->price);
@@ -407,7 +429,7 @@ class TourApiTest extends TestCase
         $response->assertJsonMissing(['id' => $tourCheap->id]);
         $response->assertJsonFragment(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . ($tourExpensive->price + 1) . '&price_to=' . ($tourExpensive->price + 1) );
+        $response = $this->getJson($endpoint . '?price_from=' . $priceFrom = ($tourExpensive->price + 1) . '&price_to=' . $priceTo = ($tourExpensive->price + 1) );
         $response->assertJsonCount(0, 'data');
 
     }
@@ -427,12 +449,17 @@ class TourApiTest extends TestCase
         $tourEarlier = Tour::factory([
                             'travel_id' => $travel->id,
                             'start_date' => $startDate = Carbon::parse($tourLater->start_date)->subDays(mt_rand(5,10))->startOfDay()->toDateTimeString(),
-                            'end_date' => Carbon::parse($startDate)->addDays(mt_rand(0,5))->endOfDay()->toDateTimeString(),
+                            'end_date' => $endDate = Carbon::parse($startDate)->addDays(mt_rand(0,10))->endOfDay()->toDateTimeString(),
                             ])->create();
 
         $this->assertCount(2, $travel->tours()->get());
 
+        $this->actingAs($this->user);
+
         $endpoint = self::BASE_URL . '/travels/' . $travel->id . '/tours';
+
+        $tourLater = $travel->tours()->findOrFail($tourLater->id);
+        $tourEarlier = $travel->tours()->findOrFail($tourEarlier->id);
 
 
         $response = $this->getJson($endpoint . '?start_date=' . $tourEarlier->start_date);
