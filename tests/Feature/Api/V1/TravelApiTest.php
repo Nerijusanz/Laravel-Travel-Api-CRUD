@@ -15,8 +15,8 @@ class TravelApiTest extends TestCase
     use RefreshDatabase;
     use DatabaseSeederTraitTest;
 
-    private $admin;
-    private $user;
+    private User $admin;
+    private User $user;
     public const BASE_URL = '/api';
 
     public function setUp(): void
