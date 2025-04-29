@@ -15,14 +15,14 @@ class TravelApiTest extends TestCase
     use RefreshDatabase;
     use DatabaseSeederTraitTest;
 
-    private $user;
+    private $admin;
     public const BASE_URL = '/api';
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->user = User::userRole();
+        $this->admin = User::adminRole();
 
     }
 
@@ -32,7 +32,7 @@ class TravelApiTest extends TestCase
         php artisan test --filter=test_travels_list_shows_only_public_records
         */
 
-        $this->actingAs($this->user);
+        $this->actingAs($this->admin);
 
 
         $publicTravel = Travel::factory()->create(['is_public' => 1]);
@@ -66,7 +66,7 @@ class TravelApiTest extends TestCase
         $itemsPagination=15;
         $itemsRecords=$itemsPagination + 1;
 
-        $this->actingAs($this->user);
+        $this->actingAs($this->admin);
 
         $travel = Travel::factory($itemsRecords)->create(['is_public' => 1]);
 
