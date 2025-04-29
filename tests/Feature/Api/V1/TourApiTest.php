@@ -52,6 +52,8 @@ class TourApiTest extends TestCase
 
         $endpoint = self::BASE_URL . '/travels/' . $travel->id . '/tours';
 
+        $tour = $travel->tours()->findOrFail($tour->id);
+
         $invalid = [];
         $invalid['price_from']['numeric'] = str()->random(6);
         $invalid['price_from']['min:0'] = mt_rand(-100,-1);
