@@ -2,16 +2,19 @@
 
 namespace Tests\Feature\Api\V1;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
+use Database\Seeders\tests\traits\DatabaseSeederTraitTest;
 use App\Models\User;
 use App\Models\Travel;
-use Database\Seeders\tests\traits\DatabaseSeederTraitTest;
 
 class TravelApiTest extends TestCase
 {
+    /*
+    php artisan test --filter=TravelApiTest
+    */
+
     use RefreshDatabase;
     use DatabaseSeederTraitTest;
 
