@@ -160,9 +160,13 @@ class TourApiTest extends TestCase
 
         $travel = Travel::factory(['is_public' => 1])->create();
 
-        Tour::factory(['travel_id' => $travel->id])
-                        ->count($itemsRecords)
-                        ->create();
+        for($i=1;$i<=$itemsRecords;$i++){
+            Tour::factory([
+                        'travel_id' => $travel->id,
+                        'start_date'=>$startDate = Carbon::now()->addDays($i)->startOfDay()->toDateTimeString(),
+                        'end_date'=>$endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
+            ])->create();
+        }
 
         $this->assertCount($itemsRecords, $travel->tours()->get());
 
@@ -171,9 +175,8 @@ class TourApiTest extends TestCase
         $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
 
         $tourOutPagination = $travel->tours()
-                                    ->orderBy('start_date')
-                                    ->get()
-                                    ->last();
+                    ->orderBy('start_date','desc')
+                    ->first();
 
         $response = $this->getJson($endpoint);
         $response->assertStatus(200);
