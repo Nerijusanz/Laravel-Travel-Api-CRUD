@@ -290,6 +290,8 @@ class TourApiTest extends TestCase
 
         $this->assertCount(3, $travel->tours()->get());
 
+        $this->actingAs($this->user);
+
         $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours?sort_by=price&order=asc';
 
         $tourCheapEarlier = $travel->tours()->findOrFail($tourCheapEarlier->id);
