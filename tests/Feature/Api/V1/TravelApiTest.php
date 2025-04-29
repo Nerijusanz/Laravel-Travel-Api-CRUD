@@ -16,6 +16,7 @@ class TravelApiTest extends TestCase
     use DatabaseSeederTraitTest;
 
     private $admin;
+    private $user;
     public const BASE_URL = '/api';
 
     public function setUp(): void
@@ -23,7 +24,7 @@ class TravelApiTest extends TestCase
         parent::setUp();
 
         $this->admin = User::adminRole();
-
+        $this->user = User::userRole();
     }
 
     public function test_travels_list_shows_only_public_records()
@@ -31,9 +32,7 @@ class TravelApiTest extends TestCase
         /*
         php artisan test --filter=test_travels_list_shows_only_public_records
         */
-
         $this->actingAs($this->admin);
-
 
         $publicTravel = Travel::factory()->create(['is_public' => 1]);
         $notPublicTravel = Travel::factory()->create(['is_public' => 0]);
@@ -47,6 +46,8 @@ class TravelApiTest extends TestCase
         $this->assertDatabaseHas(Travel::class,[
             'name' => $notPublicTravel->name
         ]);
+
+        $this->actingAs($this->user);
 
         $response = $this->get(self::BASE_URL . '/travels');
 
@@ -71,6 +72,8 @@ class TravelApiTest extends TestCase
         $travel = Travel::factory($itemsRecords)->create(['is_public' => 1]);
 
         $this->assertCount($itemsRecords,Travel::all());
+
+        $this->actingAs($this->user);
 
         $response = $this->get(self::BASE_URL . '/travels');
 
