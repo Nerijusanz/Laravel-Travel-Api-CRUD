@@ -18,6 +18,7 @@ class TravelApiTest extends TestCase
     private User $admin;
     private User $user;
     public const BASE_URL = '/api';
+    private string $endpoint;
 
     public function setUp(): void
     {
@@ -25,6 +26,7 @@ class TravelApiTest extends TestCase
 
         $this->admin = User::adminRole();
         $this->user = User::userRole();
+        $this->endpoint = self::BASE_URL . '/travels';
     }
 
     public function test_travels_returns_only_public_records()
@@ -42,12 +44,10 @@ class TravelApiTest extends TestCase
 
         $this->actingAs($this->user);
 
-        $endpoint = self::BASE_URL . '/travels';
-
         $travelPublic = Travel::findOrFail($travelPublic->id);
         $travelNotPublic = Travel::findOrFail($travelNotPublic->id);
 
-        $response = $this->getJson($endpoint);
+        $response = $this->getJson($this->endpoint);
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['id' => $travelPublic->id]);
@@ -75,12 +75,10 @@ class TravelApiTest extends TestCase
 
         $this->actingAs($this->user);
 
-        $endpoint = self::BASE_URL . '/travels';
-
         $travelOutPagination = Travel::all()->last();
 
 
-        $response = $this->getJson($endpoint);
+        $response = $this->getJson($this->endpoint);
         $response->assertStatus(200);
         $response->assertJsonCount($itemsPerPage, 'data');
         $response->assertJsonPath('meta.current_page', $page);
@@ -88,7 +86,7 @@ class TravelApiTest extends TestCase
         $response->assertJsonPath('meta.total', $itemsRecords);
         $response->assertJsonMissing(['data.*.id' => $travelOutPagination->id]);
 
-        $response = $this->getJson($endpoint . '?page=' . $page);
+        $response = $this->getJson($this->endpoint . '?page=' . $page);
         $response->assertStatus(200);
         $response->assertJsonCount($itemsPerPage, 'data');
         $response->assertJsonPath('meta.current_page', $page);
@@ -96,7 +94,7 @@ class TravelApiTest extends TestCase
         $response->assertJsonPath('meta.total', $itemsRecords);
         $response->assertJsonMissing(['data.*.id' => $travelOutPagination->id]);
 
-        $response = $this->getJson($endpoint . '?page=' . $page2 = ($page + 1) );
+        $response = $this->getJson($this->endpoint . '?page=' . $page2 = ($page + 1) );
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonPath('meta.current_page', $page2);
