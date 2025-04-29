@@ -78,7 +78,7 @@ class TravelApiTest extends TestCase
 
         $this->actingAs($this->user);
 
-        $travelOutPagination = Travel::all()->last();
+        $travelOutPagination = Travel::latest('id')->first();
 
 
         $response = $this->getJson($this->endpoint);
