@@ -55,29 +55,55 @@ class TravelApiTest extends TestCase
 
     }
 
-    public function test_travels_list_returns_correct_pagination(): void
+    public function test_travels_returns_correct_pagination(): void
     {
         /*
-        php artisan test --filter=test_travels_list_returns_correct_pagination
+        php artisan test --filter=test_travels_returns_correct_pagination
         */
 
-        $itemsPagination=15;
-        $itemsRecords=$itemsPagination + 1;
+        $itemsPerPage = config('app.settings.pagination.default_items_per_page');
+        $itemsRecords = ($itemsPerPage + 1);
+        $page=1;
 
         $this->actingAs($this->admin);
 
-        $travel = Travel::factory($itemsRecords)->create(['is_public' => 1]);
+        Travel::factory(['is_public' => 1])
+                        ->count($itemsRecords)
+                        ->create();
 
-        $this->assertCount($itemsRecords,Travel::all());
+        $this->assertCount($itemsRecords, Travel::all());
 
         $this->actingAs($this->user);
 
-        $response = $this->get(self::BASE_URL . '/travels');
+        $endpoint = self::BASE_URL . '/travels';
 
+        $travelOutPagination = Travel::all()->last();
+
+
+        $response = $this->getJson($endpoint);
         $response->assertStatus(200);
-        $response->assertJsonCount($itemsPagination, 'data');
-        $response->assertJsonPath('meta.current_page', 1);
+        $response->assertJsonCount($itemsPerPage, 'data');
+        $response->assertJsonPath('meta.current_page', $page);
         $response->assertJsonPath('meta.last_page', 2);
+        $response->assertJsonPath('meta.total', $itemsRecords);
+        $response->assertJsonMissing(['data.*.id' => $travelOutPagination->id]);
+
+        $response = $this->getJson($endpoint . '?page=' . $page);
+        $response->assertStatus(200);
+        $response->assertJsonCount($itemsPerPage, 'data');
+        $response->assertJsonPath('meta.current_page', $page);
+        $response->assertJsonPath('meta.last_page', 2);
+        $response->assertJsonPath('meta.total', $itemsRecords);
+        $response->assertJsonMissing(['data.*.id' => $travelOutPagination->id]);
+
+        $response = $this->getJson($endpoint . '?page=' . $page2 = ($page + 1) );
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+        $response->assertJsonPath('meta.current_page', $page2);
+        $response->assertJsonPath('meta.last_page', 2);
+        $response->assertJsonPath('meta.total', $itemsRecords);
+        $response->assertJsonPath('data.0.id', $travelOutPagination->id);
+
     }
 
 }
