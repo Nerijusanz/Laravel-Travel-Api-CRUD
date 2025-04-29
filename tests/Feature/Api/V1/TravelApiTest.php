@@ -27,34 +27,31 @@ class TravelApiTest extends TestCase
         $this->user = User::userRole();
     }
 
-    public function test_travels_list_shows_only_public_records()
+    public function test_travels_returns_only_public_records()
     {
         /*
-        php artisan test --filter=test_travels_list_shows_only_public_records
+        php artisan test --filter=test_travels_returns_only_public_records
         */
+
         $this->actingAs($this->admin);
 
-        $publicTravel = Travel::factory()->create(['is_public' => 1]);
-        $notPublicTravel = Travel::factory()->create(['is_public' => 0]);
+        $travelPublic = Travel::factory(['is_public' => 1])->create();
+        $travelNotPublic = Travel::factory(['is_public' => 0])->create();
 
-        $this->assertCount(2,Travel::all());
-
-        $this->assertDatabaseHas(Travel::class,[
-            'name' => $publicTravel->name
-        ]);
-
-        $this->assertDatabaseHas(Travel::class,[
-            'name' => $notPublicTravel->name
-        ]);
+        $this->assertCount(2, Travel::all());
 
         $this->actingAs($this->user);
 
-        $response = $this->get(self::BASE_URL . '/travels');
+        $endpoint = self::BASE_URL . '/travels';
 
+        $travelPublic = Travel::findOrFail($travelPublic->id);
+        $travelNotPublic = Travel::findOrFail($travelNotPublic->id);
+
+        $response = $this->getJson($endpoint);
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
-        $response->assertJsonFragment(['id' => $publicTravel->id]);
-        $response->assertJsonMissing(['id' => $notPublicTravel->id]);
+        $response->assertJsonFragment(['id' => $travelPublic->id]);
+        $response->assertJsonMissing(['id' => $travelNotPublic->id]);
 
     }
 
