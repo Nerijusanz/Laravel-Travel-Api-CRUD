@@ -449,12 +449,17 @@ class TourApiTest extends TestCase
         $tourEarlier = Tour::factory([
                             'travel_id' => $travel->id,
                             'start_date' => $startDate = Carbon::parse($tourLater->start_date)->subDays(mt_rand(5,10))->startOfDay()->toDateTimeString(),
-                            'end_date' => Carbon::parse($startDate)->addDays(mt_rand(0,5))->endOfDay()->toDateTimeString(),
+                            'end_date' => $endDate = Carbon::parse($startDate)->addDays(mt_rand(0,10))->endOfDay()->toDateTimeString(),
                             ])->create();
 
         $this->assertCount(2, $travel->tours()->get());
 
+        $this->actingAs($this->user);
+
         $endpoint = self::BASE_URL . '/travels/' . $travel->id . '/tours';
+
+        $tourLater = $travel->tours()->findOrFail($tourLater->id);
+        $tourEarlier = $travel->tours()->findOrFail($tourEarlier->id);
 
 
         $response = $this->getJson($endpoint . '?start_date=' . $tourEarlier->start_date);
