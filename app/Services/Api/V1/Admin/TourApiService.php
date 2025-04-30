@@ -3,6 +3,7 @@
 namespace App\Services\Api\V1\Admin;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 use App\Models\Travel;
 use App\Models\Tour;
@@ -27,7 +28,12 @@ class TourApiService
     {
         $travel = Travel::findOrFail($request->route('travel') );
 
-        $tour = $travel->tours()->create($request->validated() );
+        $validated = $request->validated();
+
+        $validated['start_date'] = Carbon::parse($validated['start_date'])->startOfDay()->toDateTimeString();
+        $validated['end_date'] = Carbon::parse($validated['end_date'])->endOfDay()->toDateTimeString();
+
+        $tour = $travel->tours()->create($validated);
 
         return $tour;
     }
@@ -47,7 +53,12 @@ class TourApiService
 
         $tour = $travel->tours()->findOrFail($request->route('tour') );
 
-        $tour->update($request->validated() );
+        $validated = $request->validated();
+
+        $validated['start_date'] = Carbon::parse($validated['start_date'])->startOfDay()->toDateTimeString();
+        $validated['end_date'] = Carbon::parse($validated['end_date'])->endOfDay()->toDateTimeString();
+
+        $tour->update($validated);
 
         return $tour;
     }
