@@ -12,7 +12,7 @@ class TourFactory extends Factory
 
     private Carbon $date;
     private string $name;
-    private int|float $price;
+    private int|float|string $price;
     private string $startDate;
     private string $endDate;
 
