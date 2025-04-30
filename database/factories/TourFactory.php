@@ -12,7 +12,7 @@ class TourFactory extends Factory
 
     private Carbon $date;
     private string $name;
-    private int|float $price;
+    private int|float|string $price;
     private string $startDate;
     private string $endDate;
 
@@ -21,7 +21,7 @@ class TourFactory extends Factory
     {
         $this->date = Carbon::now();
         $this->name = fake()->unique()->words(mt_rand(1,3), true);
-        $this->price = Numbers::generateRandomFloat(0,2000);
+        $this->price = Numbers::generateRandomNumber(0,2000);
         $this->startDate = Carbon::parse($this->date)->addDays(mt_rand(0,10))->startOfDay()->toDateTimeString();
         $this->endDate = Carbon::parse($this->startDate)->addDays(mt_rand(0,10))->endOfDay()->toDateTimeString();
     }
