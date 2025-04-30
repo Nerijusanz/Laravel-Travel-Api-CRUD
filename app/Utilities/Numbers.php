@@ -4,7 +4,7 @@ namespace App\Utilities;
 
 class Numbers
 {
-    public static function generateRandomFloat(int|float|string $minValue, int|float|string $maxValue): int|float|string
+    public static function generateRandomNumber(int|float|string $minValue, int|float|string $maxValue): int|float|string
     {
         $value = $minValue + mt_rand() / mt_getrandmax() * ($maxValue - $minValue);
 
