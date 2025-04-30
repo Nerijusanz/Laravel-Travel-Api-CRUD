@@ -4,6 +4,7 @@ namespace Tests\Feature\Api\V1\Admin;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Carbon\Carbon;
 
 use Database\Seeders\tests\traits\DatabaseSeederTraitTest;
 use App\Models\User;
@@ -111,7 +112,10 @@ class TourApiTest extends TestCase
         $invalid['price_min_0'] = ['price' => mt_rand(-100,-1)];
         $invalid['start_date_format'] = ['start_date' => str()->random(10)];
         $invalid['end_date_format'] = ['end_date' => str()->random(10)];
-        $invalid['end_date_after_start_date'] = ['start_date' => $tour->start_date,'end_date' => $tour->start_date];
+        $invalid['end_date_after_or_equal_start_date'] = [
+                                    'start_date' => $startDate = $tour->start_date,
+                                    'end_date' => $endDate = Carbon::parse($startDate)->subDays(1)->endOfDay()->toDateTimeString(),
+                                ];
 
 
         $response = $this->postJson($endpoint, []);
@@ -154,7 +158,7 @@ class TourApiTest extends TestCase
         $response->assertJsonStructure(['errors' => ['end_date'] ]);
 
 
-        $response = $this->postJson($endpoint, $invalid['end_date_after_start_date']);
+        $response = $this->postJson($endpoint, $invalid['end_date_after_or_equal_start_date']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['end_date'] ]);
 
@@ -184,7 +188,10 @@ class TourApiTest extends TestCase
         $invalid['price_min_0'] = ['price' => mt_rand(-100,-1)];
         $invalid['start_date_format'] = ['start_date' => str()->random(10)];
         $invalid['end_date_format'] = ['end_date' => str()->random(10)];
-        $invalid['end_date_after_start_date'] = ['start_date' => $tour->start_date,'end_date' => $tour->start_date];
+        $invalid['end_date_after_or_equal_start_date'] = [
+                            'start_date' => $startDate = $tour->start_date,
+                            'end_date' => $endDate = Carbon::parse($startDate)->subDays(1)->endOfDay()->toDateTimeString(),
+                        ];
 
 
         $response = $this->putJson($endpoint, []);
@@ -227,7 +234,7 @@ class TourApiTest extends TestCase
         $response->assertJsonStructure(['errors' => ['end_date'] ]);
 
 
-        $response = $this->putJson($endpoint, $invalid['end_date_after_start_date']);
+        $response = $this->putJson($endpoint, $invalid['end_date_after_or_equal_start_date']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['end_date'] ]);
 

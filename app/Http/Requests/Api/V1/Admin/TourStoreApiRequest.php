@@ -21,7 +21,7 @@ class TourStoreApiRequest extends FormRequest
             'name' => ['required','string','min:2','max:255',Rule::unique(Tour::class)->whereNull('deleted_at')],
             'price' => ['required', 'numeric','min:0'],
             'start_date' => ['required', 'date'],
-            'end_date' => ['required', 'date', 'after:start_date'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
         ];
     }
 
