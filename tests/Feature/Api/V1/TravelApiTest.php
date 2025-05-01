@@ -18,18 +18,21 @@ class TravelApiTest extends TestCase
     use RefreshDatabase;
     use DatabaseSeederTraitTest;
 
+    private string $baseUrl;
+    private string $endpoint;
     private User $admin;
     private User $user;
-    public const BASE_URL = '/api';
-    private string $endpoint;
 
     public function setUp(): void
     {
         parent::setUp();
 
+        $this->baseUrl = config('app.settings.api.api_base_url');
+        $this->endpoint = $this->baseUrl . '/travels';
+
         $this->admin = User::adminRole();
         $this->user = User::userRole();
-        $this->endpoint = self::BASE_URL . '/travels';
+
     }
 
     public function test_travels_returns_only_public_records()
