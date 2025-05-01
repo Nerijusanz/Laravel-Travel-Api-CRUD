@@ -290,35 +290,31 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_returns_tours_by_price_max_to_min_by_start_date
         */
 
-        $this->actingAs($this->admin);
+        $this->initData();
 
-        $travel = Travel::factory()->create(['is_public' => 1]);
-
-        $tourCheap = Tour::factory(['travel_id' => $travel->id])->create();
+        $tourCheap = Tour::factory(['travel_id' => $this->travel->id])->create();
 
         $tourExpensiveLater = Tour::factory([
-                                    'travel_id' => $travel->id,
+                                    'travel_id' => $this->travel->id,
                                     'price' => $priceExpensive = ($tourCheap->price * 2 )
                                     ])->create();
 
         $tourExpensiveEarlier = Tour::factory([
-                                    'travel_id' => $travel->id,
+                                    'travel_id' => $this->travel->id,
                                     'price' => $tourExpensiveLater->price,
                                     'start_date' => $startDate = Carbon::parse($tourExpensiveLater->start_date)->subDays(mt_rand(1,10))->startOfDay()->toDateTimeString(),
                                     'end_date' => $endDate = Carbon::parse($startDate)->addDays(mt_rand(0,10))->endOfDay()->toDateTimeString(),
                                     ])->create();
 
-        $this->assertCount(3, $travel->tours()->get());
+        $this->assertCount(3, $this->travel->tours()->get());
 
-        $this->actingAs($this->user);
+        $tourExpensiveEarlier = $this->travel->tours()->findOrFail($tourExpensiveEarlier->id);
+        $tourExpensiveLater = $this->travel->tours()->findOrFail($tourExpensiveLater->id);
+        $tourCheap = $this->travel->tours()->findOrFail($tourCheap->id);
 
-        $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours?sort_by=price&order=desc';
+        $this->endpoint = $this->endpoint  . '?sort_by=price&order=desc';
 
-        $tourExpensiveEarlier = $travel->tours()->findOrFail($tourExpensiveEarlier->id);
-        $tourExpensiveLater = $travel->tours()->findOrFail($tourExpensiveLater->id);
-        $tourCheap = $travel->tours()->findOrFail($tourCheap->id);
-
-        $response = $this->getJson($endpoint);
+        $response = $this->getJson($this->endpoint);
         $response->assertStatus(200);
         $response->assertJsonPath('data.0.id', $tourExpensiveEarlier->id);
         $response->assertJsonPath('data.1.id', $tourExpensiveLater->id);
