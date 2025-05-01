@@ -18,6 +18,7 @@ class TravelApiTest extends TestCase
     use RefreshDatabase;
     use DatabaseSeederTraitTest;
 
+    private string $modelName='travels';
     private string $baseUrl;
     private string $endpoint;
     private User $admin;
@@ -28,7 +29,7 @@ class TravelApiTest extends TestCase
         parent::setUp();
 
         $this->baseUrl = config('app.settings.api.api_base_url');
-        $this->endpoint = $this->baseUrl . '/travels';
+        $this->endpoint = $this->baseUrl . '/' . $this->modelName;
 
         $this->admin = User::adminRole();
         $this->user = User::userRole();
