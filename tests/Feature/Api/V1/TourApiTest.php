@@ -20,18 +20,39 @@ class TourApiTest extends TestCase
     use RefreshDatabase;
     use DatabaseSeederTraitTest;
 
-    private $admin;
-    private $user;
-    public const BASE_URL = '/api';
-
+    private string $baseUrl;
+    private string $endpoint;
+    private User $admin;
+    private User $user;
+    private object $travel;
+    private object $tour;
 
     public function setUp(): void
     {
         parent::setUp();
 
+        $this->baseUrl = config('app.settings.api.api_base_url');
         $this->admin = User::adminRole();
         $this->user = User::userRole();
+    }
 
+    private function initApiEndPoint(): string
+    {
+        return $this->endpoint = $this->baseUrl . '/travels/' . $this->travel->id . '/tours';
+    }
+
+    private function initData(): void
+    {
+        $this->actingAs($this->admin);
+
+        $this->travel = Travel::factory()->create(['is_public' => 1]);
+
+        $this->tour = Tour::factory(['travel_id' => $this->travel->id])->create();
+
+        $this->actingAs($this->user);
+
+
+        $this->initApiEndPoint();
     }
 
     public function test_tours_by_travel_id_request_filter_tours_invalid_data_return_validation_errors_response_status_422(): void
@@ -40,19 +61,7 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_request_filter_tours_invalid_data_return_validation_errors_response_status_422
         */
 
-        $this->actingAs($this->admin);
-
-        $travel = Travel::factory()->create(['is_public' => 1]);
-
-        $tour = Tour::factory(['travel_id' => $travel->id])->create();
-
-        $this->assertCount(1, $travel->tours()->get());
-
-        $this->actingAs($this->user);
-
-        $endpoint = self::BASE_URL . '/travels/' . $travel->id . '/tours';
-
-        $tour = $travel->tours()->findOrFail($tour->id);
+        $this->initData();
 
         $invalid = [];
         $invalid['price_from']['numeric'] = str()->random(6);
@@ -61,7 +70,7 @@ class TourApiTest extends TestCase
         $invalid['price_to']['numeric'] = str()->random(6);
         $invalid['price_to']['min:0'] = mt_rand(-100,-1);
         $invalid['price_to']['gte:price_from'] = [
-                                            'price_from' => $priceFrom = $tour->price_from,
+                                            'price_from' => $priceFrom = $this->tour->price_from,
                                             'price_to' => $priceTo = ($priceFrom - 1)
                                             ];
 
@@ -69,7 +78,7 @@ class TourApiTest extends TestCase
 
         $invalid['end_date']['date'] = str()->random(10);
         $invalid['end_date']['after_or_equal:start_date'] = [
-                                            'start_date' => $startDate = $tour->start_date,
+                                            'start_date' => $startDate = $this->tour->start_date,
                                             'end_date' => $endDate = Carbon::parse($startDate)->subDays(1)->endOfDay()->toDateTimeString()
                                         ];
 
@@ -78,43 +87,43 @@ class TourApiTest extends TestCase
         $invalid['order']['rule::in'] = str()->random(5);
 
 
-        $response = $this->getJson($endpoint . '?price_from=' . $invalid['price_from']['numeric']);
+        $response = $this->getJson($this->endpoint . '?price_from=' . $invalid['price_from']['numeric']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['price_from'] ]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . $invalid['price_from']['min:0']);
+        $response = $this->getJson($this->endpoint . '?price_from=' . $invalid['price_from']['min:0']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['price_from'] ]);
 
-        $response = $this->getJson($endpoint . '?price_to=' . $invalid['price_to']['numeric']);
+        $response = $this->getJson($this->endpoint . '?price_to=' . $invalid['price_to']['numeric']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['price_to'] ]);
 
-        $response = $this->getJson($endpoint . '?price_to=' . $invalid['price_to']['min:0']);
+        $response = $this->getJson($this->endpoint . '?price_to=' . $invalid['price_to']['min:0']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['price_to'] ]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . $invalid['price_to']['gte:price_from']['price_from'] . '&price_to=' . $invalid['price_to']['gte:price_from']['price_to']);
+        $response = $this->getJson($this->endpoint . '?price_from=' . $invalid['price_to']['gte:price_from']['price_from'] . '&price_to=' . $invalid['price_to']['gte:price_from']['price_to']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['price_to'] ]);
 
-        $response = $this->getJson($endpoint . '?start_date=' . $invalid['start_date']['date']);
+        $response = $this->getJson($this->endpoint . '?start_date=' . $invalid['start_date']['date']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['start_date'] ]);
 
-        $response = $this->getJson($endpoint . '?end_date=' . $invalid['end_date']['date']);
+        $response = $this->getJson($this->endpoint . '?end_date=' . $invalid['end_date']['date']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['end_date'] ]);
 
-        $response = $this->getJson($endpoint . '?start_date=' . $invalid['end_date']['after_or_equal:start_date']['start_date'] . '&end_date=' . $invalid['end_date']['after_or_equal:start_date']['end_date']);
+        $response = $this->getJson($this->endpoint . '?start_date=' . $invalid['end_date']['after_or_equal:start_date']['start_date'] . '&end_date=' . $invalid['end_date']['after_or_equal:start_date']['end_date']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['end_date'] ]);
 
-        $response = $this->getJson($endpoint . '?sort_by=' . $invalid['sort_by']['rule::in']);
+        $response = $this->getJson($this->endpoint . '?sort_by=' . $invalid['sort_by']['rule::in']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['sort_by'] ]);
 
-        $response = $this->getJson($endpoint . '?order=' . $invalid['order']['rule::in']);
+        $response = $this->getJson($this->endpoint . '?order=' . $invalid['order']['rule::in']);
         $response->assertStatus(422);
         $response->assertJsonStructure(['errors' => ['order'] ]);
 
