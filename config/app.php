@@ -10,6 +10,8 @@ return [
 
     $settings = [],
 
+    $settings['api']['api_base_url'] = env('API_BASE_URL', '/api'),
+
     $settings['pagination']['default_items_per_page'] = 15,
 
     $settings['numbers']['number_format']['decimal_number_precision'] = 2,
