@@ -328,82 +328,76 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_returns_tours_by_price_range
         */
 
-        $this->actingAs($this->admin);
+        $this->initData();
 
-        $travel = Travel::factory(['is_public' => 1])->create();
-
-        $tourCheap = Tour::factory(['travel_id' => $travel->id])->create();
+        $tourCheap = Tour::factory(['travel_id' => $this->travel->id])->create();
 
         $tourExpensive = Tour::factory([
-            'travel_id' => $travel->id,
+            'travel_id' => $this->travel->id,
             'price' => $priceExpensive = ($tourCheap->price * 2 )
             ])->create();
 
-        $this->assertCount(2, $travel->tours()->get());
+        $this->assertCount(2, $this->travel->tours()->get());
 
-        $this->actingAs($this->user);
-
-        $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
-
-        $tourCheap = $travel->tours()->findOrFail($tourCheap->id);
-        $tourExpensive = $travel->tours()->findOrFail($tourExpensive->id);
+        $tourCheap = $this->travel->tours()->findOrFail($tourCheap->id);
+        $tourExpensive = $this->travel->tours()->findOrFail($tourExpensive->id);
 
 
-        $response = $this->getJson($endpoint . '?price_to=' . $priceTo = ($tourCheap->price - 1) );
+        $response = $this->getJson($this->endpoint . '?price_to=' . $priceTo = ($tourCheap->price - 1) );
         $response->assertJsonCount(0, 'data');
 
-        $response = $this->getJson($endpoint . '?price_to=' . $tourCheap->price);
+        $response = $this->getJson($this->endpoint . '?price_to=' . $tourCheap->price);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['id' => $tourCheap->id]);
         $response->assertJsonMissing(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . $tourCheap->price);
+        $response = $this->getJson($this->endpoint . '?price_from=' . $tourCheap->price);
         $response->assertJsonCount(2, 'data');
         $response->assertJsonFragment(['id' => $tourCheap->id]);
         $response->assertJsonFragment(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_to=' . $priceTo = ($tourExpensive->price - 1) );
+        $response = $this->getJson($this->endpoint . '?price_to=' . $priceTo = ($tourExpensive->price - 1) );
         $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['id' => $tourCheap->id]);
         $response->assertJsonMissing(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_to=' . $tourExpensive->price);
+        $response = $this->getJson($this->endpoint . '?price_to=' . $tourExpensive->price);
         $response->assertJsonCount(2, 'data');
         $response->assertJsonFragment(['id' => $tourCheap->id]);
         $response->assertJsonFragment(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . $tourExpensive->price);
+        $response = $this->getJson($this->endpoint . '?price_from=' . $tourExpensive->price);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonMissing(['id' => $tourCheap->id]);
         $response->assertJsonFragment(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . $priceFrom = ($tourExpensive->price + 1) );
+        $response = $this->getJson($this->endpoint . '?price_from=' . $priceFrom = ($tourExpensive->price + 1) );
         $response->assertJsonCount(0, 'data');
 
-        $response = $this->getJson($endpoint . '?price_from=' . $tourCheap->price . '&price_to=' . $tourCheap->price);
+        $response = $this->getJson($this->endpoint . '?price_from=' . $tourCheap->price . '&price_to=' . $tourCheap->price);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['id' => $tourCheap->id]);
         $response->assertJsonMissing(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . $tourCheap->price . '&price_to=' . $tourExpensive->price);
+        $response = $this->getJson($this->endpoint . '?price_from=' . $tourCheap->price . '&price_to=' . $tourExpensive->price);
         $response->assertJsonCount(2, 'data');
         $response->assertJsonFragment(['id' => $tourCheap->id]);
         $response->assertJsonFragment(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . $priceFrom = ($tourCheap->price + 1) . '&price_to=' . $tourExpensive->price);
+        $response = $this->getJson($this->endpoint . '?price_from=' . $priceFrom = ($tourCheap->price + 1) . '&price_to=' . $tourExpensive->price);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonMissing(['id' => $tourCheap->id]);
         $response->assertJsonFragment(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . $priceFrom = ($tourCheap->price + 1) . '&price_to=' . $priceTo = ($tourExpensive->price - 1) );
+        $response = $this->getJson($this->endpoint . '?price_from=' . $priceFrom = ($tourCheap->price + 1) . '&price_to=' . $priceTo = ($tourExpensive->price - 1) );
         $response->assertJsonCount(0, 'data');
 
-        $response = $this->getJson($endpoint . '?price_from=' . $tourExpensive->price . '&price_to=' . $tourExpensive->price);
+        $response = $this->getJson($this->endpoint . '?price_from=' . $tourExpensive->price . '&price_to=' . $tourExpensive->price);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonMissing(['id' => $tourCheap->id]);
         $response->assertJsonFragment(['id' => $tourExpensive->id]);
 
-        $response = $this->getJson($endpoint . '?price_from=' . $priceFrom = ($tourExpensive->price + 1) . '&price_to=' . $priceTo = ($tourExpensive->price + 1) );
+        $response = $this->getJson($this->endpoint . '?price_from=' . $priceFrom = ($tourExpensive->price + 1) . '&price_to=' . $priceTo = ($tourExpensive->price + 1) );
         $response->assertJsonCount(0, 'data');
 
     }
@@ -414,65 +408,59 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_return_tours_by_date_range
         */
 
-        $this->actingAs($this->admin);
+        $this->initData();
 
-        $travel = Travel::factory(['is_public' => 1])->create();
-
-        $tourLater = Tour::factory(['travel_id' => $travel->id])->create();
+        $tourLater = Tour::factory(['travel_id' => $this->travel->id])->create();
 
         $tourEarlier = Tour::factory([
-                            'travel_id' => $travel->id,
+                            'travel_id' => $this->travel->id,
                             'start_date' => $startDate = Carbon::parse($tourLater->start_date)->subDays(mt_rand(5,10))->startOfDay()->toDateTimeString(),
                             'end_date' => $endDate = Carbon::parse($startDate)->addDays(mt_rand(0,10))->endOfDay()->toDateTimeString(),
                             ])->create();
 
-        $this->assertCount(2, $travel->tours()->get());
+        $this->assertCount(2, $this->travel->tours()->get());
 
-        $this->actingAs($this->user);
-
-        $endpoint = self::BASE_URL . '/travels/' . $travel->id . '/tours';
-
-        $tourLater = $travel->tours()->findOrFail($tourLater->id);
-        $tourEarlier = $travel->tours()->findOrFail($tourEarlier->id);
+        $tourLater = $this->travel->tours()->findOrFail($tourLater->id);
+        $tourEarlier = $this->travel->tours()->findOrFail($tourEarlier->id);
 
 
-        $response = $this->getJson($endpoint . '?start_date=' . $tourEarlier->start_date);
+        $response = $this->getJson($this->endpoint . '?start_date=' . $tourEarlier->start_date);
         $response->assertJsonCount(2, 'data');
         $response->assertJsonFragment(['id' => $tourEarlier->id]);
         $response->assertJsonFragment(['id' => $tourLater->id]);
 
         $startDate = Carbon::parse($tourEarlier->start_date)->addDays(1)->startOfDay()->toDateTimeString();
-        $response = $this->getJson($endpoint . '?start_date=' . $startDate);
+        $response = $this->getJson($this->endpoint . '?start_date=' . $startDate);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonMissing(['id' => $tourEarlier->id]);
         $response->assertJsonFragment(['id' => $tourLater->id]);
 
-        $response = $this->getJson($endpoint . '?end_date=' . $tourEarlier->start_date);
+        $response = $this->getJson($this->endpoint . '?end_date=' . $tourEarlier->start_date);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['id' => $tourEarlier->id]);
         $response->assertJsonMissing(['id' => $tourLater->id]);
 
         $startDate = Carbon::parse($tourEarlier->start_date)->subDays(1)->startOfDay()->toDateTimeString();
-        $response = $this->getJson($endpoint . '?end_date=' . $startDate);
+        $response = $this->getJson($this->endpoint . '?end_date=' . $startDate);
         $response->assertJsonCount(0, 'data');
 
 
-        $response = $this->getJson($endpoint . '?start_date=' . $tourLater->start_date);
+        $response = $this->getJson($this->endpoint . '?start_date=' . $tourLater->start_date);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonMissing(['id' => $tourEarlier->id]);
         $response->assertJsonFragment(['id' => $tourLater->id]);
 
         $startDate = Carbon::parse($tourLater->start_date)->addDays(1)->startOfDay()->toDateTimeString();
-        $response = $this->getJson($endpoint . '?start_date=' . $startDate);
+        $response = $this->getJson($this->endpoint . '?start_date=' . $startDate);
         $response->assertJsonCount(0, 'data');
 
-        $response = $this->getJson($endpoint . '?end_date=' . $tourLater->start_date);
+        $response = $this->getJson($this->endpoint . '?end_date=' . $tourLater->start_date);
         $response->assertJsonCount(2, 'data');
         $response->assertJsonFragment(['id' => $tourEarlier->id]);
         $response->assertJsonFragment(['id' => $tourLater->id]);
 
         $startDate = Carbon::parse($tourLater->start_date)->subDays(1)->startOfDay()->toDateTimeString();
-        $response = $this->getJson($endpoint . '?end_date=' . $startDate);
+        $response = $this->getJson($this->endpoint . '?end_date=' . $startDate);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['id' => $tourEarlier->id]);
         $response->assertJsonMissing(['id' => $tourLater->id]);
@@ -480,52 +468,52 @@ class TourApiTest extends TestCase
 
         $startDate = Carbon::parse($tourEarlier->start_date)->subDays(2)->startOfDay()->toDateTimeString();
         $endDate = Carbon::parse($tourEarlier->start_date)->subDays(1)->startOfDay()->toDateTimeString();
-        $response = $this->getJson($endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
+        $response = $this->getJson($this->endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
         $response->assertJsonCount(0, 'data');
 
         $startDate = Carbon::parse($tourEarlier->start_date)->subDays(1)->startOfDay()->toDateTimeString();
         $endDate = $tourEarlier->start_date;
-        $response = $this->getJson($endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
+        $response = $this->getJson($this->endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['id' => $tourEarlier->id]);
         $response->assertJsonMissing(['id' => $tourLater->id]);
 
         $startDate = $tourEarlier->start_date;
         $endDate = Carbon::parse($tourLater->start_date)->subDays(1)->startOfDay()->toDateTimeString();
-        $response = $this->getJson($endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
+        $response = $this->getJson($this->endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonFragment(['id' => $tourEarlier->id]);
         $response->assertJsonMissing(['id' => $tourLater->id]);
 
         $startDate = $tourEarlier->start_date;
         $endDate = $tourLater->start_date;
-        $response = $this->getJson($endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
+        $response = $this->getJson($this->endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
         $response->assertJsonCount(2, 'data');
         $response->assertJsonFragment(['id' => $tourEarlier->id]);
         $response->assertJsonFragment(['id' => $tourLater->id]);
 
         $startDate = Carbon::parse($tourEarlier->start_date)->addDays(1)->startOfDay()->toDateTimeString();
         $endDate = Carbon::parse($tourLater->start_date)->subDays(1)->startOfDay()->toDateTimeString();
-        $response = $this->getJson($endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
+        $response = $this->getJson($this->endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
         $response->assertJsonCount(0, 'data');
 
         $startDate = Carbon::parse($tourLater->start_date)->subDays(1)->startOfDay()->toDateTimeString();
         $endDate = $tourLater->start_date;
-        $response = $this->getJson($endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
+        $response = $this->getJson($this->endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonMissing(['id' => $tourEarlier->id]);
         $response->assertJsonFragment(['id' => $tourLater->id]);
 
         $startDate = $tourLater->start_date;
         $endDate = Carbon::parse($tourLater->start_date)->addDays(1)->startOfDay()->toDateTimeString();
-        $response = $this->getJson($endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
+        $response = $this->getJson($this->endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonMissing(['id' => $tourEarlier->id]);
         $response->assertJsonFragment(['id' => $tourLater->id]);
 
         $startDate = Carbon::parse($tourLater->start_date)->addDays(1)->startOfDay()->toDateTimeString();
         $endDate = Carbon::parse($tourLater->start_date)->addDays(2)->startOfDay()->toDateTimeString();
-        $response = $this->getJson($endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
+        $response = $this->getJson($this->endpoint . '?start_date=' . $startDate .'&end_date=' . $endDate);
         $response->assertJsonCount(0, 'data');
 
     }
