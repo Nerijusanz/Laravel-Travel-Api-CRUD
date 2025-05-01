@@ -25,13 +25,14 @@ class TourApiTest extends TestCase
     private User $admin;
     private User $user;
     private object $travel;
-    private object $tour;
+    private string $itemsPerPage;
 
     public function setUp(): void
     {
         parent::setUp();
 
         $this->baseUrl = config('app.settings.api.api_base_url');
+        $this->itemsPerPage = config('app.settings.pagination.default_items_per_page');
         $this->admin = User::adminRole();
         $this->user = User::userRole();
     }
@@ -43,14 +44,9 @@ class TourApiTest extends TestCase
 
     private function initData(): void
     {
-        $this->actingAs($this->admin);
-
-        $this->travel = Travel::factory()->create(['is_public' => 1]);
-
-        $this->tour = Tour::factory(['travel_id' => $this->travel->id])->create();
-
         $this->actingAs($this->user);
 
+        $this->travel = Travel::factory()->create(['is_public' => 1]);
 
         $this->initApiEndPoint();
     }
@@ -63,6 +59,8 @@ class TourApiTest extends TestCase
 
         $this->initData();
 
+        $tour = Tour::factory(['travel_id' => $this->travel->id])->create();
+
         $invalid = [];
         $invalid['price_from']['numeric'] = str()->random(6);
         $invalid['price_from']['min:0'] = mt_rand(-100,-1);
@@ -70,7 +68,7 @@ class TourApiTest extends TestCase
         $invalid['price_to']['numeric'] = str()->random(6);
         $invalid['price_to']['min:0'] = mt_rand(-100,-1);
         $invalid['price_to']['gte:price_from'] = [
-                                            'price_from' => $priceFrom = $this->tour->price_from,
+                                            'price_from' => $priceFrom = $tour->price_from,
                                             'price_to' => $priceTo = ($priceFrom - 1)
                                             ];
 
@@ -78,7 +76,7 @@ class TourApiTest extends TestCase
 
         $invalid['end_date']['date'] = str()->random(10);
         $invalid['end_date']['after_or_equal:start_date'] = [
-                                            'start_date' => $startDate = $this->tour->start_date,
+                                            'start_date' => $startDate = $tour->start_date,
                                             'end_date' => $endDate = Carbon::parse($startDate)->subDays(1)->endOfDay()->toDateTimeString()
                                         ];
 
@@ -137,7 +135,9 @@ class TourApiTest extends TestCase
 
         $this->initData();
 
-        $tour = $this->travel->tours()->findOrFail($this->tour->id);
+        $tour = Tour::factory(['travel_id' => $this->travel->id])->create();
+
+        $tour = $this->travel->tours()->findOrFail($tour->id);
 
         $response = $this->getJson($this->endpoint);
         $response->assertStatus(200);
@@ -152,49 +152,42 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_returns_correct_pagination
         */
 
-        $itemsPerPage = config('app.settings.pagination.default_items_per_page');
-        $itemsRecords = ($itemsPerPage + 1);
+        $this->initData();
+
+        $itemsRecords = ($this->itemsPerPage + 1);
         $page=1;
 
-        $this->actingAs($this->admin);
-
-        $travel = Travel::factory(['is_public' => 1])->create();
-
-        for($i=1;$i<=$itemsRecords;$i++){
+        for($i=1; $i<=$itemsRecords; $i++){
             Tour::factory([
-                        'travel_id' => $travel->id,
+                        'travel_id' => $this->travel->id,
                         'start_date'=>$startDate = Carbon::now()->addDays($i)->startOfDay()->toDateTimeString(),
                         'end_date'=>$endDate = Carbon::parse($startDate)->addDays(0)->endOfDay()->toDateTimeString(),
             ])->create();
         }
 
-        $this->assertCount($itemsRecords, $travel->tours()->get());
+        $this->assertCount($itemsRecords, $this->travel->tours()->get());
 
-        $this->actingAs($this->user);
-
-        $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
-
-        $tourOutPagination = $travel->tours()
+        $tourOutPagination = $this->travel->tours()
                     ->orderBy('start_date','desc')
                     ->first();
 
-        $response = $this->getJson($endpoint);
+        $response = $this->getJson($this->endpoint);
         $response->assertStatus(200);
-        $response->assertJsonCount($itemsPerPage, 'data');
+        $response->assertJsonCount($this->itemsPerPage, 'data');
         $response->assertJsonPath('meta.current_page', $page);
         $response->assertJsonPath('meta.last_page', 2);
         $response->assertJsonPath('meta.total', $itemsRecords);
         $response->assertJsonMissing(['data.*.id' => $tourOutPagination->id]);
 
-        $response = $this->getJson($endpoint . '?page=' . $page);
+        $response = $this->getJson($this->endpoint . '?page=' . $page);
         $response->assertStatus(200);
-        $response->assertJsonCount($itemsPerPage, 'data');
+        $response->assertJsonCount($this->itemsPerPage, 'data');
         $response->assertJsonPath('meta.current_page', $page);
         $response->assertJsonPath('meta.last_page', 2);
         $response->assertJsonPath('meta.total', $itemsRecords);
         $response->assertJsonMissing(['data.*.id' => $tourOutPagination->id]);
 
-        $response = $this->getJson($endpoint . '?page=' . ($page2 = $page + 1) );
+        $response = $this->getJson($this->endpoint . '?page=' . ($page2 = $page + 1) );
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
         $response->assertJsonPath('meta.current_page', $page2);
