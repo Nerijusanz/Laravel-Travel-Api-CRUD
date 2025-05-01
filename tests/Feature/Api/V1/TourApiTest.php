@@ -224,28 +224,22 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_returns_tours_by_starting_date
         */
 
-        $this->actingAs($this->admin);
+        $this->initData();
 
-        $travel = Travel::factory(['is_public' => 1])->create();
-
-        $tourLater = Tour::factory(['travel_id' => $travel->id])->create();
+        $tourLater = Tour::factory(['travel_id' => $this->travel->id])->create();
 
         $tourEarlier = Tour::factory([
-                                'travel_id' => $travel->id,
+                                'travel_id' => $this->travel->id,
                                 'start_date' => $startDate = Carbon::parse($tourLater->start_date)->subDays(mt_rand(1,10))->startOfDay()->toDateTimeString(),
                                 'end_date' => $endDate = Carbon::parse($startDate)->addDays(mt_rand(0,10))->endOfDay()->toDateTimeString(),
                                 ])->create();
 
-        $this->assertCount(2, $travel->tours()->get());
+        $this->assertCount(2, $this->travel->tours()->get());
 
-        $this->actingAs($this->user);
+        $tourEarlier = $this->travel->tours()->findOrFail($tourEarlier->id);
+        $tourLater = $this->travel->tours()->findOrFail($tourLater->id);
 
-        $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
-
-        $tourEarlier = $travel->tours()->findOrFail($tourEarlier->id);
-        $tourLater = $travel->tours()->findOrFail($tourLater->id);
-
-        $response = $this->getJson($endpoint);
+        $response = $this->getJson($this->endpoint);
         $response->assertStatus(200);
         $response->assertJsonPath('data.0.id', $tourEarlier->id);
         $response->assertJsonPath('data.1.id', $tourLater->id);
