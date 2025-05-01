@@ -203,21 +203,13 @@ class TourApiTest extends TestCase
         php artisan test --filter=test_tours_by_travel_id_returns_tour_price_correct_formatted
         */
 
-        $this->actingAs($this->admin);
+        $this->initData();
 
-        $travel = Travel::factory()->create(['is_public' => 1]);
+        $tour = Tour::factory(['travel_id' => $this->travel->id])->create();
 
-        $tour = Tour::factory(['travel_id' => $travel->id])->create();
+        $tour = $this->travel->tours()->findOrFail($tour->id);
 
-        $this->assertCount(1, $travel->tours()->get());
-
-        $this->actingAs($this->user);
-
-        $endpoint = self::BASE_URL . '/travels/'. $travel->id .'/tours';
-
-        $tour = $travel->tours()->findOrFail($tour->id);
-
-        $response = $this->getJson($endpoint);
+        $response = $this->getJson($this->endpoint);
         $response->assertStatus(200);
         $response->assertJsonFragment([
                                 'id' => $tour->id,
